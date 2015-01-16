@@ -1,0 +1,8 @@
+[Unit]
+Description=domoticz_service
+[Service]
+ExecStart=/opt/domoticz/domoticz -wwwroot $WWWROOT -log $LOGFILE -dbase $DBASE -approot $APPROOT
+StandardOutput=null
+[Install]
+WantedBy=multi-user.target
+
