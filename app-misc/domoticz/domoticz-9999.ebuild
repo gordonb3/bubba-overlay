@@ -1,6 +1,6 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: www-apps/domoticz-9999.ebuild,v 1.4 2014/11/14 18:31:12 by frostwork Exp $
+# $Header$
 
 EAPI="5"
 
@@ -31,18 +31,19 @@ src_prepare() {
 # create svnrevision file with subversion eclass internals:
 	echo "#define SVNVERSION ${ESVN_WC_REVISION}" > ${S}/svnversion.h
 
-# ugly hack to disable generating the original svnrevision:
-	sed -i -e "s:ADD_CUSTOM_COMMAND(TARGET:#:" -i CMakeLists.txt
-	sed -i -e "s:-DSOURCE_DIR:#:" -i CMakeLists.txt
-	sed -i -e "s:-P:#:" -i CMakeLists.txt
+	# disable generating the original svnrevision:
+	sed \
+		-e "s:ADD_CUSTOM_COMMAND(TARGET:#:" \
+		-e "s:-DSOURCE_DIR:#:" \
+		-e "s:-P:#:" \
+		-e "s:\${USE_STATIC_BOOST}:OFF:" \
+		-i CMakeLists.txt
 
-# install binary to /usr/bin/
-#	sed -i -e "s:install(TARGETS domoticz DESTINATION /opt/domoticz):install(TARGETS domoticz DESTINATION /usr/bin):" -i CMakeLists.txt
+	# install svnversion.h to /usr/share/domoticz/
+	sed \
+		-e "s:filename=szStartupFolder+\"svnversion.h\":filename=\"/opt/domoticz/svnversion.h\":" \
+		-i main/domoticz.cpp
 
-# install svnversion.h to /usr/share/domoticz/
-	sed -i -e "s:filename=szStartupFolder+\"svnversion.h\":filename=\"/opt/domoticz/svnversion.h\":" -i main/domoticz.cpp
-
-#	sed -i -e "s:/opt/domoticz:/usr/share/domoticz:" -i CMakeLists.txt
 }
 
 src_configure() {
