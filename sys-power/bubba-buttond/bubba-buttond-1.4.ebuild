@@ -55,4 +55,16 @@ src_install() {
 	cp -a "${S}/buttond"   ${ED}/sbin
 	cp -a "${S}/write-magic"   ${ED}/sbin
 	create_runscript
+	dodoc "${S}/debian/copyright"
+
+	elog "To intercept signals from the B3 power button, you should add"
+	elog "bubba-buttond to your default runlevel with the following"
+	elog "command:"
+	elog ""
+	elog "\trc-update add bubba-buttond default"
+	elog ""
+	elog "To shutdown the B3 manually use this command:"
+	elog ""
+	elog "\twrite-magic 0xdeadbeef && reboot"
+	elog ""
 }
