@@ -12,7 +12,7 @@ SRC_URI="http://update.mybubba.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~arm"
 IUSE=""
 
 RDEPEND=""
@@ -46,7 +46,7 @@ start() {
 
 stop() {
         ebegin "Stopping \${NAME}"
-        start-stop-daemon --stop --quiet --pidfile \${PIDFILE}
+	        start-stop-daemon --stop --quiet --pidfile \${PIDFILE}
         eend \$?
 }
 EOF

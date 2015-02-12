@@ -13,7 +13,7 @@ HOMEPAGE="http://domoticz.com/"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~arm"
 IUSE="-staticboost systemd"
 
 RDEPEND="net-misc/curl
