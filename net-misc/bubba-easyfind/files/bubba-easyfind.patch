@@ -74,7 +74,7 @@ diff -ruN a/bubba-easyfind.tac b/bubba-easyfind.tac
 +        if 'key' in cmdline:
 +	        key = cmdline['key']
 +	else:
-+	        key = subprocess.check_output(["/opt/bubba/scripts/print-u-boot-env", "-n key"])
++	        key = subprocess.check_output(["/opt/bubba/scripts/print-u-boot-env", "-n key"]).strip()
      except KeyError:
          log.err("Unable to retrieve secret key from system")
          return
@@ -192,17 +192,18 @@ diff -ruN a/web-admin/bin/easyfind.pl b/web-admin/bin/easyfind.pl
  	my $mac = $1;
  	if (!$mac) {
  		return 0;
-@@ -140,6 +127,13 @@
+@@ -140,6 +127,14 @@
  		close INFILE;
  		$key = @a_key[0];
  		$key=~s/\s//g;
-+                if ($key eq "zuwnerrb"){ # default content is invalid
-+                        $key = `/opt/bubba/scripts/print-u-boot-env -n key 2>/dev/null`;
-+                        if ( $? == -1 ) {
-+                                print STDERR ("accessing u-boot environment failed: $!\n");
-+                                return 0;
-+                        }
-+                }
++		if ($key eq "zuwnerrb"){ # default content is invalid
++			$key = `/opt/bubba/scripts/print-u-boot-env -n key 2>/dev/null`;
++			if ( $? == -1 ) {
++				print STDERR ("accessing u-boot environment failed: $!\n");
++				return 0;
++			}
++			$key=~s/\s//g;
++		}
  		return $key;
  	} else {
  		print STDERR ("Error, no keyfile\n");
