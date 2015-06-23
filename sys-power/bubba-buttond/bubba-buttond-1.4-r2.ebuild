@@ -9,7 +9,7 @@ inherit eutils
 DESCRIPTION="Excito B3 power control"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.mybubba.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
-
+RESTRICT="bindist mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm"
