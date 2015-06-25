@@ -9,6 +9,7 @@ inherit eutils
 MY_P=${P/_*/}
 DESCRIPTION="The Bubba meta package"
 HOMEPAGE="https://github.com/gordonb3/bubba-overlay"
+KEYWORDS="~arm"
 SRC_URI=""
 LICENSE="GPL-3+"
 SLOT="0"
@@ -25,11 +26,13 @@ RDEPEND="
 
 # A bit of trickery. This package checks for the current package to
 # be installed because it should not be installed on other systems.
-PDEPEND="
-	=sys-apps/sysvinit-2.88-r999
-"
+#PDEPEND="
+#	=sys-apps/sysvinit-2.88_pre150625
+#"
+
+# PDEPEND does not work as expected :(
 
 src_install() {
-        dodir "/opt/bubba/etc"
+        dodir "/etc/bubba"
 	echo ${MY_P} > ${D}/etc/bubba/bubba.version
 }
