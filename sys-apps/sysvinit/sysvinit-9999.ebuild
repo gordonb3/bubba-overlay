@@ -6,10 +6,9 @@ EAPI="4"
 
 inherit eutils toolchain-funcs flag-o-matic
 
-MY_P=${P/_*/}
 DESCRIPTION="/sbin/init - parent of all processes"
 HOMEPAGE="http://savannah.nongnu.org/projects/sysvinit"
-SRC_URI="mirror://nongnu/${PN}/${MY_P}dsf.tar.bz2"
+SRC_URI="mirror://nongnu/${PN}/${PN}-2.88dsf.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -26,14 +25,17 @@ RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-shutdown )
 "
 
-S=${WORKDIR}/${MY_P}dsf
+S=${WORKDIR}/${PN}-2.88dsf
 
 
 pkg_pretend() {
-	equery -q l app-admin/bubba || no_bubba
+	ebegin "checking for bubba"
+	equery -q l app-admin/bubba >/dev/null || no_bubba
+	eend 0
 }
 
 no_bubba() { 
+        eend 1 ""
 	ewarn ""
 	ewarn "    ################################################################"
 	ewarn "    #                                                              #"
@@ -55,9 +57,9 @@ no_bubba() {
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.86-kexec.patch #80220
 	epatch "${FILESDIR}"/${PN}-2.86-shutdown-single.patch #158615
-	epatch "${FILESDIR}"/${MY_P}-makefile.patch #319197
-	epatch "${FILESDIR}"/${MY_P}-selinux.patch #326697
-	epatch "${FILESDIR}"/${MY_P}-shutdown-h.patch #449354
+	epatch "${FILESDIR}"/${PN}-2.88-makefile.patch #319197
+	epatch "${FILESDIR}"/${PN}-2.88-selinux.patch #326697
+	epatch "${FILESDIR}"/${PN}-2.88-shutdown-h.patch #449354
 	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
 
 	# last/lastb/mesg/mountpoint/sulogin/utmpdump/wall have moved to util-linux
@@ -111,7 +113,7 @@ src_prepare() {
 	sed -i "s/^#s0/s0/" inittab
 
 	cd "${S}"
-	epatch "${FILESDIR}"/${MY_P}-write-magic.patch
+	epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
 
 }
 
