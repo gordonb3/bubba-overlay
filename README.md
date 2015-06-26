@@ -1,5 +1,4 @@
 # Bubba overlay for Gentoo
-# Bubba overlay for Gentoo
 This is work in progress, adding functions to the Excito B3 that are not in the regular portage tree or require additional patches
 
 As of 25-06-2015 (EU date format) I've added a bubba metapackage that will provide you with vital packages for your Excito B3. This package is required if you want to install the platform specific version of sysinitv that will give your system working 'shutdown' and 'halt' commands.
