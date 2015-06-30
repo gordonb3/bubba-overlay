@@ -23,6 +23,7 @@ DEPEND="${CDEPEND}
 	virtual/os-headers"
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-shutdown )
+	dev-embedded/u-boot-tools
 "
 
 S=${WORKDIR}/${PN}-2.88dsf
