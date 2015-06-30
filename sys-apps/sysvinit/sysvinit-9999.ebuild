@@ -13,7 +13,7 @@ SRC_URI="mirror://nongnu/${PN}/${PN}-2.88dsf.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm"
-IUSE="selinux ibm static kernel_FreeBSD"
+IUSE="selinux ibm static kernel_FreeBSD +feroceon"
 
 CDEPEND="
 	selinux? (
@@ -29,26 +29,31 @@ S=${WORKDIR}/${PN}-2.88dsf
 
 
 pkg_pretend() {
-	ebegin "checking for bubba"
-	equery -q l app-admin/bubba >/dev/null || no_bubba
-	eend 0
+	if use feroceon ; then
+		ebegin "checking for Excito B3"
+		grep -q "Feroceon 88FR131" /proc/cpuinfo 2>/dev/null || no_bubba
+		eend 0
+	else
+		ebegin "skipping sanity check because it was forcibly disabled by USE flag -feroceon"
+		eend 1 ""
+	fi
 }
 
 no_bubba() { 
-        eend 1 ""
+	eend 1 ""
 	ewarn ""
-	ewarn "    ################################################################"
-	ewarn "    #                                                              #"
-	ewarn "    # WARNING!                                                     #"
-	ewarn "    #                                                              #"
-	ewarn "    # You do not appear to have the bubba package installed        #"
-	ewarn "    # This version of sysvinit specifically targets the Excito B3  #"
-	ewarn "    # platform and will not behave correctly on other systems.     #"
-	ewarn "    #                                                              #"
-	ewarn "    # If you are installing on an Excito B3 and you are sure       #"
-	ewarn "    # you want this package, then install app-admin/bubba first.   #"
-	ewarn "    #                                                              #"
-	ewarn "    ################################################################"
+	ewarn "    ##################################################################"
+	ewarn "    #                                                                #"
+	ewarn "    # WARNING!                                                       #"
+	ewarn "    #                                                                #"
+	ewarn "    # This does not appear to be a suitable system for this package. #"
+	ewarn "    # This version of sysvinit specifically targets the Excito B3    #"
+	ewarn "    # platform and will not behave correctly on other systems.       #"
+	ewarn "    #                                                                #"
+	ewarn "    # If you still insist on installing this package, then disable   #"
+	ewarn "    # USE flag \"feroceon\" in package.use                             #"
+	ewarn "    #                                                                #"
+	ewarn "    ##################################################################"
 	ewarn ""
 	die "Excito B3 platform check failed"
 }
@@ -113,7 +118,7 @@ src_prepare() {
 	sed -i "s/^#s0/s0/" inittab
 
 	cd "${S}"
-	epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
+#	epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
 
 }
 
