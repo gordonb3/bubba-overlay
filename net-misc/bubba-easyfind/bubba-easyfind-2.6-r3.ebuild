@@ -9,7 +9,7 @@ inherit eutils
 DESCRIPTION="Excito B3 easyfind service"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.mybubba.org/pool/main/b/bubba-backend/bubba-backend_${PV}.tar.gz"
-RESTRICT="bindist mirror"
+RESTRICT="mirror"
 
 LICENSE="GPL-3"
 SLOT="0"

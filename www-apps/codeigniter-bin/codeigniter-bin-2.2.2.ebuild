@@ -11,7 +11,7 @@ KEYWORDS="~arm"
 
 DESCRIPTION="CodeIgniter PHP framework for full-featured web applications"
 SRC_URI="https://github.com/bcit-ci/CodeIgniter/archive/${PV}.zip"
-RESTRICT="bindist mirror"
+RESTRICT="mirror"
 SLOT="0"
 IUSE=""
 
