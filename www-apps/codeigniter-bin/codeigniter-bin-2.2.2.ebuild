@@ -6,7 +6,7 @@ EAPI="4"
 
 inherit eutils user systemd
 
-KEYWORDS="~amd"
+KEYWORDS="~arm"
 
 
 DESCRIPTION="CodeIgniter PHP framework for full-featured web applications"
