@@ -14,11 +14,13 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm"
-IUSE="apache2"
+IUSE=""
 
 DEPEND=""
 
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	dev-libs/libbubba-info
+"
 
 
 S=${WORKDIR}/${PN}
