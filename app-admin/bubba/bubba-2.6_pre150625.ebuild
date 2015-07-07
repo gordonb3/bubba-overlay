@@ -34,5 +34,5 @@ RDEPEND="
 
 src_install() {
         dodir "/etc/bubba"
-	echo ${MY_P} > ${D}/etc/bubba/bubba.version
+	echo ${PV} > ${D}/etc/bubba/bubba.version
 }

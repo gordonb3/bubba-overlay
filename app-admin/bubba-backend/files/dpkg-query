@@ -1,0 +1,48 @@
+#!/bin/bash
+# Helper function to mimic debian's `dpkg-query --show <package>` command
+
+doshow=0
+showformat='${Package} ${Version}\\n'
+
+
+while [[ $# > 0 ]]
+do
+key="$1"
+
+case $key in
+    -W|--show)
+	doshow=1
+        ;;
+    -f=*)
+	showformat=$(echo $key | cut -d= -f2 | sed "s/\(\\\\\)/\1\1/")
+	;;
+    --showformat)
+	showformat=$(echo $2 | sed "s/\(\\\\\)/\1\1/g")
+	shift
+	;;
+    -*)
+	doshow=0
+	;;
+    *)
+	if [ ${doshow} -eq 1 ]; then
+	    Package=$1
+	    Version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d -name ${Package}-[0-9]* | awk -F/ '{print $NF}' | eval "sed \"s/^${Package}-//\"")
+	    if [ "$Version" = "" ]; then
+		Status="unknown ok not-installed"
+	    else
+		Status="install ok installed"
+	    fi
+
+	    eval "echo -e -n ${showformat}"
+	fi
+            # unknown option
+        ;;
+esac
+shift
+done
+
+#if [ ! -z $package ]; then
+#    version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d -name ${package}-[0-9]* | awk -F/ '{print $NF}' | eval "sed \"s/^${package}-//\"")
+
+#    echo $package $version
+#fi

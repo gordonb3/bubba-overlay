@@ -1,0 +1,106 @@
+diff -ru a/client.cpp b/client.cpp
+--- a/client.cpp	2010-06-09 15:24:27.000000000 +0200
++++ b/client.cpp	2015-07-03 14:40:33.406858466 +0200
+@@ -20,6 +20,8 @@
+ #include <string>
+ #include <iostream>
+ #include <libeutils/json/json.h>
++#include <unistd.h>
++#include <sys/types.h>
+ 
+ int main( int argc, char** argv ) {
+ 
+@@ -32,8 +34,8 @@
+ 		std::cerr << "Requires a command" << std::endl;
+ 		return 1;
+ 	}
+-	std::string command("/usr/sbin/bubba-networkmanager --socket /tmp/bubba-networkmanager.sock --config /etc/bubba-networkmanager.conf");
+-	std::string socket("/tmp/bubba-networkmanager.sock");
++	std::string command("/usr/sbin/bubba-networkmanager --socket /var/run/bubba-networkmanager.sock --config /etc/bubba/networkmanager.conf");
++	std::string socket("/var/run/bubba-networkmanager.sock");
+ 	EUtils::NetClient client( command, socket );
+ 	Json::Reader reader;
+ 	Json::FastWriter writer;
+diff -ru a/main.cpp b/main.cpp
+--- a/main.cpp	2010-06-09 15:24:27.000000000 +0200
++++ b/main.cpp	2015-07-03 14:40:33.406858466 +0200
+@@ -57,8 +57,8 @@
+     p.AddOption( Option( "version",'v',Option::None,"Show version","","false" ) );
+     p.AddOption( Option( "ttl",'t',Option::Int,"time to live in seconds","60","60" ) );
+     p.AddOption( Option( "pidfile", '\0', Option::String, "PID file", "/var/run/bubba-networkmanager.pid", "/var/run/bubba-networkmanager.pid" ) );
+-    p.AddOption( Option( "socket", '\0', Option::String, "Socket to communicate on", "/tmp/bubba-networkmanager.sock", "/tmp/bubba-networkmanager.sock" ) );
+-    p.AddOption( Option( "config", '\0', Option::String, "Configuration file to read from", "/etc/bubba-networkmanager.conf", "/etc/bubba-networkmanager.conf" ) );
++    p.AddOption( Option( "socket", '\0', Option::String, "Socket to communicate on", "/var/run/bubba-networkmanager.sock", "/var/run/bubba-networkmanager.sock" ) );
++    p.AddOption( Option( "config", '\0', Option::String, "Configuration file to read from", "/etc/bubba/networkmanager.conf", "/etc/bubba/networkmanager.conf" ) );
+ 
+     if ( !p.Parse( argc,argv ) ) {
+         syslog( LOG_ERR,"Failed to parse arguments use %s -? for info",argv[0] );
+diff -ru a/Makefile b/Makefile
+--- a/Makefile	2010-06-09 15:24:27.000000000 +0200
++++ b/Makefile	2015-07-03 14:40:33.405858448 +0200
+@@ -40,8 +40,8 @@
+ SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
+ OBJS = $(SOURCES:%.cpp=%.o)
+ 
+-CXXFLAGS += -g -Wall $(shell pkg-config --cflags libeutils libnl-1) -DPACKAGE_VERSION="\"$(APP_VERSION)\""
+-LDFLAGS += $(shell pkg-config --libs libeutils libnl-1)
++CXXFLAGS += -g -Wall $(shell pkg-config --cflags libeutils libnl-3.0 libnl-genl-3.0) -DPACKAGE_VERSION="\"$(APP_VERSION)\""
++LDFLAGS = $(shell pkg-config --libs libeutils libnl-3.0 libnl-genl-3.0)
+ 
+ APP_OBJS=$(APP_SRC:%.cpp=%.o)
+ DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
+diff -ru a/scripts/client.py b/scripts/client.py
+--- a/scripts/client.py	2010-06-09 15:24:26.000000000 +0200
++++ b/scripts/client.py	2015-07-03 14:40:33.407858484 +0200
+@@ -9,7 +9,7 @@
+ 
+ def request(req):
+ 	client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+-	client.connect("/tmp/bubba-networkmanager.sock")
++	client.connect("/var/run/bubba-networkmanager.sock")
+ 	client.send(json.dumps(req))
+ 	d=client.recv(16384);
+ 	#print "%s"%d
+diff -ru a/utils/Nl80211.cpp b/utils/Nl80211.cpp
+--- a/utils/Nl80211.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/Nl80211.cpp	2015-07-03 14:40:33.406858466 +0200
+@@ -25,6 +25,7 @@
+ #include <cerrno>
+ 
+ #include <netlink/netlink.h>
++#include <netlink/socket.h>
+ #include <netlink/genl/genl.h>
+ #include <netlink/genl/family.h>
+ #include <netlink/genl/ctrl.h>
+@@ -210,7 +211,7 @@
+ }
+ 
+ int Nl80211::init( std::string phy ) {
+-    struct nl_handle *sock;
++    struct nl_sock *sock;
+     struct nl_msg *msg;
+     struct nl_cb *cb;
+ 
+@@ -218,19 +219,19 @@
+     int devidx = 0;
+     int err = 0;
+ 
+-    sock = nl_handle_alloc();
++    sock = nl_socket_alloc();
+     if( !sock ) {
+         throw std::runtime_error( "Failed to allocate netlink socket. " + std::string(strerror(ENOMEM)) );
+     }
+ 
+     if( genl_connect(sock) ) {
+-        nl_handle_destroy( sock );
++        nl_socket_free( sock );
+         throw std::runtime_error( "Failed to connect to generic netlink. " + std::string(strerror(ENOLINK)) );
+     }
+ 
+     family = genl_ctrl_resolve(sock, "nl80211");
+     if( !family ) {
+-        nl_handle_destroy( sock );
++        nl_socket_free( sock );
+         throw std::runtime_error( "nl80211 not found. " + std::string(strerror(ENOENT)) );
+     }
+     devidx = phy_lookup( phy );
