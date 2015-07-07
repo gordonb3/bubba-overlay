@@ -27,14 +27,12 @@ IUSE="+apache2 nginx"
 REQUIRED_USE="^^ ( apache2 nginx )"
 
 DEPEND="
-	app-admin/bubba-backend
+	=net-libs/nodejs-0.10.5[-snapshot]
 	dev-ruby/coffee-script
 	dev-perl/Locale-PO
 	dev-perl/Getopt-Long-Descriptive
+	app-admin/bubba-backend
 "
-
-#	dev-java/jquery
-#	dev-java/jquery-ui
 
 RDEPEND="
 	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,crypt,imap]
