@@ -115,11 +115,11 @@ src_prepare() {
 	# Excito B3 specific entries
 
 	# no use for agetty on headless system
-	sed -i "s/^\(c[0-9]\)/#\1/" inittab
-	sed -i "s/^#s0/s0/" inittab
+	sed -i "s/^\(c[0-9]:\)/#\1/" inittab
+	sed -i "s/^#\(s0:.*\)9600\(.*\)$/\1115200\2/" inittab
 
 	cd "${S}"
-#	epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
+	epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
 
 }
 
