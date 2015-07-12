@@ -1,0 +1,116 @@
+diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
+--- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.cpp	2015-07-12 10:35:46.359357000 +0200
+@@ -1,3 +1,4 @@
++
+ /*
+     
+     bubba-networkmanager - http://www.excito.com/
+@@ -22,6 +23,7 @@
+     $Id$
+ */
+ 
++#include <string>
+ #include <iostream>
+ #include <sstream>
+ using namespace std;
+@@ -47,28 +49,64 @@
+ void InterfacesCfg::parse_cfg(){
+ 	list<string> fil=FileUtils::GetContent(IFSFILE);
+ 	string curif;
++	bool inarg=false;
++	bool isroute=false;
+ 	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
+ 		string line=StringTools::Trimmed(*fIt," \t");
+ 		if(line=="" or line[0]=='#'){
+ 			continue;
+ 		}
+-		list<string> words=StringTools::Split(*fIt,"[ \t]");
+-		if(words.size()>1){
+-			if(words.front()=="auto"){
+-				curif=words.back();
+-				this->cfg[curif]["auto"]=true;
+-			}else if(words.front()=="iface"){
+-				words.pop_front();
+-				curif=words.front();
+-				this->cfg[curif]["addressing"]=words.back();
+-			}else{
+-				string key=words.front();
++		string arguments=line;
++		if(line.substr(0,7)=="config_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(7,(argsep-7));
++			arguments=line.substr(argsep+1);
++		}
++		if(line.substr(0,7)=="routes_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(7,(argsep-7));
++			arguments=line.substr(argsep+1);
++			isroute=true;
++		}
++		if (arguments=="" or curif.substr(0,3)=="ppp"){
++			continue;
++		}
++		if (arguments.substr(0,1)=="\""){
++			inarg=!inarg;
++			arguments=arguments.substr(1);
++		}
++		if (inarg) {
++			if (arguments.substr(arguments.size()-1,1)=="\""){
++				inarg=!inarg;
++				arguments.resize(arguments.size()-1);
++			}
++			list<string> words=StringTools::Split(arguments,"[ \t]");
++			if(words.front()=="dhcp"){
++				this->cfg[curif]["addressing"]="dhcp";
++
++			} else if(words.front()=="null"){
++				this->cfg[curif]["addressing"]="manual";
++			} else if(words.front()=="default"){
++				this->cfg[curif]["options"]["gateway"].append(words.back());
++			} else if(isroute){
++				this->cfg[curif]["options"]["routes"].append(arguments);
++ 			}else{
++				this->cfg[curif]["addressing"]="static";
++				this->cfg[curif]["options"]["address"].append(words.front());
+ 				words.pop_front();
+-				for(list<string>::iterator sIt=words.begin();sIt!=words.end();sIt++){
+-					this->cfg[curif]["options"][key].append(*sIt);
++				while (!words.empty()){
++					string key=words.front();
++					words.pop_front();
++ 					this->cfg[curif]["options"][key].append(words.front());
++					words.pop_front();
+ 				}
+ 			}
+ 		}
++		if (!inarg) {
++			curif="";
++			isroute=false;
++		}
++
+ 	}
+ }
+ 
+@@ -108,7 +146,7 @@
+ 
+ 		res.push_back("\n");
+ 	}
+-	FileUtils::Write(IFSFILE,res,0644);
++	FileUtils::Write(IFSFILENEW,res,0644);
+ 	return true;
+ }
+ 
+diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
+--- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.h	2015-07-10 14:58:52.026024700 +0200
+@@ -26,7 +26,8 @@
+ #define INTERFACESCFG_H_
+ 
+ //#define IFSFILE "interfaces"
+-#define IFSFILE "/etc/network/interfaces"
++#define IFSFILE "/etc/conf.d/net"
++#define IFSFILENEW "/etc/conf.d/net.debian"
+ 
+ #include <libeutils/json/json.h>
+ 

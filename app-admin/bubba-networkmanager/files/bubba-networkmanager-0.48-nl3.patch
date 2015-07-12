@@ -1,0 +1,57 @@
+diff -ru a/Makefile b/Makefile
+--- a/Makefile	2010-06-09 15:24:27.000000000 +0200
++++ b/Makefile	2015-07-03 14:40:33.405858448 +0200
+@@ -40,8 +40,8 @@
+ SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
+ OBJS = $(SOURCES:%.cpp=%.o)
+ 
+-CXXFLAGS += -g -Wall $(shell pkg-config --cflags libeutils libnl-1) -DPACKAGE_VERSION="\"$(APP_VERSION)\""
+-LDFLAGS += $(shell pkg-config --libs libeutils libnl-1)
++CXXFLAGS += -g -Wall $(shell pkg-config --cflags libeutils libnl-3.0 libnl-genl-3.0) -DPACKAGE_VERSION="\"$(APP_VERSION)\""
++LDFLAGS = $(shell pkg-config --libs libeutils libnl-3.0 libnl-genl-3.0)
+ 
+ APP_OBJS=$(APP_SRC:%.cpp=%.o)
+ DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
+diff -ru a/utils/Nl80211.cpp b/utils/Nl80211.cpp
+--- a/utils/Nl80211.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/Nl80211.cpp	2015-07-03 14:40:33.406858466 +0200
+@@ -25,6 +25,7 @@
+ #include <cerrno>
+ 
+ #include <netlink/netlink.h>
++#include <netlink/socket.h>
+ #include <netlink/genl/genl.h>
+ #include <netlink/genl/family.h>
+ #include <netlink/genl/ctrl.h>
+@@ -210,7 +211,7 @@
+ }
+ 
+ int Nl80211::init( std::string phy ) {
+-    struct nl_handle *sock;
++    struct nl_sock *sock;
+     struct nl_msg *msg;
+     struct nl_cb *cb;
+ 
+@@ -218,19 +219,19 @@
+     int devidx = 0;
+     int err = 0;
+ 
+-    sock = nl_handle_alloc();
++    sock = nl_socket_alloc();
+     if( !sock ) {
+         throw std::runtime_error( "Failed to allocate netlink socket. " + std::string(strerror(ENOMEM)) );
+     }
+ 
+     if( genl_connect(sock) ) {
+-        nl_handle_destroy( sock );
++        nl_socket_free( sock );
+         throw std::runtime_error( "Failed to connect to generic netlink. " + std::string(strerror(ENOLINK)) );
+     }
+ 
+     family = genl_ctrl_resolve(sock, "nl80211");
+     if( !family ) {
+-        nl_handle_destroy( sock );
++        nl_socket_free( sock );
+         throw std::runtime_error( "nl80211 not found. " + std::string(strerror(ENOENT)) );
+     }
+     devidx = phy_lookup( phy );
