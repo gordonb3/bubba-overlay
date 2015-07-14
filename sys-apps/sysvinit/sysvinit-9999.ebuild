@@ -118,8 +118,10 @@ src_prepare() {
 	sed -i "s/^\(c[0-9]:\)/#\1/" inittab
 	sed -i "s/^#\(s0:.*\)9600\(.*\)$/\1115200\2/" inittab
 
-	cd "${S}"
-	epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
+	if use feroceon ; then
+		cd "${S}"
+		epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
+	fi
 
 }
 
