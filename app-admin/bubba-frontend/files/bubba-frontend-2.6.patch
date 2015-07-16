@@ -1,0 +1,445 @@
+diff -ru a/Makefile b/Makefile
+--- a/Makefile	2013-06-26 22:25:47.000000000 +0200
++++ b/Makefile	2015-07-15 14:57:35.986695942 +0200
+@@ -120,7 +120,7 @@
+ 		po4a.conf
+ 	rm -f po4a.stamp
+ 
+-locale_dir=$(DESTDIR)/usr/share/web-admin/admin/locale
++locale_dir=$(DESTDIR)/opt/bubba/web-admin/admin/locale
+ 
+ install:
+ 	$(foreach ll,$(basename $(notdir $(wildcard po/php/*.mo))),\
+diff -ru a/admin/config/browser_cap.php b/admin/config/browser_cap.php
+--- a/admin/config/browser_cap.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/config/browser_cap.php	2015-07-15 14:57:35.996696876 +0200
+@@ -3,5 +3,5 @@
+ 
+ $config['cache_path'] = '/var/cache/web-admin';
+ $config['autoupdate'] = false;
+-$config['ini_file'] = '/usr/share/bubba-frontend/lite_php_browscap.ini';
++$config['ini_file'] = '/var/lib/bubba/lite_php_browscap.ini';
+ ?>
+diff -ru a/admin/config/config.php b/admin/config/config.php
+--- a/admin/config/config.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/config/config.php	2015-07-15 14:57:35.996696876 +0200
+@@ -11,7 +11,7 @@
+ |	http://www.your-site.com/
+ |
+ */
+-$config['base_url']	= "/admin/";
++$config['base_url']	= preg_replace("|^(/[^/]*/).*$|","\\1",$_SERVER["REQUEST_URI"]);
+ 
+ /*
+ |--------------------------------------------------------------------------
+diff -ru a/admin/controllers/disk.php b/admin/controllers/disk.php
+--- a/admin/controllers/disk.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/controllers/disk.php	2015-07-15 15:19:55.491720975 +0200
+@@ -174,6 +174,7 @@
+ 			case '/dev/sda1':
+ 			case '/dev/sda2':
+ 			case '/dev/sda3':
++			case '/dev/sda4':
+ 				continue 2;
+ 			}
+ 
+@@ -217,19 +218,20 @@
+ 		$vgs=$this->disk_model->list_vgs();
+ 		$mds=$this->disk_model->list_mds();
+ 		$fstab=$this->disk_model->list_fstab();
++		$swap=$this->disk_model->list_swap_partitions();
+ 
+ 		$cid = 0;
+		$cid_devives = array();
+ 		$devices = array();
+ 		$legend = array();
+ 
+         if(is_array($indevices)) {
+             foreach( $indevices as $dev ) {
+-                switch( $dev['dev'] ) {
+-                case '/dev/sda1':
+-                case '/dev/sda3':
+-                    continue 2;
+-                }
++//                switch( $dev['dev'] ) {
++//                case '/dev/sda1':
++//                case '/dev/sda3':
++//                    continue 2;
++//                }
+ 
+                 switch( $dev['usage'] ) {
+                 case 'pv':
+@@ -249,10 +251,21 @@
+                     "mounted" => $this->disk_model->is_mounted( $dev['dev'] ),
+                     "mountpath" => array_key_exists( 'mountpath', $dev ) ? $dev['mountpath'] : '',
+                     "label" => array_key_exists( 'label', $dev ) ? $dev['label'] : '',
++                    "system" => false,
+                 );
+             }
+         }
+ 
++		if( is_array( $fstab ) ) {
++			foreach( $fstab as $fs ) {
++				$device = $fs['device'];
++				if( isset( $devices[$device] ) ) {
++					if ( substr($fs['mount'],0,20) != "/home/storage/extern" ) {
++						$devices[$device]['mountpath'] = $fs['mount'];
++					}
++				}
++			}
++		}
+ 
+ 		$cid = 7;
+ 
+@@ -311,14 +324,26 @@
+                 if( array_key_exists( 'partitions', $disk ) ) {
+                     $disk['partitions'] = $this->disk_model->array_sort( $disk['partitions'], 'dev' );
+                     foreach( $disk['partitions'] as &$partition ) {
+-                        switch( $partition['dev'] ) {
+-                        case '/dev/sda1':
+-                        case '/dev/sda3':
+-                            $disk['formatable'] = false;
+-                            $partition['system'] = true;
+-                            break;
++                        if( isset($devices[$partition['dev']]) && ( substr($devices[$partition['dev']]['mountpath'],0,20) != "/home/storage/extern" ) ) {
++				$partition['mountpath'] = $devices[$partition['dev']]['mountpath'];
++			}
++                        if( isset($devices[$partition['dev']]) && isset($swap[$partition['dev']]) ) {
++				$partition['usage'] = "swap";
++				$disk['formatable'] = false;
++				$partition['mountpath'] = '<swap>';
++				$devices[$partition['dev']]['system'] = true;
++				$devices[$partition['dev']]['mountpath'] = "[swap]";
++			}
++                        switch( $partition['mountpath'] ) {
++                        case '':
++			case '/exports':
++                            $partition['cid'] =  isset($cid_devices[$partition['dev']]) ? $cid_devices[$partition['dev']] : "e";
++			    break;
+                         default:
+                             $partition['cid'] =  isset($cid_devices[$partition['dev']]) ? $cid_devices[$partition['dev']] : "e";
++                            $disk['formatable'] = false;
++                            $devices[$partition['dev']]['system'] = true;
++                            break;
+                         }
+                         switch( $partition['usage'] ) {
+                         case 'pv':
+diff -ru a/admin/controllers/network.php b/admin/controllers/network.php
+--- a/admin/controllers/network.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/controllers/network.php	2015-07-15 15:24:34.187729766 +0200
+@@ -472,12 +472,12 @@
+ 
+ 			if($edit) {
+ 				// get current network configuration
+-				$ifc=get_networkconfig($this->networkmanager->get_lan_interface());
+-				$new_port["serverip"] = $ifc[0];
+-				$new_port["netmask"] = $ifc[1];
++				$ifc=$this->networkmanager->get_networkconfig($this->networkmanager->get_lan_interface());
++				$new_port["serverip"] = $ifc["address"];
++				$new_port["netmask"] = $ifc["netmask"];
+ 
+-				$mask = parse_ip($ifc[1]);
+-				$ip = parse_ip($ifc[0]);
++				$mask = parse_ip($ifc["netmask"]);
++				$ip = parse_ip($ifc["address"]);
+ 				$port_ip = parse_ip($new_port["to_ip"]);
+ 				if($portforward) { // only validate IP if it is a portforward
+ 					$valid_ip = validate_ip($port_ip);
+@@ -651,7 +651,7 @@
+ 		if(!$data['dnsmasq_settings']['running']) {
+ 			$data["dnsmasq_settings"]["dhcpd"]=0;
+ 		}
+-		$data["dhcpd_leases"] = get_leases();
++		$data["dhcpd_leases"] = $data['dnsmasq_settings']['dhcpd']? get_leases() : Array();
+ 
+ 		if(count($lifc)>0){
+ 			$data["olip"] = parse_ip( $lifc["address"] );
+diff -ru a/admin/controllers/settings.php b/admin/controllers/settings.php
+--- a/admin/controllers/settings.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/controllers/settings.php	2015-07-15 14:57:36.006697810 +0200
+@@ -240,7 +240,7 @@
+     case 'get_versions':
+       $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
+       $this->session->set_userdata("version",$versions['bubba']);
+-      $output = json_encode($versions);
++      $output = str_replace("null","not installed",json_encode($versions));
+       break;
+     }
+     syslog( LOG_DEBUG, $output );
+diff -ru a/admin/controllers/stat.php b/admin/controllers/stat.php
+--- a/admin/controllers/stat.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/controllers/stat.php	2015-07-15 14:57:36.016698744 +0200
+@@ -36,7 +36,7 @@
+     }
+ 
+     function _getprinters() {
+-        $json =  _system('cups-list-printers');
++        $json =  _system('/opt/bubba/bin/cups-list-printers');
+         return json_decode(implode($json),true);
+     }
+ 
+diff -ru a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_helper.php
+--- a/admin/helpers/bubba_socket_helper.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/helpers/bubba_socket_helper.php	2015-07-15 15:20:25.874556363 +0200
+@@ -139,10 +139,10 @@
+ 		parent::__construct( 
+ 			'/usr/sbin/bubba-networkmanager', 
+ 			array(
+-				'--socket', '/tmp/bubba-networkmanager.sock',
++				'--socket', '/var/run/bubba-networkmanager.sock',
+ 				'--config', '/etc/bubba-networkmanager.conf'
+ 			),
+-			'/tmp/bubba-networkmanager.sock' 
++			'/var/run/bubba-networkmanager.sock' 
+ 		);
+ 	}
+ }
+Only in b/admin: index.php
+diff -ru a/admin/legacy/defines.php b/admin/legacy/defines.php
+--- a/admin/legacy/defines.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/legacy/defines.php	2015-07-15 14:57:36.016698744 +0200
+@@ -1,23 +1,24 @@
+ <?php
+ $CI =& get_instance();
+-define("BACKEND","/usr/lib/web-admin/backend.pl");
+-define("BACKUP","/usr/lib/web-admin/backup.pl");
++define("SCRIPTDIR","/opt/bubba/bin");
++define("BACKEND",SCRIPTDIR."/backend.pl");
++define("BACKUP",SCRIPTDIR."/backup.pl");
+ define("RESTORE_LOCKFILE","/var/lock/restore.lock");
+ define("BACKUP_LOCKFILE","/var/lock/backup.lock");
+ 
+-define("UPDATER","/usr/lib/web-admin/updater.pl");
+-define("PRINTFS","/usr/lib/web-admin/print.pl");
+-define("FIREWALL","/usr/lib/web-admin/firewall.pl");
+-define("DISK","/usr/lib/web-admin/disk.pl");
+-define("ADMINFUNCS","/usr/lib/web-admin/adminfunctions.php");
+-define("IPCFUNCS","/usr/share/ftd/ipc.php");
+-define("EASYFIND_CONF","/etc/network/easyfind.conf");
++define("UPDATER",SCRIPTDIR."/updater.pl");
++define("PRINTFS",SCRIPTDIR."/print.pl");
++define("FIREWALL",SCRIPTDIR."/firewall.pl");
++define("DISK",SCRIPTDIR."/disk.pl");
++define("ADMINFUNCS",SCRIPTDIR."/adminfunctions.php");
++define("IPCFUNCS","/opt/bubba/ftd/ipc.php");
++define("EASYFIND_CONF","/etc/bubba/easyfind.conf");
+ define("PWFILE","/etc/shadow");
+ define("UINFOFILE","/etc/passwd");
+ define("VERSION","BUBBA_VERSION");
+-define("FORMPREFIX","/admin");
++define("FORMPREFIX",preg_replace("|^(/[^/]*)[/$].*$|","\\1",$_SERVER["REQUEST_URI"]));
+ define("FALLBACKIP","192.168.10.1");
+-define("BUBBA_VERSION","/usr/share/bubba/bubba.version");
++define("BUBBA_VERSION","/etc/bubba/bubba.version");
+ define("USER_CONFIG",".bubbacfg");
+ define("ADMINCONFIG","/home/admin/".USER_CONFIG);
+ 
+diff -ru a/admin/models/auth_model.php b/admin/models/auth_model.php
+--- a/admin/models/auth_model.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/models/auth_model.php	2015-07-15 14:57:36.026699679 +0200
+@@ -80,7 +80,7 @@
+ 	private $realname = "";
+ 
+ 	private $_dom;
+-	private $_xml_file = "/etc/bubba_auth.xml";
++	private $_xml_file = "/etc/bubba/auth.xml";
+ 	private $_lock_file = "/var/lock/bubba_auth.lock";
+ 
+ 	function Auth_model(){
+diff -ru a/admin/models/disk_model.php b/admin/models/disk_model.php
+--- a/admin/models/disk_model.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/models/disk_model.php	2015-07-15 15:20:40.615932061 +0200
+@@ -617,5 +617,16 @@
+ 		return trim($this->_raw_system( "hddtemp", "-n", $dev ));
+ 	}
+ 
++
++	function list_swap_partitions() {
++		$swap_partitions = Array();
++		$swap_on = explode("\n",$this->_raw_system( '/sbin/swapon', '--show' ) );
++		unset($swap_on[0]);
++		foreach( $swap_on as $line ) {
++			$dev = strtok(trim($line), " ");
++			$swap_partitions[$dev] = "swap";
++		}
++		return $swap_partitions;
++	}
+ }
+ 
+diff -ru a/admin/models/networkmanager.php b/admin/models/networkmanager.php
+--- a/admin/models/networkmanager.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/models/networkmanager.php	2015-07-15 15:22:54.908464632 +0200
+@@ -100,7 +100,7 @@
+             return false;
+         }
+ 
+-        $request = new HTTP_Request2('https://easyfind.excito.org/check.php', HTTP_Request2::METHOD_GET, array('ssl_verify_peer' => false));
++        $request = new HTTP_Request2('https://easyfind.mybubba.org/check.php', HTTP_Request2::METHOD_GET, array('ssl_verify_peer' => false));
+         $url = $request->getUrl();
+         $url->setQueryVariables(
+             array(
+@@ -162,7 +162,7 @@
+ 
+     $lanip = $this->_get_ip($this->get_lan_interface());
+ 
+-    $hosts = file_get_contents('/usr/share/bubba-backend/hosts.in');
++    $hosts = file_get_contents('/var/lib/bubba/hosts.in');
+     str_replace(
+       array('@LANIP@', '@NAME@'),
+       array($lanip, $name),
+diff -ru a/admin/views/default/album/album_album_view.php b/admin/views/default/album/album_album_view.php
+--- a/admin/views/default/album/album_album_view.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/views/default/album/album_album_view.php	2015-07-15 14:57:36.036700613 +0200
+@@ -413,7 +413,7 @@
+ 	<th colspan="2" class="ui-state-default ui-widget-header"><?=_("Existing albums")?></th>
+ </tr>
+ <tr>
+-	<td colspan="2"><div><?=_("Adding images is done using the")?> <a href="/admin/filemanager/cd/home/storage/pictures"><?=_("filemanager")?></a></div></td>
++	<td colspan="2"><div><?=_("Adding images is done using the")?> <a href="<?=FORMPREFIX?>/filemanager/cd/home/storage/pictures"><?=_("filemanager")?></a></div></td>
+ </tr>
+ <tr>
+ 	<td><div id="album_list" /></td>
+diff -ru a/admin/views/default/disk/disk_view.php b/admin/views/default/disk/disk_view.php
+--- a/admin/views/default/disk/disk_view.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/views/default/disk/disk_view.php	2015-07-15 15:21:17.799402115 +0200
+@@ -87,15 +87,20 @@
+ 	?></td>
+ 	<td><?=isset($devices[$legend['name']]['label'])?$devices[$legend['name']]['label']:""?></td> 
+ 	<td><?=sizetohuman($legend['size'],1000)?>B</td> 
+-	<td><?if(isset($devices[$legend['name']]['mountpath'])):?>
+-		<a href="<?=site_url("filemanager/cd".$devices[$legend['name']]['mountpath'])?>"><?=$devices[$legend['name']]['mountpath']?></a>
++	<td><?if(isset($devices[$legend['name']]['mountpath'])):
++		if(substr($devices[$legend['name']]['mountpath'],0,5) != "/home"):?>
++			<font color="#aaaaaa"><?=$devices[$legend['name']]['mountpath']?></font>
++	        <?else:?>
++			<a href="<?=site_url("filemanager/cd".$devices[$legend['name']]['mountpath'])?>"><?=$devices[$legend['name']]['mountpath']?></a>
++		<?endif?>
+ 	<?endif?></td>
+ 	<td>
+-		<? if( isset($devices[$legend['name']]) ):?>
++		<? if( isset($devices[$legend['name']]) && !$devices[$legend['name']]['system']):?>
+ 		<input type="button" rel="<?=$legend['name']?>" class="button mount <?=$devices[$legend['name']]['mounted']?'mounted':''?>" value="<?=$devices[$legend['name']]['mounted']?_("Disconnect"):_("Connect")?>" /></td>
+ 		<?endif?>
+ </tr>
+ <?endforeach?>
++<!--
+ <tr>
+ 	<td><div class="colorcode partition-system"></div></td>
+ 	<td><?=_("System partitions")?></td>
+@@ -103,4 +108,5 @@
+ 	<td />
+ 	<td />
+ </tr>
++-->
+ </table>
+diff -ru a/apache.conf b/apache.conf
+--- a/apache.conf	2013-06-26 22:25:46.000000000 +0200
++++ b/apache.conf	2015-07-15 14:57:36.046701547 +0200
+@@ -1,6 +1,6 @@
+-Alias /admin /usr/share/web-admin/admin
++Alias /admin /opt/bubba/web-admin/admin
+ 
+-<Directory /usr/share/web-admin/admin >
++<Directory /opt/bubba/web-admin/admin >
+ 	AllowOverride None
+ 	Order allow,deny
+ 	allow from all
+@@ -9,8 +9,8 @@
+ 	Action php-cgi /fcgi-bin/php.cgi virtual
+ </Directory>
+ 
+-ScriptAlias /fcgi-bin/php.cgi /usr/share/web-admin/admin
+-FastCgiExternalServer /usr/share/web-admin/admin/index.php -socket fcgi -idle-timeout 120 -flush
++ScriptAlias /fcgi-bin/php.cgi /opt/bubba/web-admin/admin
++FastCgiExternalServer /opt/bubba/web-admin/admin/index.php -socket fcgi -idle-timeout 120 -flush
+ 
+ <Location /admin>
+ 	RewriteEngine on
+diff -ru a/php5-cgi.conf b/php5-cgi.conf
+--- a/php5-cgi.conf	2013-06-26 22:25:47.000000000 +0200
++++ b/php5-cgi.conf	2015-07-15 14:57:36.106707152 +0200
+@@ -1,3 +1,9 @@
+ cgi.fix_pathinfo=0
+ session.save_path = "0;660;/var/lib/php5"
+ session.gc_maxlifetime = 87000
++date.timezone="Europe/Amsterdam"
++short_opentag=On
++date.timezone="Europe/Amsterdam"
++short_opentag=On
++date.timezone="Europe/Amsterdam"
++short_opentag=On
+diff -ru a/spawn-php b/spawn-php
+--- a/spawn-php	2013-06-26 22:25:46.000000000 +0200
++++ b/spawn-php	2015-07-15 14:57:36.086705283 +0200
+@@ -4,10 +4,10 @@
+ SPAWNFCGI="/usr/bin/spawn-fcgi"
+ 
+ ## ABSOLUTE path to the PHP binary
+-FCGIPROGRAM="/usr/bin/php5-cgi"
++FCGIPROGRAM="/usr/bin/php-cgi"
+ 
+ ## bind to tcp-port on localhost
+-FCGISOCKET="/var/lib/apache2/fastcgi/fcgi"
++FCGISOCKET="/var/run/bubba-fcgi.sock"
+ 
+ ## number of PHP childs to spawn in addition to the default. Minimum of 2.
+ ## Actual childs = PHP_FCGI_CHILDREN + 1
+@@ -47,7 +47,7 @@
+ 
+ umask 0002
+ # clean environment and set up a new one
+-env - $E $SPAWNFCGI -s $FCGISOCKET -f $FCGIPROGRAM  -g $GROUPID -C $PHP_FCGI_CHILDREN -P /var/run/admin.pid
++env - $E $SPAWNFCGI -s $FCGISOCKET -f $FCGIPROGRAM  -g $GROUPID -C $PHP_FCGI_CHILDREN -P /var/run/bubba-admin.pid
+ umask 0022
+ 
+ chmod 770 $FCGISOCKET
+diff -ru a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_settings.php
+--- a/admin/controllers/ajax_settings.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/controllers/ajax_settings.php	2015-07-15 16:14:01.714592694 +0200
+@@ -76,8 +76,8 @@
+   function get_versions() {
+       $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
+       $this->session->set_userdata("version",$versions['bubba']);
+-      $this->json_data = $versions;
+-    }
++      $this->json_data = str_replace("null","not installed",$versions);
++  }
+ 
+   function identify() {
+ 	  $this->json_data = true;
+diff -ruN a/admin/index.php b/admin/index.php
+--- a/admin/index.php	1970-01-01 01:00:00.000000000 +0100
++++ b/admin/index.php	2015-07-07 12:52:25.869657875 +0200
+@@ -0,0 +1,32 @@
++<?php
++define('ENVIRONMENT', 'development');
++
++if (defined('ENVIRONMENT'))
++{
++	switch (ENVIRONMENT)
++	{
++		case 'development':
++			error_reporting(E_ALL);
++		break;
++
++		case 'testing':
++		case 'production':
++			error_reporting(0);
++		break;
++
++		default:
++			exit('The application environment is not set correctly.');
++	}
++}
++
++$system_path = "/opt/codeigniter/system/";
++$application_folder = "/opt/bubba/web-admin/admin";
++
++define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
++define('BASEPATH', str_replace("\\", "/", $system_path));
++define('FCPATH', str_replace(SELF, '', __FILE__));
++define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
++define('APPPATH', $application_folder.'/');
++
++require_once BASEPATH.'core/CodeIgniter.php';
++

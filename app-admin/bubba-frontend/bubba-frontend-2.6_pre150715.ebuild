@@ -61,7 +61,10 @@ pkg_setup() {
 
 
 src_prepare() {
-	patch -p1 < ${FILESDIR}/${P}.patch
+	# Fix patch errors due to DOS line endings in some files
+	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
+
+	patch -p1 < ${FILESDIR}/${PN}-${MY_PV}.patch
 
 	use apache2 && sed -i "s/www-data/apache/" spawn-php
 	use nginx && sed -i "s/www-data/nginx/" spawn-php
@@ -76,7 +79,7 @@ src_compile() {
 	# There is an issue with the msgfmt check format routine always
 	# comparing the translations to msgid_plural
 	find po -type f -exec sed -i "s/\([^\%]\)\%d /\1@NUMBER@ /" {} \;
-	emake DESTDIR=${D}
+	emake DESTDIR=${ED}
 
 	find po -type f -exec sed -i "s/@NUMBER@/\%d/" {} \;
 
@@ -84,11 +87,9 @@ src_compile() {
 
 
 src_install() {
-	emake install DESTDIR=${D}
+	emake install DESTDIR=${ED}
 	insinto /opt/bubba/web-admin
 	doins -r admin
-#	dosym /usr/share/javascript/jquery/jquery.js /opt/bubba/web-admin/admin/views/default/_js/jquery.js
-#	dosym /usr/share/javascript/jquery-ui/jquery-ui.js /opt/bubba/web-admin/admin/views/default/_js/jquery-ui.js
 	insinto /opt/bubba/web-admin/admin/views/default/_js
 	newins ${DISTDIR}/jquery-1.4.2.js jquery.js
 	newins ${DISTDIR}/jquery-ui.js\?1.8.12 jquery-ui.js
@@ -117,7 +118,7 @@ src_install() {
 	fi
 
 
-	insinto /etc/bubba
+	insinto /var/lib/bubba
 	doins lite_php_browscap.ini
 
 	dodir /var/log/web-admin 
@@ -128,14 +129,28 @@ src_install() {
 	newinitd ${FILESDIR}/bubba-adminphp.initd bubba-adminphp
 
 	dodoc "${S}/debian/copyright" "${S}/debian/changelog"
-	insinto /usr/share/doc/${PF}/sample
-	docompress -x /usr/share/doc/${PF}/sample
+	insinto /usr/share/doc/${PF}/examples
+	docompress -x /usr/share/doc/${PF}/examples
 	doins php5-cgi.conf php5-apache.conf php5-xcache.ini ${FILESDIR}/*.conf ${FILESDIR}/*.initd
 }
 
 
 pkg_postinst() {
-	elog ""
+	if use nginx; then
+		elog "Although this package was configured for nginx, you may still use it"
+		elog "also with apache, provided it was configured with the right use flags."
+	else
+		elog "Although this package was configured for apache, you may still use it"
+		elog "also with nginx, provided it was configured with the right use flags."
+	fi
+	elog "Sample config files have been placed in /usr/share/doc/${PF}/examples"
+	if use nginx; then
+		elog ""
+		elog "If you are switching to apache, please do not forget to enable the"
+		elog "bubba-admin plugin for mod_php as well by copying php5-apache.conf"
+		elog "from the examples folder to ${PHP_APACHE_INI_PATH}/ext/bubba-admin.ini"
+		elog "and create a symlink to it from ${PHP_APACHE_INI_PATH}/ext-active"
+	fi
 
 }
 
