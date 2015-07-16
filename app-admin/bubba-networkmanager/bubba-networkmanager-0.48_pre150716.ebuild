@@ -34,6 +34,7 @@ src_prepare() {
 	epatch ${FILESDIR}/${PN}-${MY_PV}-paths.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-nl3.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
+	epatch ${FILESDIR}/${PN}-${MY_PV}-ifcommands.patch
 }
 
 src_compile() {
@@ -50,7 +51,7 @@ src_install() {
 	insinto /etc/bubba
 	newins examplecfg/nmconfig networkmanager.conf
 
-	insinto /usr/share/${PN}
+	insinto /var/lib/bubba
 	doins tz-lc.txt
 
 	dodoc debian/changelog debian/copyright

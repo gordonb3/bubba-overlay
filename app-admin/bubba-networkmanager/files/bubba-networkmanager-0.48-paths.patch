@@ -1,6 +1,6 @@
 diff -ru a/client.cpp b/client.cpp
 --- a/client.cpp	2010-06-09 15:24:27.000000000 +0200
-+++ b/client.cpp	2015-07-03 14:40:33.406858466 +0200
++++ b/client.cpp	2015-07-16 08:55:29.897815856 +0200
 @@ -20,6 +20,8 @@
  #include <string>
  #include <iostream>
@@ -21,9 +21,19 @@ diff -ru a/client.cpp b/client.cpp
  	EUtils::NetClient client( command, socket );
  	Json::Reader reader;
  	Json::FastWriter writer;
+diff -ru a/examplecfg/nmconfig b/examplecfg/nmconfig
+--- a/examplecfg/nmconfig	2010-06-09 15:24:27.000000000 +0200
++++ b/examplecfg/nmconfig	2015-07-16 08:57:34.829469122 +0200
+@@ -1,5 +1,5 @@
+ # Internal config file for bubba-network manager. DO not edit
+ wanif=eth0
+ lanif=eth1
+-tz_map_file=/usr/share/bubba-networkmanager/tz-lc.txt
++tz_map_file=/var/lib/bubba/tz-lc.txt
+ tz_file=/etc/timezone
 diff -ru a/main.cpp b/main.cpp
 --- a/main.cpp	2010-06-09 15:24:27.000000000 +0200
-+++ b/main.cpp	2015-07-03 14:40:33.406858466 +0200
++++ b/main.cpp	2015-07-16 08:55:29.897815856 +0200
 @@ -57,8 +57,8 @@
      p.AddOption( Option( "version",'v',Option::None,"Show version","","false" ) );
      p.AddOption( Option( "ttl",'t',Option::Int,"time to live in seconds","60","60" ) );
@@ -37,7 +47,7 @@ diff -ru a/main.cpp b/main.cpp
          syslog( LOG_ERR,"Failed to parse arguments use %s -? for info",argv[0] );
 diff -ru a/scripts/client.py b/scripts/client.py
 --- a/scripts/client.py	2010-06-09 15:24:26.000000000 +0200
-+++ b/scripts/client.py	2015-07-03 14:40:33.407858484 +0200
++++ b/scripts/client.py	2015-07-16 08:55:29.897815856 +0200
 @@ -9,7 +9,7 @@
  
  def request(req):
@@ -47,3 +57,15 @@ diff -ru a/scripts/client.py b/scripts/client.py
  	client.send(json.dumps(req))
  	d=client.recv(16384);
  	#print "%s"%d
+diff -ru a/utils/WlanCfg.cpp b/utils/WlanCfg.cpp
+--- a/utils/WlanCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/WlanCfg.cpp	2015-07-16 08:58:58.137238859 +0200
+@@ -46,7 +46,7 @@
+ using namespace EUtils;
+ using namespace std;
+ 
+-#define TZ_MAP_FILE "/usr/share/bubba-networkmanager/tz-lc.txt"
++#define TZ_MAP_FILE "/var/lib/bubba/tz-lc.txt"
+ #define TZ_FILE "/etc/timezone"
+ 
+ #if 0

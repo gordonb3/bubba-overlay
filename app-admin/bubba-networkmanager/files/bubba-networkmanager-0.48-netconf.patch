@@ -1,25 +1,22 @@
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/InterfacesCfg.cpp	2015-07-12 10:35:46.359357000 +0200
-@@ -1,3 +1,4 @@
-+
- /*
-     
-     bubba-networkmanager - http://www.excito.com/
-@@ -22,6 +23,7 @@
+--- a/utils/InterfacesCfg.cpp	2015-07-13 15:17:40.850071901 +0200
++++ b/utils/InterfacesCfg.cpp	2015-07-13 15:26:14.407982724 +0200
+@@ -22,6 +22,8 @@
      $Id$
  */
  
++#include <arpa/inet.h>
 +#include <string>
  #include <iostream>
  #include <sstream>
  using namespace std;
-@@ -47,28 +49,64 @@
+@@ -47,29 +49,67 @@
  void InterfacesCfg::parse_cfg(){
  	list<string> fil=FileUtils::GetContent(IFSFILE);
  	string curif;
 +	bool inarg=false;
 +	bool isroute=false;
++
  	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
  		string line=StringTools::Trimmed(*fIt," \t");
  		if(line=="" or line[0]=='#'){
@@ -90,27 +87,158 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +		}
 +
  	}
++
  }
  
-@@ -108,7 +146,7 @@
+ Json::Value InterfacesCfg::GetCFG(){
+@@ -82,32 +122,109 @@
+ }
  
- 		res.push_back("\n");
+ bool InterfacesCfg::Commit(){
+-
+-	Json::Value::Members mem=this->cfg.getMemberNames();
++	Json::Value devs=this->cfg;
++	list<string> fil=FileUtils::GetContent(IFSFILE);
++	string curif="";
++	bool inarg=false;
++	bool isroute=false;
+ 	stringstream ss;
+ 	list<string> res;
+-	for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
+-		Json::Value val=this->cfg[*mIt];
+-		if(val.isMember("auto")){
+-			res.push_back("auto "+*mIt+"\n");
+-		}
+-		res.push_back("iface "+*mIt+" inet "+val["addressing"].asString()+"\n");
+-
+-		Json::Value::Members opts=val["options"].getMemberNames();
+-		for(Json::Value::Members::iterator oIt=opts.begin();oIt!=opts.end();oIt++){
+-
+-			ss << "\t"<<*oIt;
+-			Json::Value opval=val["options"][*oIt];
+-			for(size_t i=0; i<val["options"][*oIt].size();i++){
+-				ss << " "<< val["options"][*oIt][i].asString();
++
++	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
++		string line=StringTools::Trimmed(*fIt," \t");
++		if(line=="" or line[0]=='#'){
++			res.push_back(*fIt+"\n");
++			continue;
++		}
++		string arguments=line;
++		if(line.substr(0,7)=="config_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(7,(argsep-7));
++			arguments=line.substr(argsep+1);
++		}
++		if(line.substr(0,7)=="routes_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(7,(argsep-7));
++			arguments=line.substr(argsep+1);
++			isroute=true;
++		}
++		if (curif=="") {
++			res.push_back(*fIt+"\n");
++			curif="";
++			continue;
++		}
++		if (arguments.substr(0,1)=="\""){
++			inarg=!inarg;
++			arguments=arguments.substr(1);
++		}
++		if (inarg) {
++			if (arguments.substr(arguments.size()-1,1)=="\""){
++				inarg=!inarg;
++				arguments.resize(arguments.size()-1);
++			}else{
++				continue;
+ 			}
+-			ss<<endl;
+-			res.push_back(ss.str());
+-			ss.str("");
+-;		}
++		}
++		if (!inarg) {
++			if (!isroute and !devs.isMember(curif)){
++	                        res.push_back(*fIt+"\n");
++			}else if (!isroute) {
++				Json::Value NIC=devs[curif]["options"];
++				int i=0;
++				struct in_addr ipaddress;
++				struct in_addr netmask;
++				inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
++				inet_aton(NIC["netmask"][i].asString().c_str(), &netmask);
++				ipaddress.s_addr |= ~(netmask.s_addr);
++				string broadcast=inet_ntoa(ipaddress);
++				res.push_back("config_"+curif+"=\""+NIC["address"][i].asString()+" netmask "+NIC["netmask"][i].asString()+" brd "+broadcast+"\"\n");
++				string gateway="";
++				string indent="";
++				if(NIC.isMember("gateway")){
++					gateway="default via "+NIC["gateway"][i].asString();
++					indent="\n             ";
++				}
++				if(NIC.isMember("routes")){
++					if(gateway.size()>0){
++						ss << gateway;
++					}
++					for(size_t j=0; j<NIC["routes"].size();j++){
++						ss << indent<< NIC["routes"][j].asString();
++						indent="\n             ";
++					}
++					ss<<"\""<<endl;
++					res.push_back("routes_"+curif+"=\""+ss.str());
++					ss.str("");
++					gateway="";
++				}
++				if(gateway.size()>0){
++					res.push_back("routes_"+curif+"=\""+gateway+"\"\n");
++				}
++				devs.removeMember(curif);
++			}else{
++			}
++			isroute=false;
++			curif="";
++		}
++	}
+ 
+-		res.push_back("\n");
++	Json::Value::Members opts=devs.getMemberNames();
++	for(Json::Value::Members::iterator oIt=opts.begin();oIt!=opts.end();oIt++){
++		Json::Value NIC=devs[*oIt]["options"];
++		int i=0;
++		struct in_addr ipaddress;
++		struct in_addr netmask;
++		inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
++		inet_aton(NIC["netmask"][i].asString().c_str(), &netmask);
++		ipaddress.s_addr |= ~(netmask.s_addr);
++		string broadcast=inet_ntoa(ipaddress);
++		res.push_back("config_"+*oIt+"=\""+NIC["address"][i].asString()+" netmask "+NIC["netmask"][i].asString()+" brd "+broadcast+"\"\n");
++		if(NIC.isMember("gateway")){
++			res.push_back("routes_"+*oIt+"=\"default via "+NIC["gateway"][i].asString()+"\"\n");
++		}
  	}
--	FileUtils::Write(IFSFILE,res,0644);
-+	FileUtils::Write(IFSFILENEW,res,0644);
++	res.push_back("\n");
++
+ 	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
+@@ -117,6 +234,5 @@
  
+ }
+ 
+-}
+-
+ 
++}
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/InterfacesCfg.h	2015-07-10 14:58:52.026024700 +0200
-@@ -26,7 +26,8 @@
+--- a/utils/InterfacesCfg.h	2015-07-13 15:17:50.350958261 +0200
++++ b/utils/InterfacesCfg.h	2015-07-13 15:19:59.382995943 +0200
+@@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  
  //#define IFSFILE "interfaces"
 -#define IFSFILE "/etc/network/interfaces"
 +#define IFSFILE "/etc/conf.d/net"
-+#define IFSFILENEW "/etc/conf.d/net.debian"
  
  #include <libeutils/json/json.h>
  
