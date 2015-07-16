@@ -1,6 +1,6 @@
 diff -ru a/Makefile.PL b/Makefile.PL
 --- a/Makefile.PL	2013-06-24 14:48:18.000000000 +0200
-+++ b/Makefile.PL	2015-07-02 12:28:29.971248124 +0200
++++ b/Makefile.PL	2015-07-16 11:34:51.428923865 +0200
 @@ -2,5 +2,5 @@
  use ExtUtils::MakeMaker;
  
@@ -11,7 +11,7 @@ diff -ru a/Makefile.PL b/Makefile.PL
 +	INSTALLSITESCRIPT => '/opt/bubba/bin');
 diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
 --- a/web-admin/bin/adminfunctions.php	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/adminfunctions.php	2015-07-02 12:24:38.349626631 +0200
++++ b/web-admin/bin/adminfunctions.php	2015-07-16 11:44:31.863004084 +0200
 @@ -2,7 +2,7 @@
  # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
  setlocale( LC_CTYPE, 'en_US.UTF-8' );
@@ -21,7 +21,30 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  class AdminException extends Exception {
  
  	const MYSQL_CONNECT_ERROR = 0x01;
-@@ -513,7 +513,7 @@
+@@ -467,17 +467,19 @@
+ 	return $res;
+ }
+ 
++/*
++	// Gordon: 2015-07-15 - does not appear to be used any more
+ function _check_dhcp($iface=""){
+ 	if($iface=""){
+ 		$iface=_getlanif();
+ 	}
+ 	$cdhcp=false;
+-	$netcfg=file("/etc/network/interfaces");
++	$netcfg=file("/etc/conf.d/net");
+ 	foreach ($netcfg as $i) {
+ 		$trim_line = trim($i);
+-		$pieces = explode(" ",$trim_line);
++		$pieces = explode("=",$trim_line);
+ 		if(count($pieces)==4){
+-			if($pieces[1]==$iface && $pieces[3]=="dhcp"){
++			if($pieces[1]=="config_$iface" && $pieces[3]=="\"dhcp\""){
+ 				$cdhcp=true;
+ 				break;
+ 			}
+@@ -513,7 +515,7 @@
  			}			
  		}
  	} else { // default
@@ -30,7 +53,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  		foreach($out as $line){
  			if(preg_match("/inet addr:([\d.]+)/",$line,$match)){
  				$res[0]=$match[1];
-@@ -523,7 +523,7 @@
+@@ -523,7 +525,7 @@
  			}
  		}
  	}
@@ -39,7 +62,15 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  	$res[2]="0.0.0.0";
  	foreach($out as $line){
  		if(preg_match("/^0\.0\.0\.0\s+([\d.]+)/",$line,$match)){
-@@ -615,7 +615,7 @@
+@@ -543,6 +545,7 @@
+ 	return $res;	
+ 	
+ }
++*/
+ 
+ function set_static_netcfg($iface, $ip,$nm,$gw){
+    
+@@ -615,7 +618,7 @@
  
  function query_service($name){
  
@@ -48,7 +79,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
     return $res?true:false;
  
  }
-@@ -902,6 +902,8 @@
+@@ -902,6 +905,8 @@
  	return $clients;
  }
  
@@ -57,7 +88,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  function get_fwsettings() {
   
  	$iptable = array();
-@@ -925,53 +927,53 @@
+@@ -925,53 +930,53 @@
  	$retval["allowIMAP"]=false;
  	$retval["allowTorrent"]=false;
  
@@ -136,7 +167,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  			if (!strcmp($rule["target"],"ACCEPT")) {
  				$retval["fwports"][$key]=$rule;
  				if(!isset($retval["fwports"][$key]["to_ip"])) {
-@@ -985,8 +987,8 @@
+@@ -985,8 +990,8 @@
  		}
  	}
    
@@ -147,7 +178,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  			//if($rule["source"]=="0.0.0.0/0") {
  			//	$rule["source"]="all";
  			//}
-@@ -1027,14 +1029,14 @@
+@@ -1027,14 +1032,14 @@
  
  function open_port($port) {
  
@@ -164,7 +195,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  	exec($cmd,$out,$ret);
  	return $out;
  }
-@@ -1044,18 +1046,18 @@
+@@ -1044,18 +1049,18 @@
  	foreach($portlist as $port => $open) {
  		if($open) { // OPEN ports
  			if (!strcmp($port,"ping"))
@@ -187,7 +218,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  				exec($cmd,$out,$ret);
  			}
  			unset($out); // exec seems to append to $out.
-@@ -1063,16 +1065,16 @@
+@@ -1063,16 +1068,16 @@
  		} else { // Close ports
  	
  			if (!strcmp($port,"ping"))
@@ -208,7 +239,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  				exec($cmd,$out,$ret);
  			}
  			unset($out); // exec seems to append to $out.
-@@ -1233,8 +1235,8 @@
+@@ -1231,8 +1236,8 @@
  	exec($cmd,$out,$ret);
  	$versions = array();
  	foreach( $out as $line ) {
@@ -221,7 +252,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  	if( count($versions) == 1 ) {
 diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
 --- a/web-admin/bin/firewall.pl	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/firewall.pl	2015-07-02 12:31:55.080394653 +0200
++++ b/web-admin/bin/firewall.pl	2015-07-16 12:10:14.676769729 +0200
 @@ -1,11 +1,12 @@
 -#! /usr/bin/perl 
 +#!/usr/bin/perl 
@@ -237,23 +268,34 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  use constant IPTABLES=>"/sbin/iptables";
  use constant IPTABLES_XML=>"/usr/bin/iptables-xml";
  use constant DEBUG=>0;
-@@ -13,6 +14,15 @@
+@@ -13,6 +14,26 @@
  use vars qw($ruleset);
  
  
 +# Gordon: 2015-06-19 - function to retrieve WAN interface
 +#                      assume default route for now
 +sub get_wanif {
-+	my $cmd = "/bin/ip route get 128 | grep dev | awk '{print $5}'";
-+	my $exec_retval = exec_cmd($cmd);
-+	return $exec_retval;
++	my($wtr, $rdr, $err, $if);
++	$err = 1; # we want to dump errors here
++
++	my $pid = open3($wtr, $rdr, $err,"/bin/ip route get 128");
++	my @data=<$rdr>;
++	my @err=<$err>;
++	waitpid($pid,0);
++
++	foreach (@data){
++		if( /dev (\w+)/ ){
++			$if = $1;
++		}
++	}
++	return $if;
 +}
 +
 +
  sub d_print {
  
  	if(DEBUG) {
-@@ -26,7 +36,7 @@
+@@ -26,19 +47,19 @@
  	my($in, $out, $err);
  	$err = 1; # we want to dump errors here
  
@@ -262,7 +304,21 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  
  	my $lines=join("",<$out>);
  	waitpid($pid,0);
-@@ -176,7 +186,7 @@
+ 	my @if;
+ 
+ 	# get the IP address
+-	if( $lines =~ m/addr:(\d+\.\d+\.\d+\.\d+)/) {
++	if( $lines =~ m/inet (\d+\.\d+\.\d+\.\d+)/) {
+ 		$if[0] = $1;
+ 	}
+ 
+ 	# get the netmask
+-	if($lines =~ m/Mask:(\d+\.\d+\.\d+\.\d+)\s/) {
++	if($lines =~ m/netmask (\d+\.\d+\.\d+\.\d+)\s/) {
+ 		$if[1] = $1;
+ 	}
+ 	return @if;
+@@ -176,7 +197,7 @@
  
  sub save_rules {
  
@@ -271,7 +327,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  
  	my($wtr, $rdr, $err);
  	$err = 1; # we want to dump errors here
-@@ -222,7 +232,7 @@
+@@ -222,7 +243,7 @@
  			$localip_match = ($h_conditions->{match}->{d} =~ m/$localip/)
  		} else {
  			# no destination may exist in the rule
@@ -280,7 +336,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  				$localip_match = 0;
  			}
  		}
-@@ -282,12 +292,12 @@
+@@ -282,12 +303,12 @@
  	my $netmask   = netmask2net($ARGV[6]);
  	my $serverip  = $ARGV[7];
  
@@ -298,7 +354,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  
  	if(@nat_rules || @filter_rules || @input_rules || @POSTROUTE_rules) {
  		print( "Confliction with existing rules\n");
-@@ -296,28 +306,28 @@
+@@ -296,28 +317,28 @@
  			foreach my $rule (@nat_rules) {
  				d_print( "$rule ");
  			}
@@ -331,7 +387,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		}
  	} else {
  		my $exec_retval;
-@@ -325,7 +335,7 @@
+@@ -325,7 +346,7 @@
  
  		d_print "Port $port ok to forward\n";
  		# Create prerouting rule
@@ -340,7 +396,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		if ($source) {
  			$cmd .= " -s $source";
  		}
-@@ -340,7 +350,7 @@
+@@ -340,7 +361,7 @@
  		if($port =~ m/(\d+):(\d+)/) { # portrange
  			$localport = $localport . ":" . ($localport+($2-$1));
  		}
@@ -349,7 +405,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		if ($source) {
  			$cmd .= " -s $source";
  		}
-@@ -352,7 +362,7 @@
+@@ -352,7 +373,7 @@
  
  		# Create POSTROUTING rule
  		# local port range already fixed in FORWARD rule.
@@ -358,7 +414,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		d_print("POSTROUTING RULE: ".$cmd."\n");
  		if ($exec_retval = exec_cmd($cmd)) {
  			$ret .= $exec_retval;
-@@ -371,9 +381,9 @@
+@@ -371,9 +392,9 @@
  	my $ip        = $ARGV[4];
  	my $localport = $ARGV[5];
  
@@ -367,11 +423,11 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
 -	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","POSTROUTING",$ip);
 +	my @nat_rules = check_port($port,$prot,$source,"nat","Bubba_DNAT",0);
 +	my @filter_rules = check_port($localport,$prot,$source,"filter","Bubba_FWD",$ip);
-+	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","Buba_SNAT",$ip);
++	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","Bubba_SNAT",$ip);
  
  
  	if(@nat_rules && @filter_rules) { # matching rules in both chains
-@@ -382,7 +392,7 @@
+@@ -382,7 +403,7 @@
  		my $ret;
  
  		foreach my $rule (reverse(@nat_rules)) {
@@ -380,7 +436,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  			d_print("Remove NAT: $cmd\n");
  			if ($exec_retval = exec_cmd($cmd)) {
  				$ret .= $exec_retval;
-@@ -390,7 +400,7 @@
+@@ -390,7 +411,7 @@
  		}
  
  		foreach my $rule (reverse(@filter_rules)) {
@@ -389,7 +445,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  			d_print("Remove FORWARD: $cmd\n");
  			if ($exec_retval = exec_cmd($cmd)) {
  				$ret .= $exec_retval;
-@@ -398,7 +408,7 @@
+@@ -398,7 +419,7 @@
  		}
  		if(@POSTROUTE_rules) {  # do not require the rule to be in the POSTROUTE
  			foreach my $rule (reverse(@POSTROUTE_rules)) {
@@ -398,7 +454,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  				d_print("Remove POSTROUTE: $cmd\n");
  				if ($exec_retval = exec_cmd($cmd)) {
  					$ret .= $exec_retval;
-@@ -440,7 +450,7 @@
+@@ -440,7 +461,7 @@
  		d_print " in table/chain: $table/$chain\n";
  	} else {
  		d_print( "Port $port ok to open\n");
@@ -407,7 +463,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		if ($prot eq "icmp") {
  			$cmd .= " --icmp-type $port";
  		} else {
-@@ -490,11 +500,11 @@
+@@ -490,11 +511,11 @@
  	my $if = $ARGV[1];
  	my $old_if = $if eq 'eth1' ? 'br0' : 'eth1';
  
@@ -422,18 +478,18 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  	my $doc = $parser->parse_string( $file_fw );
  	foreach my $context( $doc->findnodes("//match/i[. = \"$old_if\"]/text()")->get_nodelist() ) {
  		$context->setData( $if );
-@@ -502,7 +512,7 @@
+@@ -502,7 +523,7 @@
  	my ($fh, $filename) = tempfile();
  	$doc->toFH($fh);
  	close( $fh );
 -	system( "xsltproc /usr/share/bubba-backend/iptables.xslt $filename | iptables-restore" );
-+	system( "xsltproc /opt/bubba/lib/iptables.xslt $filename | iptables-restore" );
++	system( "xsltproc /var/lib/bubba/iptables.xslt $filename | iptables-restore" );
  	unlink( $filename );
  	save_rules();
  }
 diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
 --- a/web-admin/lib/Bubba.pm	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/lib/Bubba.pm	2015-07-02 12:24:38.369628499 +0200
++++ b/web-admin/lib/Bubba.pm	2015-07-16 11:34:51.438924797 +0200
 @@ -532,6 +532,28 @@
  
  }
