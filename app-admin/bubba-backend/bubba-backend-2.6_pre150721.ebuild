@@ -40,6 +40,7 @@ RDEPEND="${DEPEND}
 	dev-perl/XML-Parser
 	dev-perl/XML-Simple
 	dev-python/pycups
+	dev-python/twisted-core
 	sys-libs/timezone-data[right_timezone]
 "
 
