@@ -1,6 +1,6 @@
 diff -ru a/client.cpp b/client.cpp
---- a/client.cpp	2010-06-09 15:24:27.000000000 +0200
-+++ b/client.cpp	2015-07-16 08:55:29.897815856 +0200
+--- a/client.cpp	2015-07-21 11:41:18.959786434 +0200
++++ b/client.cpp	2015-07-21 11:41:43.972123824 +0200
 @@ -20,6 +20,8 @@
  #include <string>
  #include <iostream>
@@ -10,20 +10,18 @@ diff -ru a/client.cpp b/client.cpp
  
  int main( int argc, char** argv ) {
  
-@@ -32,8 +34,8 @@
+@@ -32,7 +34,7 @@
  		std::cerr << "Requires a command" << std::endl;
  		return 1;
  	}
 -	std::string command("/usr/sbin/bubba-networkmanager --socket /tmp/bubba-networkmanager.sock --config /etc/bubba-networkmanager.conf");
--	std::string socket("/tmp/bubba-networkmanager.sock");
-+	std::string command("/usr/sbin/bubba-networkmanager --socket /var/run/bubba-networkmanager.sock --config /etc/bubba/networkmanager.conf");
-+	std::string socket("/var/run/bubba-networkmanager.sock");
++	std::string command("/usr/sbin/bubba-networkmanager --socket /tmp/bubba-networkmanager.sock --config /etc/bubba/networkmanager.conf");
+ 	std::string socket("/tmp/bubba-networkmanager.sock");
  	EUtils::NetClient client( command, socket );
  	Json::Reader reader;
- 	Json::FastWriter writer;
 diff -ru a/examplecfg/nmconfig b/examplecfg/nmconfig
---- a/examplecfg/nmconfig	2010-06-09 15:24:27.000000000 +0200
-+++ b/examplecfg/nmconfig	2015-07-16 08:57:34.829469122 +0200
+--- a/examplecfg/nmconfig	2015-07-21 11:41:18.969787368 +0200
++++ b/examplecfg/nmconfig	2015-07-21 11:41:43.972123824 +0200
 @@ -1,5 +1,5 @@
  # Internal config file for bubba-network manager. DO not edit
  wanif=eth0
@@ -32,34 +30,20 @@ diff -ru a/examplecfg/nmconfig b/examplecfg/nmconfig
 +tz_map_file=/var/lib/bubba/tz-lc.txt
  tz_file=/etc/timezone
 diff -ru a/main.cpp b/main.cpp
---- a/main.cpp	2010-06-09 15:24:27.000000000 +0200
-+++ b/main.cpp	2015-07-16 08:55:29.897815856 +0200
-@@ -57,8 +57,8 @@
-     p.AddOption( Option( "version",'v',Option::None,"Show version","","false" ) );
+--- a/main.cpp	2015-07-21 11:41:18.959786434 +0200
++++ b/main.cpp	2015-07-21 11:44:58.550307189 +0200
+@@ -58,7 +58,7 @@
      p.AddOption( Option( "ttl",'t',Option::Int,"time to live in seconds","60","60" ) );
      p.AddOption( Option( "pidfile", '\0', Option::String, "PID file", "/var/run/bubba-networkmanager.pid", "/var/run/bubba-networkmanager.pid" ) );
--    p.AddOption( Option( "socket", '\0', Option::String, "Socket to communicate on", "/tmp/bubba-networkmanager.sock", "/tmp/bubba-networkmanager.sock" ) );
+     p.AddOption( Option( "socket", '\0', Option::String, "Socket to communicate on", "/tmp/bubba-networkmanager.sock", "/tmp/bubba-networkmanager.sock" ) );
 -    p.AddOption( Option( "config", '\0', Option::String, "Configuration file to read from", "/etc/bubba-networkmanager.conf", "/etc/bubba-networkmanager.conf" ) );
-+    p.AddOption( Option( "socket", '\0', Option::String, "Socket to communicate on", "/var/run/bubba-networkmanager.sock", "/var/run/bubba-networkmanager.sock" ) );
 +    p.AddOption( Option( "config", '\0', Option::String, "Configuration file to read from", "/etc/bubba/networkmanager.conf", "/etc/bubba/networkmanager.conf" ) );
  
      if ( !p.Parse( argc,argv ) ) {
          syslog( LOG_ERR,"Failed to parse arguments use %s -? for info",argv[0] );
-diff -ru a/scripts/client.py b/scripts/client.py
---- a/scripts/client.py	2010-06-09 15:24:26.000000000 +0200
-+++ b/scripts/client.py	2015-07-16 08:55:29.897815856 +0200
-@@ -9,7 +9,7 @@
- 
- def request(req):
- 	client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
--	client.connect("/tmp/bubba-networkmanager.sock")
-+	client.connect("/var/run/bubba-networkmanager.sock")
- 	client.send(json.dumps(req))
- 	d=client.recv(16384);
- 	#print "%s"%d
 diff -ru a/utils/WlanCfg.cpp b/utils/WlanCfg.cpp
---- a/utils/WlanCfg.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/WlanCfg.cpp	2015-07-16 08:58:58.137238859 +0200
+--- a/utils/WlanCfg.cpp	2015-07-21 11:41:18.959786434 +0200
++++ b/utils/WlanCfg.cpp	2015-07-21 11:42:57.298976203 +0200
 @@ -46,7 +46,7 @@
  using namespace EUtils;
  using namespace std;
