@@ -627,3 +627,32 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  
  }
  
+diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
+--- a/web-admin/MANIFEST	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/MANIFEST	2015-07-21 18:42:54.444911384 +0200
+@@ -2,14 +2,11 @@
+ MANIFEST
+ lib/Bubba.pm
+ bin/adminfunctions.php
+-bin/updatebackend.pl
+-bin/adminfunctions.php
+ bin/disk.pl
+ bin/firewall.pl
+ bin/updater.pl
+ bin/thumbnail.pl
+ bin/backend.pl
+-bin/print.pl
+ bin/backup.pl
+ bin/diskdaemon.pl
+ bin/notify-dispatcher.pl
+diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
+--- a/web-admin/Makefile.PL	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/Makefile.PL	2015-07-21 18:43:08.406217211 +0200
+@@ -8,7 +8,6 @@
+ 	'bin/backend.pl',
+ 	'bin/disk.pl',
+ 	'bin/firewall.pl',
+-	'bin/easyfind.pl',
+ 	'bin/backup.pl',
+ 	'bin/diskdaemon.pl',
+ 	'bin/notify-dispatcher.pl',
