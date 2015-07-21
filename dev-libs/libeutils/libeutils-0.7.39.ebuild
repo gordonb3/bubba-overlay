@@ -26,7 +26,7 @@ DEPEND="
 	sys-devel/libtool
 "
 
-RDEPEND=""
+RDEPEND="${DEPEND}"
 
 S=${WORKDIR}/${PN}
 
