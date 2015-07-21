@@ -14,7 +14,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm"
-IUSE=""
+IUSE="apache2"
 
 DEPEND=""
 
