@@ -338,19 +338,6 @@ diff -ru a/apache.conf b/apache.conf
  
  <Location /admin>
  	RewriteEngine on
-diff -ru a/php5-cgi.conf b/php5-cgi.conf
---- a/php5-cgi.conf	2013-06-26 22:25:47.000000000 +0200
-+++ b/php5-cgi.conf	2015-07-15 14:57:36.106707152 +0200
-@@ -1,3 +1,9 @@
- cgi.fix_pathinfo=0
- session.save_path = "0;660;/var/lib/php5"
- session.gc_maxlifetime = 87000
-+date.timezone="Europe/Amsterdam"
-+short_opentag=On
-+date.timezone="Europe/Amsterdam"
-+short_opentag=On
-+date.timezone="Europe/Amsterdam"
-+short_opentag=On
 diff -ru a/spawn-php b/spawn-php
 --- a/spawn-php	2013-06-26 22:25:46.000000000 +0200
 +++ b/spawn-php	2015-07-15 14:57:36.086705283 +0200
