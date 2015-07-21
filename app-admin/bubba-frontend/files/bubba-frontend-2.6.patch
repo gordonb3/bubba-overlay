@@ -178,23 +178,6 @@ diff -ru a/admin/controllers/stat.php b/admin/controllers/stat.php
          return json_decode(implode($json),true);
      }
  
-diff -ru a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_helper.php
---- a/admin/helpers/bubba_socket_helper.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/helpers/bubba_socket_helper.php	2015-07-15 15:20:25.874556363 +0200
-@@ -139,10 +139,10 @@
- 		parent::__construct( 
- 			'/usr/sbin/bubba-networkmanager', 
- 			array(
--				'--socket', '/tmp/bubba-networkmanager.sock',
-+				'--socket', '/var/run/bubba-networkmanager.sock',
- 				'--config', '/etc/bubba-networkmanager.conf'
- 			),
--			'/tmp/bubba-networkmanager.sock' 
-+			'/var/run/bubba-networkmanager.sock' 
- 		);
- 	}
- }
-Only in b/admin: index.php
 diff -ru a/admin/legacy/defines.php b/admin/legacy/defines.php
 --- a/admin/legacy/defines.php	2013-06-26 22:25:46.000000000 +0200
 +++ b/admin/legacy/defines.php	2015-07-15 14:57:36.016698744 +0200
@@ -393,20 +376,6 @@ diff -ru a/spawn-php b/spawn-php
  umask 0022
  
  chmod 770 $FCGISOCKET
-diff -ru a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_settings.php
---- a/admin/controllers/ajax_settings.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/ajax_settings.php	2015-07-15 16:14:01.714592694 +0200
-@@ -76,8 +76,8 @@
-   function get_versions() {
-       $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
-       $this->session->set_userdata("version",$versions['bubba']);
--      $this->json_data = $versions;
--    }
-+      $this->json_data = str_replace("null","not installed",$versions);
-+  }
- 
-   function identify() {
- 	  $this->json_data = true;
 diff -ruN a/admin/index.php b/admin/index.php
 --- a/admin/index.php	1970-01-01 01:00:00.000000000 +0100
 +++ b/admin/index.php	2015-07-07 12:52:25.869657875 +0200
@@ -443,3 +412,42 @@ diff -ruN a/admin/index.php b/admin/index.php
 +
 +require_once BASEPATH.'core/CodeIgniter.php';
 +
+diff -ru a/admin/libraries/Browscap_raw.php b/admin/libraries/Browscap_raw.php
+--- a/admin/libraries/Browscap_raw.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/libraries/Browscap_raw.php	2015-07-21 11:59:32.772006088 +0200
+@@ -136,14 +136,14 @@
+ 	 *
+ 	 * @var string
+ 	 */
+-	public $cacheFilename   = 'cache.php';
++	public $cacheFilename   = '/var/lib/bubba/cache.php';
+ 	
+ 	/**
+ 	 * Where to store the downloaded ini file.
+ 	 *
+ 	 * @var string
+ 	 */
+-	public $iniFilename     = 'browscap.ini';
++	public $iniFilename     = '/var/lib/bubba/browscap.ini';
+ 	
+ 	/**
+ 	 * Path to the cache directory
+diff -ru a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_settings.php
+--- a/admin/controllers/ajax_settings.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/controllers/ajax_settings.php	2015-07-15 16:14:01.714592694 +0200
+@@ -76,12 +76,12 @@
+   function get_versions() {
+       $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
+       $this->session->set_userdata("version",$versions['bubba']);
+-      $this->json_data = $versions;
+-    }
++      $this->json_data = str_replace("null","not installed",$versions);
++  }
+ 
+   function identify() {
+ 	  $this->json_data = true;
+-	  exec("identify_box &>/dev/null &");
++	  exec("/opt/bubba/bin/identify_box &>/dev/null &");
+   }
+ 
+   function update(){

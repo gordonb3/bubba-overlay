@@ -37,11 +37,12 @@ DEPEND="
 RDEPEND="
 	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,crypt,imap]
 	apache2? ( dev-lang/php[apache2] )
-	apache2? ( www-servers/apache[apache2_modules_proxy,apache2_modules_proxy_fcgi,apache2_modules_proxy_http,apache2_modules_rewrite] )
+	apache2? ( >=www-servers/apache-2.4.9[apache2_modules_proxy,apache2_modules_proxy_fcgi,apache2_modules_proxy_http,apache2_modules_rewrite] )
 	nginx? ( www-servers/nginx[nginx_modules_http_proxy,nginx_modules_http_rewrite,nginx_modules_http_fastcgi,nginx_modules_http_access,nginx_modules_http_auth_basic,nginx_modules_http_referer] )
 	www-servers/spawn-fcgi
 	www-apps/codeigniter-bin
-
+	dev-php/libbubba-info-php
+	dev-php/PEAR-HTTP_Request2
 "
 
 S=${WORKDIR}/${PN}
@@ -53,7 +54,7 @@ pkg_setup() {
 		eend 0
 	else
 		eend 1 ""
-		ewarn "attempting to install coffee"
+		elog "attempting to install coffee"
 		npm install -g coffee-script
 	fi
 	which coffee 1>/dev/null  2>/dev/null || die "failed to install coffee - please verify npm command"
@@ -70,7 +71,7 @@ src_prepare() {
 	use nginx && sed -i "s/www-data/nginx/" spawn-php
 
 	echo "date.timezone=\"`cat /etc/timezone`\"" >> php5-cgi.conf
-	echo "short_opentag=On" >> php5-cgi.conf
+	echo "short_open_tag=On" >> php5-cgi.conf
 
 }
 
@@ -98,10 +99,15 @@ src_install() {
 	PHP_CLI_INI_PATH=$(php -n --ini | grep -v "(none)" | awk '{print $NF}')
 	PHP_CGI_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/cgi/")
 	PHP_APACHE_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/apache2/")
+	PHP_FPM_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/fpm/")
 
 	insinto ${PHP_CGI_INI_PATH}/ext
 	newins php5-cgi.conf bubba-admin.ini
 	dosym ${PHP_CGI_INI_PATH}/ext/bubba-admin.ini ${PHP_CGI_INI_PATH}/ext-active/bubba-admin.ini
+
+	insinto ${PHP_FPM_INI_PATH}/ext
+	newins php5-cgi.conf bubba-admin.ini
+	dosym ${PHP_FPM_INI_PATH}/ext/bubba-admin.ini ${PHP_FPM_INI_PATH}/ext-active/bubba-admin.ini
 
 	if use apache2; then
 		insinto ${PHP_APACHE_INI_PATH}/ext

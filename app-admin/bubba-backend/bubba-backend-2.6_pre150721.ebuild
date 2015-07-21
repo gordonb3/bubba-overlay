@@ -22,21 +22,24 @@ REQUIRED_USE="^^ ( apache2 nginx )"
 DEPEND=""
 
 RDEPEND="${DEPEND}
+	app-admin/bubba-diskmanager
+	app-admin/bubba-networkmanager
 	app-arch/zip
-	dev-perl/JSON
-	dev-perl/JSON-XS
-	dev-perl/File-Slurp
+	dev-perl/Config-Simple
+	dev-perl/Config-Tiny
 	dev-perl/Crypt-PasswdMD5
-	dev-perl/XML-Parser
-	dev-perl/XML-Simple
+	dev-perl/Crypt-SSLeay
+	dev-perl/Expect
+	dev-perl/File-Slurp
 	dev-perl/IPC-Run
 	dev-perl/IPC-Run3
-	dev-perl/Expect
-	dev-perl/Config-Tiny
-	dev-perl/Try-Tiny
-	dev-perl/Crypt-SSLeay
-	dev-perl/Config-Simple
+	dev-perl/JSON
+	dev-perl/JSON-XS
 	dev-perl/List-MoreUtils
+	dev-perl/Try-Tiny
+	dev-perl/XML-Parser
+	dev-perl/XML-Simple
+	dev-python/pycups
 	sys-libs/timezone-data[right_timezone]
 "
 
@@ -44,6 +47,9 @@ S=${WORKDIR}/${PN}
 
 
 src_prepare() {
+	# Moved easyfind to a separate package
+	rm web-admin/bin/easyfind.pl
+
         patch -p1 < ${FILESDIR}/${PN}-${MY_PV}.patch
 	NAME=${PN} && export NAME
 	perl Makefile.PL
@@ -60,10 +66,8 @@ src_install() {
 	make DESTDIR=${ED} install
 
 	exeinto /opt/bubba/bin
-	doexe airprint-generate new_printer_init.sh cups-list-printers smbd-reload identify_box bubba-run-backupjobs ${FILESDIR}/dpkg-query
+	doexe airprint-generate new_printer_init.sh cups-list-printers smbd-reload ${FILESDIR}/identify_box bubba-run-backupjobs ${FILESDIR}/dpkg-query
 	dosym /opt/bubba/bin/dpkg-query /usr/bin/dpkg-query
-	insinto /opt/bubba/lib
-	doins iptables.xslt
  
         insinto /var/lib/bubba
 	doins iptables.xslt hosts.in
