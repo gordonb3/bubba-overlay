@@ -32,7 +32,7 @@ def rotate(l, y=-1):
 
 
 def buzzsetup():
-    if not os.path.exists("/sys/class/gpio/export"):
+    if not os.path.exists("/sys/class/gpio/gpio40"):
         node = open("/sys/class/gpio/export", "wb")
         node.write("40")
         node.close()
