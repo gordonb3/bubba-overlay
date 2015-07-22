@@ -1,0 +1,20 @@
+-------------------------------------------------------------------
+2015-07-22
+We're moving to fpm because the old cgi method no longer works
+with apache 2.4. Set requirement for apache to >=2.4.9, because we
+want to use a unix socket rather than a tcp port.
+
+-------------------------------------------------------------------
+2015-07-21
+Fix entries in php include ini file
+
+-------------------------------------------------------------------
+2015-07-16
+Fixed disk information view. Now properly recognizing system
+partitions rather than rely on hardcoded Excito standards.
+
+-------------------------------------------------------------------
+2015-07-07
+Added first release
+
+

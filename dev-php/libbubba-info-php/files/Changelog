@@ -1,0 +1,15 @@
+-------------------------------------------------------------------
+2015-07-22
+No longer enable the plugin by default on cgi-php
+We're moving to fpm-php
+
+
+-------------------------------------------------------------------
+2015-07-21
+Fix missing IUSE flag controlling whether to enable the plugin
+for apache mod_php
+
+
+-------------------------------------------------------------------
+2015-07-02
+Added first release

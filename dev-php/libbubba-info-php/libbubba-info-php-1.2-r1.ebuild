@@ -47,7 +47,7 @@ src_install() {
 	find /etc/php -name ext | while read extension_dir; do
 		insinto ${extension_dir}
 		doins bubbainfo.ini
-		if [[ ${extension_dir} =~ cgi* ]]; then
+		if [[ ${extension_dir} =~ fpm* ]]; then
 			dosym ${extension_dir}/bubbainfo.ini ${extension_dir}-active/bubbainfo.ini
 		fi
 		if [[ ${extension_dir} =~ apache* ]]; then

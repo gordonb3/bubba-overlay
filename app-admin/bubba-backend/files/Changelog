@@ -1,0 +1,20 @@
+-------------------------------------------------------------------
+2015-07-21
+Fix MakeMaker warnings
+
+-------------------------------------------------------------------
+2015-07-21
+Added identify_box script
+
+Removed easyfind.pl from this install, it conflicts with the
+bubba-easyfind package
+
+
+-------------------------------------------------------------------
+2015-07-16
+Fixed editing advanced firewall editing 
+
+-------------------------------------------------------------------
+2015-07-07
+Added first release
+

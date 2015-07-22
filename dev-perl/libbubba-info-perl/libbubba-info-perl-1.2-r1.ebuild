@@ -22,8 +22,13 @@ RDEPEND="${DEPEND}
 	dev-libs/libbubba-info
 "
 
-
 src_prepare() {
+	sed "s/^\(\s*.ABSTRACT\)_FROM.*$/\1       => 'Perl extension for querying Bubba platform information',/" -i Makefile.PL
+
+}
+
+
+src_configure() {
 	perl Makefile.PL
 }
 

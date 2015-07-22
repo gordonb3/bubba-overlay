@@ -49,14 +49,16 @@ S=${WORKDIR}/${PN}
 
 src_prepare() {
 	# Moved easyfind to a separate package
-	rm web-admin/bin/easyfind.pl
+	# rm web-admin/bin/easyfind.pl
 
-        patch -p1 < ${FILESDIR}/${PN}-${MY_PV}.patch
-	NAME=${PN} && export NAME
-	perl Makefile.PL
-	sed -i "s/= \$.PREFIX.\/lib\/web-admin/= \/opt\/bubba\/bin/" Makefile
+        epatch ${FILESDIR}/${PN}-${MY_PV}.patch
+	#sed -i "s/= \$.PREFIX.\/lib\/web-admin/= \/opt\/bubba\/bin/" Makefile
 }
 
+
+src_configure() {
+	perl Makefile.PL NAME="Bubba"
+}
 
 src_compile() {
 	make DESTDIR=${ED}

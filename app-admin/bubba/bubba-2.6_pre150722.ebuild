@@ -20,19 +20,12 @@ S="${WORKDIR}"
 
 
 RDEPEND="
+	app-admin/bubba-frontend
 	sys-power/bubba-buttond
 "
 
 
-# A bit of trickery. This package checks for the current package to
-# be installed because it should not be installed on other systems.
-#PDEPEND="
-#	=sys-apps/sysvinit-2.88_pre150625
-#"
-
-# PDEPEND does not work as expected :(
-
 src_install() {
         dodir "/etc/bubba"
-	echo ${PV} > ${D}/etc/bubba/bubba.version
+	echo ${PV} > ${ED}/etc/bubba/bubba.version
 }

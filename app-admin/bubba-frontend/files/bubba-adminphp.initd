@@ -1,119 +1,44 @@
 #!/sbin/runscript
-# Copyright 1999-2012 Gentoo Foundation
-# Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/www-servers/spawn-fcgi/files/spawn-fcgi.initd-r1,v 1.1 2012/04/02 18:55:13 pacho Exp $
-# Author: Carl Fürstenberg <carl@excito.com>
-# adapted for gentoo: Gordon Bos <gordon@bosvangennip.nl>
 
+set_phpvars() {
+	PHP_FPM_PID="/run/bubba-adminphp.pid"
+	PHP_FPM_CONF="/etc/bubba/adminphp.conf"
+}
 
-#PATH=/usr/sbin:/usr/bin:/sbin:/bin
-DESC="fcgi for bubba admin functions"
-NAME=adminphp
-PHP5CGI=php-cgi
-DAEMON=/usr/bin/$PHP5CGI
-DAEMON_ARGS=""
-PIDFILE=/var/run/bubba-admin.pid
-SCRIPTNAME=/etc/init.d/$NAME
-SPAWNSCRIPT=/opt/bubba/sbin/spawn-php
-SOCKFILE=/var/run/bubba-fcgi.sock
+extra_commands="depend"
+extra_started_commands="reload"
 
 depend() {
-        need net
-}
-
-
-#
-# Function that starts the daemon/service
-#
-do_start() {
-	# Return
-	#   0 if daemon has been started
-	#   1 if daemon was already running
-	#   2 if daemon could not be started
-	start-stop-daemon --start --pidfile $PIDFILE --exec $SPAWNSCRIPT --test > /dev/null || return 1
-	start-stop-daemon --start --pidfile $PIDFILE --exec $SPAWNSCRIPT -- $DAEMON_ARGS || return 2
-	# Add code here, if necessary, that waits for the process to be ready
-	# to handle requests from services started subsequently which depend
-	# on this one.  As a last resort, sleep for some time.
-}
-
-#
-# Function that stops the daemon/service
-#
-do_stop() {
-	local RETVAL
-	# Return
-	#   0 if daemon has been stopped
-	#   1 if daemon was already stopped
-	#   2 if daemon could not be stopped
-	#   other if a failure occurred
-	start-stop-daemon --stop  --retry=TERM/30/KILL/5 --pidfile $PIDFILE --name $PHP5CGI
-	RETVAL="$?"
-	[ "$RETVAL" = 2 ] && return 2
-	# Many daemons don't delete their pidfiles when they exit.
-	rm -f $PIDFILE
-	rm -f $SOCKFILE
-	return "$RETVAL"
-}
-
-#
-# Function that sends a SIGHUP to the daemon/service
-#
-do_reload() {
-	#
-	# If the daemon can reload its configuration without
-	# restarting (for example, when it is sent a SIGHUP),
-	# then implement that here.
-	#
-	start-stop-daemon --stop --signal 1 --pidfile $PIDFILE --name $PHP5CGI
-	return 0
+	need net
+	use apache2 nginx
 }
 
 start() {
-	local RETVAL
-	ebegin "Starting $DESC"
-	do_start
-	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && RETVAL=0 ;;
-		2) [ "$VERBOSE" != no ] && RETVAL=1 ;;
-	esac
-	eend ${RETVAL}
+	ebegin "Starting Bubba admin FCGI Process Manager"
+	set_phpvars
+	start-stop-daemon --start --pidfile ${PHP_FPM_PID} --exec \
+		/usr/bin/php-fpm -- -y "${PHP_FPM_CONF}" -g "${PHP_FPM_PID}" -R
+	local i=0
+	local timeout=5
+	while [ ! -f ${PHP_FPM_PID} ] && [ $i -le $timeout ]; do
+		sleep 1
+		i=$(($i + 1))
+	done
+
+	[ $timeout -gt $i ]
+	eend $?
 }
 
 stop() {
-	local RETVAL
-	ebegin "Stopping $DESC"
-	do_stop
-	case "$?" in
-		0|1) [ "$VERBOSE" != no ] && RETVAL=0 ;;
-		2) [ "$VERBOSE" != no ] && RETVAL=1 ;;
-	esac
-	eend ${RETVAL}
+	ebegin "Stopping Bubba admin FCGI Process Manager"
+	set_phpvars
+	start-stop-daemon --signal QUIT --stop --exec /usr/bin/php-fpm --pidfile ${PHP_FPM_PID}
+	eend $?
 }
 
-restart() {
-	local RETVAL
-	#
-	# If the "reload" option is implemented then remove the
-	# 'force-reload' alias
-	#
-	ebegin "Restarting $DESC"
-	do_stop
-	case "$?" in
-	  0|1)
-		do_start
-		case "$?" in
-			0) RETVAL=0 ;;
-			1) RETVAL=1 ;; # Old process is still running
-			*) RETVAL=1 ;; # Failed to start
-		esac
-		;;
-	  *)
-	  	# Failed to stop
-		RETVAL=1
-		;;
-	esac
-	eend ${RETVAL}
+reload() {
+	ebegin "Reloading PHP FastCGI Process Manager"
+	set_phpvars
+	[ -f ${PHP_FPM_PID} ] && kill -USR2 $(cat ${PHP_FPM_PID})
+	eend $?
 }
-
-

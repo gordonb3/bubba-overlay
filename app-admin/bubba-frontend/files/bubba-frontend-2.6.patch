@@ -315,54 +315,6 @@ diff -ru a/admin/views/default/disk/disk_view.php b/admin/views/default/disk/dis
  </tr>
 +-->
  </table>
-diff -ru a/apache.conf b/apache.conf
---- a/apache.conf	2013-06-26 22:25:46.000000000 +0200
-+++ b/apache.conf	2015-07-15 14:57:36.046701547 +0200
-@@ -1,6 +1,6 @@
--Alias /admin /usr/share/web-admin/admin
-+Alias /admin /opt/bubba/web-admin/admin
- 
--<Directory /usr/share/web-admin/admin >
-+<Directory /opt/bubba/web-admin/admin >
- 	AllowOverride None
- 	Order allow,deny
- 	allow from all
-@@ -9,8 +9,8 @@
- 	Action php-cgi /fcgi-bin/php.cgi virtual
- </Directory>
- 
--ScriptAlias /fcgi-bin/php.cgi /usr/share/web-admin/admin
--FastCgiExternalServer /usr/share/web-admin/admin/index.php -socket fcgi -idle-timeout 120 -flush
-+ScriptAlias /fcgi-bin/php.cgi /opt/bubba/web-admin/admin
-+FastCgiExternalServer /opt/bubba/web-admin/admin/index.php -socket fcgi -idle-timeout 120 -flush
- 
- <Location /admin>
- 	RewriteEngine on
-diff -ru a/spawn-php b/spawn-php
---- a/spawn-php	2013-06-26 22:25:46.000000000 +0200
-+++ b/spawn-php	2015-07-15 14:57:36.086705283 +0200
-@@ -4,10 +4,10 @@
- SPAWNFCGI="/usr/bin/spawn-fcgi"
- 
- ## ABSOLUTE path to the PHP binary
--FCGIPROGRAM="/usr/bin/php5-cgi"
-+FCGIPROGRAM="/usr/bin/php-cgi"
- 
- ## bind to tcp-port on localhost
--FCGISOCKET="/var/lib/apache2/fastcgi/fcgi"
-+FCGISOCKET="/var/run/bubba-fcgi.sock"
- 
- ## number of PHP childs to spawn in addition to the default. Minimum of 2.
- ## Actual childs = PHP_FCGI_CHILDREN + 1
-@@ -47,7 +47,7 @@
- 
- umask 0002
- # clean environment and set up a new one
--env - $E $SPAWNFCGI -s $FCGISOCKET -f $FCGIPROGRAM  -g $GROUPID -C $PHP_FCGI_CHILDREN -P /var/run/admin.pid
-+env - $E $SPAWNFCGI -s $FCGISOCKET -f $FCGIPROGRAM  -g $GROUPID -C $PHP_FCGI_CHILDREN -P /var/run/bubba-admin.pid
- umask 0022
- 
- chmod 770 $FCGISOCKET
 diff -ruN a/admin/index.php b/admin/index.php
 --- a/admin/index.php	1970-01-01 01:00:00.000000000 +0100
 +++ b/admin/index.php	2015-07-07 12:52:25.869657875 +0200
@@ -438,3 +390,15 @@ diff -ru a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_settings
    }
  
    function update(){
+diff -ru a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_helper.php
+--- a/admin/helpers/bubba_socket_helper.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/helpers/bubba_socket_helper.php	2015-07-22 10:39:13.988428038 +0200
+@@ -140,7 +140,7 @@
+ 			'/usr/sbin/bubba-networkmanager', 
+ 			array(
+ 				'--socket', '/tmp/bubba-networkmanager.sock',
+-				'--config', '/etc/bubba-networkmanager.conf'
++				'--config', '/etc/bubba/networkmanager.conf'
+ 			),
+ 			'/tmp/bubba-networkmanager.sock' 
+ 		);
