@@ -48,11 +48,7 @@ S=${WORKDIR}/${PN}
 
 
 src_prepare() {
-	# Moved easyfind to a separate package
-	# rm web-admin/bin/easyfind.pl
-
         epatch ${FILESDIR}/${PN}-${MY_PV}.patch
-	#sed -i "s/= \$.PREFIX.\/lib\/web-admin/= \/opt\/bubba\/bin/" Makefile
 }
 
 
@@ -154,16 +150,16 @@ pkg_postinst() {
 				fi
 				if ! grep -qE ".*[^#].*\-j\s+Bubba_SNAT" /etc/bubba/firewall.conf ; then
 					ewarn "Your firewall conf is missing a reference to chain Bubba_SNAT"
-					ewarn "I'll add this for you at the startt of your current POSTROUTING rules."
+					ewarn "I'll add this for you at the start of your current POSTROUTING rules."
 					/sbin/iptables -t nat -N Bubba_SNAT
-					/sbin/iptables -I POSTROUTING -j Bubba_SNAT
+					/sbin/iptables -t nat -I POSTROUTING 1 -j Bubba_SNAT
 					/sbin/iptables-save > /etc/bubba/firewall.conf
 				fi
 				if ! grep -qE ".*[^#].*\-j\s+Bubba_DNAT" /etc/bubba/firewall.conf ; then
 					ewarn "Your firewall conf is missing a reference to chain Bubba_DNAT"
 					ewarn "I'll add this for you at the start of your current PREROUTING rules."
 					/sbin/iptables -t nat -N Bubba_DNAT
-					/sbin/iptables -I PREROUTING -j Bubba_DNAT
+					/sbin/iptables -t nat -I PREROUTING 1 -j Bubba_DNAT
 					/sbin/iptables-save > /etc/bubba/firewall.conf
 				fi
 

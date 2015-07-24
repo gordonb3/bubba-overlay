@@ -1,6 +1,6 @@
 diff -ru a/Makefile.PL b/Makefile.PL
 --- a/Makefile.PL	2013-06-24 14:48:18.000000000 +0200
-+++ b/Makefile.PL	2015-07-22 10:55:48.661398657 +0200
++++ b/Makefile.PL	2015-07-23 10:56:24.965542442 +0200
 @@ -2,5 +2,5 @@
  use ExtUtils::MakeMaker;
  
@@ -11,7 +11,7 @@ diff -ru a/Makefile.PL b/Makefile.PL
 +	INSTALLSITESCRIPT => '/opt/bubba/bin');
 diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
 --- a/web-admin/MANIFEST	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/MANIFEST	2015-07-22 10:55:48.671399592 +0200
++++ b/web-admin/MANIFEST	2015-07-23 10:56:24.965542442 +0200
 @@ -2,14 +2,11 @@
  MANIFEST
  lib/Bubba.pm
@@ -29,7 +29,7 @@ diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
  bin/notify-dispatcher.pl
 diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
 --- a/web-admin/Makefile.PL	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/Makefile.PL	2015-07-22 10:55:48.681400527 +0200
++++ b/web-admin/Makefile.PL	2015-07-23 10:56:24.965542442 +0200
 @@ -8,7 +8,6 @@
  	'bin/backend.pl',
  	'bin/disk.pl',
@@ -40,7 +40,7 @@ diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
  	'bin/notify-dispatcher.pl',
 diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
 --- a/web-admin/bin/adminfunctions.php	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/adminfunctions.php	2015-07-22 10:55:48.661398657 +0200
++++ b/web-admin/bin/adminfunctions.php	2015-07-23 10:56:24.975543378 +0200
 @@ -2,7 +2,7 @@
  # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
  setlocale( LC_CTYPE, 'en_US.UTF-8' );
@@ -281,7 +281,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  	if( count($versions) == 1 ) {
 diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
 --- a/web-admin/bin/firewall.pl	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/firewall.pl	2015-07-22 10:55:48.671399592 +0200
++++ b/web-admin/bin/firewall.pl	2015-07-23 10:56:24.985544313 +0200
 @@ -1,11 +1,12 @@
 -#! /usr/bin/perl 
 +#!/usr/bin/perl 
@@ -518,8 +518,23 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  }
 diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
 --- a/web-admin/lib/Bubba.pm	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/lib/Bubba.pm	2015-07-22 10:58:08.394459442 +0200
-@@ -532,6 +532,28 @@
++++ b/web-admin/lib/Bubba.pm	2015-07-23 10:58:32.577476168 +0200
+@@ -416,13 +416,9 @@
+    my ($name)=@_;
+    my $ret=0;
+ 
+-   system("userdel $name");
++   system("smbpasswd -x $name &>/dev/null && userdel $name");
+    $ret=$?;
+    
+-   if ($ret==0) {
+-      system("smbpasswd -x $name");
+-   }
+-
+    return $ret;
+ }
+ 
+@@ -532,6 +528,28 @@
  
  }
  
@@ -548,7 +563,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  # Change hostname
  #
  # Args   : name - New hostname  
-@@ -544,14 +566,15 @@
+@@ -544,14 +562,15 @@
  	my ($name)=@_;
  
  	system("echo $name > /proc/sys/kernel/hostname");
@@ -567,7 +582,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  
  	if(!query_service("dnsmasq")){
  		#restart dnsmasq
-@@ -564,10 +587,10 @@
+@@ -564,10 +583,10 @@
  	system("echo send host-name \\\"$name\\\"\\\; >> /etc/dhcp/dhclient.conf.new");
  	system("mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
  	$lan = _get_lanif;
@@ -580,7 +595,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  	}
  
  	restart_avahi();
-@@ -589,7 +612,7 @@
+@@ -589,7 +608,7 @@
  sub power_off{
  	use Bubba::Info;
  	if(isB3()){
@@ -589,7 +604,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  		return system("/sbin/reboot");
  	}elsif(isB2()){
  		if( -e "/sys/devices/platform/bubbatwo/magic" ){
-@@ -639,9 +662,9 @@
+@@ -639,9 +658,9 @@
     my ($if)=@_;
     my $ret;
  
@@ -601,7 +616,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
     }
     return $ret;
  }
-@@ -769,7 +792,25 @@
+@@ -769,7 +788,25 @@
  sub set_nameserver{
  	my ($ns)=@_;
  	
@@ -628,7 +643,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  }
  
  # Is service running?
-@@ -869,7 +910,7 @@
+@@ -869,7 +906,7 @@
  sub add_service{
     my ($service)=@_;
     
@@ -637,7 +652,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  }
  
  # Add service att specific init "level"
-@@ -881,7 +922,8 @@
+@@ -881,7 +918,8 @@
  sub add_service_at_level{
     my ($service, $level)=@_;
  
@@ -647,7 +662,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  }
  
  # Remove service
-@@ -892,7 +934,7 @@
+@@ -892,7 +930,7 @@
  sub remove_service{
     my ($service)=@_;
     
@@ -656,7 +671,7 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  }
  
  # Query service
-@@ -903,7 +945,7 @@
+@@ -903,7 +941,7 @@
  sub query_service{
     my ($service)=@_;
  

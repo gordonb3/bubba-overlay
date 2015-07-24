@@ -68,7 +68,7 @@ src_prepare() {
 
 	echo "date.timezone=\"`cat /etc/timezone`\"" >> php5-cgi.conf
 	echo "short_open_tag=On" >> php5-cgi.conf
-
+	echo "always_populate_raw_post_data=-1" >> php5-cgi.conf
 }
 
 
