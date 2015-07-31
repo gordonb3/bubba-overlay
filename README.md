@@ -15,6 +15,9 @@ Although not a rolling release, this was given version number 9999 to stay on to
 #### Bubba Easyfind 2.6
 Originally this is part of the bubba-backend package, but I've decided to make this a separate package. Contains the various methods that allow you to use the myownb3.com dynamic DNS service. Only works with registered Excito brand B3's. By default all methods are installed, but you may control this by disabling the USE flags for non required methods (dhcp hook script | service to verify public address if behind a remote router).
 
+Update: as of 27-07-2015 Rodeus, who now owns Excito, has taken control over the old Excito infrastructure that was temporarily and very gracefully hosted on the mybubba.org domain. New B3's should now also be able to use this service.
+
+
 #### Logitech Media Server 7.8.0
 Although being meant a binary distribution, they stopped shipping the platform dependant libraries for ARMv5 a long time ago. This is therefore a source build and it's perl dependencies may pull in up to ~100 additional packages.
 
