@@ -35,6 +35,7 @@ src_prepare() {
 	epatch ${FILESDIR}/${PN}-${MY_PV}-nl3.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-ifcommands.patch
+        epatch ${FILESDIR}/${PN}-${MY_PV}-ifpolicies.patch
 }
 
 src_compile() {

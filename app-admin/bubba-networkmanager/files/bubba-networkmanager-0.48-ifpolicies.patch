@@ -1,0 +1,12 @@
+diff -ru a/controllers/WlanController.cpp b/controllers/WlanController.cpp
+--- a/controllers/WlanController.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/controllers/WlanController.cpp	2015-07-31 09:49:07.587083644 +0200
+@@ -43,7 +43,7 @@
+ 	bool haswlan=false;
+ 	PolicyController& pc=PolicyController::Instance();
+ 
+-	list<string> ifs=InterfaceController::Instance().GetInterfaces();
++	list<string> ifs=InterfaceController::Instance().GetInterfaces("wlan");
+ 	for(list<string>::iterator iIt=ifs.begin();iIt!=ifs.end();iIt++){
+ 		if(pc.Allowed(*iIt,"iswlan")){
+ 			haswlan=true;

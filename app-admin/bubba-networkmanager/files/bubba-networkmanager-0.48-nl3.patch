@@ -1,6 +1,6 @@
 diff -ru a/Makefile b/Makefile
---- a/Makefile	2010-06-09 15:24:27.000000000 +0200
-+++ b/Makefile	2015-07-03 14:40:33.405858448 +0200
+--- a/Makefile	2015-07-31 10:00:38.595128750 +0200
++++ b/Makefile	2015-07-30 13:33:04.575156805 +0200
 @@ -40,8 +40,8 @@
  SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
  OBJS = $(SOURCES:%.cpp=%.o)
@@ -13,8 +13,8 @@ diff -ru a/Makefile b/Makefile
  APP_OBJS=$(APP_SRC:%.cpp=%.o)
  DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
 diff -ru a/utils/Nl80211.cpp b/utils/Nl80211.cpp
---- a/utils/Nl80211.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/Nl80211.cpp	2015-07-03 14:40:33.406858466 +0200
+--- a/utils/Nl80211.cpp	2015-07-31 10:00:41.415365735 +0200
++++ b/utils/Nl80211.cpp	2015-07-31 09:57:40.760185025 +0200
 @@ -25,6 +25,7 @@
  #include <cerrno>
  
@@ -55,3 +55,20 @@ diff -ru a/utils/Nl80211.cpp b/utils/Nl80211.cpp
          throw std::runtime_error( "nl80211 not found. " + std::string(strerror(ENOENT)) );
      }
      devidx = phy_lookup( phy );
+@@ -240,13 +241,13 @@
+         throw std::runtime_error( "Failed to allocate netlink message. " + std::string(strerror(ENOMEM)) );
+     }
+ 
+-    cb = nl_cb_alloc(NL_CB_DEFAULT);
++    cb = nl_cb_alloc(NL_CB_CUSTOM);
+     if( !cb ) {
+         throw std::runtime_error( "Failed to allocate netlink callbacks. " + std::string(strerror(ENOMEM)) );
+     }
+ 
+-    genlmsg_put(msg, 0, 0, family, 0, NLM_F_DUMP, NL80211_CMD_GET_WIPHY, 0);
+-    NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, devidx);
++    genlmsg_put(msg, 0, 0, family, 0, 0, NL80211_CMD_GET_WIPHY, 0);
++    NLA_PUT_U32(msg, NL80211_ATTR_WIPHY, devidx);
+ 
+     nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, call_valid_handler, this);
+     err = nl_send_auto_complete(sock, msg);
