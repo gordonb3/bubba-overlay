@@ -60,9 +60,9 @@ checkconfig() {
 start() {
 	checkconfig || return 1
 	ebegin "Setting up firewall"
-	if [ ! -z ${MODULES} ]; then
+	if [ ! -z "${MODULES}" ]; then
 		local module
-		for module in ${MODULES} ; do
+		for module in "${MODULES}" ; do
 			modprobe ${module}
 		done
 	fi

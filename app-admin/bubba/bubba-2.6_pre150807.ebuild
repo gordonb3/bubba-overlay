@@ -21,6 +21,7 @@ S="${WORKDIR}"
 
 RDEPEND="
 	app-admin/bubba-frontend
+	app-admin/bubba-manual
 	sys-power/bubba-buttond
 "
 

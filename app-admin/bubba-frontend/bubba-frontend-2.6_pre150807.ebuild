@@ -12,16 +12,18 @@ EAPI="5"
 inherit eutils perl-module
 
 MY_PV=${PV/_*/}
+JQ_PV="1.4.2"
+JQUI_PV="1.8.12"
 DESCRIPTION="Excito B3 administrative scripts"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.mybubba.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz
-	http://code.jquery.com/jquery-1.4.2.js
-	http://code.jquery.com/ui/1.8.12/jquery-ui.js?1.8.12"
+SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz
+	http://code.jquery.com/jquery-${JQ_PV}.js
+	http://code.jquery.com/ui/${JQUI_PV}/jquery-ui.js -> jquery-ui-${JQUI_PV}.js"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm"
+KEYWORDS="~arm ~ppc"
 IUSE="+apache2 nginx"
 
 REQUIRED_USE="^^ ( apache2 nginx )"
@@ -88,8 +90,8 @@ src_install() {
 	insinto /opt/bubba/web-admin
 	doins -r admin
 	insinto /opt/bubba/web-admin/admin/views/default/_js
-	newins ${DISTDIR}/jquery-1.4.2.js jquery.js
-	newins ${DISTDIR}/jquery-ui.js\?1.8.12 jquery-ui.js
+	newins ${DISTDIR}/jquery-${JQ_PV}.js jquery.js
+	newins ${DISTDIR}/jquery-ui-${JQUI_PV}.js jquery-ui.js
 
 
 	PHP_CLI_INI_PATH=$(php -n --ini | grep -v "(none)" | awk '{print $NF}')
