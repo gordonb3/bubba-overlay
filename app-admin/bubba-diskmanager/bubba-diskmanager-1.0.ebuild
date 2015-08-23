@@ -6,7 +6,7 @@ EAPI="5"
 
 inherit eutils
 
-DESCRIPTION="Bubba platform information library"
+DESCRIPTION="Bubba disk manager handles disk functions for the Bubba web frontend"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
 

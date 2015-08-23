@@ -6,7 +6,7 @@ EAPI="5"
 
 inherit eutils
 
-DESCRIPTION="Bubba platform information library"
+DESCRIPTION="PHP bindig for Bubba platform information library"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.excito.org/pool/main/libb/${PN}/${PN}_${PV}.tar.gz"
 

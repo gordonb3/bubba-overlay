@@ -6,7 +6,7 @@ EAPI="5"
 
 inherit eutils perl-module
 
-DESCRIPTION="Bubba platform information library"
+DESCRIPTION="Perl bindig for Bubba platform information library"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.excito.org/pool/main/libb/${PN}/${PN}_${PV}.tar.gz"
 
