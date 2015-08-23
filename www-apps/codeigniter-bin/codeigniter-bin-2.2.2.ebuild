@@ -18,7 +18,7 @@ IUSE=""
 
 MY_PN="CodeIgniter"
 S="${WORKDIR}/${MY_PN}-${PV}"
-LICENSE="${MY_PN}"
+LICENSE="MIT"
 
 
 # Installation dependencies.
