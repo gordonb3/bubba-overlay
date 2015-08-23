@@ -7,9 +7,9 @@ EAPI="5"
 inherit eutils
 
 MY_PV=${PV/_*/}
-DESCRIPTION="Bubba platform information library"
+DESCRIPTION="Bubba network manager allows the web frontend to control verious network settings"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.mybubba.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz"
+SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
