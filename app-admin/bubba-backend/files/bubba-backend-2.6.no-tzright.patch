@@ -1,0 +1,700 @@
+diff -ru a/Makefile.PL b/Makefile.PL
+--- a/Makefile.PL	2015-08-25 09:54:10.027927068 +0200
++++ b/Makefile.PL	2015-08-25 09:52:53.171447639 +0200
+@@ -2,5 +2,5 @@
+ use ExtUtils::MakeMaker;
+ 
+ WriteMakefile( DIR => [ 'web-admin' ] ,	INSTALLDIRS => 'vendor',
+-	INSTALLVENDORSCRIPT => '$(PREFIX)/lib/web-admin',
+-	INSTALLSITESCRIPT => '$(PREFIX)/lib/web-admin');
++	INSTALLVENDORSCRIPT => '/opt/bubba/bin',
++	INSTALLSITESCRIPT => '/opt/bubba/bin');
+diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
+--- a/web-admin/MANIFEST	2015-08-25 09:54:10.988008008 +0200
++++ b/web-admin/MANIFEST	2015-08-25 09:52:53.171447639 +0200
+@@ -2,14 +2,11 @@
+ MANIFEST
+ lib/Bubba.pm
+ bin/adminfunctions.php
+-bin/updatebackend.pl
+-bin/adminfunctions.php
+ bin/disk.pl
+ bin/firewall.pl
+ bin/updater.pl
+ bin/thumbnail.pl
+ bin/backend.pl
+-bin/print.pl
+ bin/backup.pl
+ bin/diskdaemon.pl
+ bin/notify-dispatcher.pl
+diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
+--- a/web-admin/Makefile.PL	2015-08-25 09:54:11.708068713 +0200
++++ b/web-admin/Makefile.PL	2015-08-25 09:52:53.181448482 +0200
+@@ -8,7 +8,6 @@
+ 	'bin/backend.pl',
+ 	'bin/disk.pl',
+ 	'bin/firewall.pl',
+-	'bin/easyfind.pl',
+ 	'bin/backup.pl',
+ 	'bin/diskdaemon.pl',
+ 	'bin/notify-dispatcher.pl',
+diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
+--- a/web-admin/bin/adminfunctions.php	2015-08-25 09:54:12.468132791 +0200
++++ b/web-admin/bin/adminfunctions.php	2015-08-25 10:00:49.381594863 +0200
+@@ -2,7 +2,7 @@
+ # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
+ setlocale( LC_CTYPE, 'en_US.UTF-8' );
+ define("DEBUG",0);
+-define("BUBBA_EASYFIND_CONF","/etc/network/easyfind.conf");
++define("BUBBA_EASYFIND_CONF","/etc/bubba/easyfind.conf");
+ class AdminException extends Exception {
+ 
+ 	const MYSQL_CONNECT_ERROR = 0x01;
+@@ -467,17 +467,19 @@
+ 	return $res;
+ }
+ 
++/*
++	// Gordon: 2015-07-15 - does not appear to be used any more
+ function _check_dhcp($iface=""){
+ 	if($iface=""){
+ 		$iface=_getlanif();
+ 	}
+ 	$cdhcp=false;
+-	$netcfg=file("/etc/network/interfaces");
++	$netcfg=file("/etc/conf.d/net");
+ 	foreach ($netcfg as $i) {
+ 		$trim_line = trim($i);
+-		$pieces = explode(" ",$trim_line);
++		$pieces = explode("=",$trim_line);
+ 		if(count($pieces)==4){
+-			if($pieces[1]==$iface && $pieces[3]=="dhcp"){
++			if($pieces[1]=="config_$iface" && $pieces[3]=="\"dhcp\""){
+ 				$cdhcp=true;
+ 				break;
+ 			}
+@@ -513,7 +515,7 @@
+ 			}			
+ 		}
+ 	} else { // default
+-		exec("/sbin/ifconfig $iface",$out,$ret);
++		exec("/bin/ifconfig $iface",$out,$ret);
+ 		foreach($out as $line){
+ 			if(preg_match("/inet addr:([\d.]+)/",$line,$match)){
+ 				$res[0]=$match[1];
+@@ -523,7 +525,7 @@
+ 			}
+ 		}
+ 	}
+-	exec("/sbin/route -n",$out,$ret);
++	exec("/bin/route -n",$out,$ret);
+ 	$res[2]="0.0.0.0";
+ 	foreach($out as $line){
+ 		if(preg_match("/^0\.0\.0\.0\s+([\d.]+)/",$line,$match)){
+@@ -543,6 +545,7 @@
+ 	return $res;	
+ 	
+ }
++*/
+ 
+ function set_static_netcfg($iface, $ip,$nm,$gw){
+    
+@@ -615,7 +618,7 @@
+ 
+ function query_service($name){
+ 
+-   $res=glob("/etc/rc2.d/S??$name");
++   $res=glob("/etc/runlevels/default/$name");
+    return $res?true:false;
+ 
+ }
+@@ -902,6 +905,8 @@
+ 	return $clients;
+ }
+ 
++# Gordon: 2015-06-19 - Do not let web admin manage the main chains in iptables
++
+ function get_fwsettings() {
+  
+ 	$iptable = array();
+@@ -925,53 +930,53 @@
+ 	$retval["allowIMAP"]=false;
+ 	$retval["allowTorrent"]=false;
+ 
+-	if(isset($iptable["INPUT"]["21tcp"]))
+-		if(!strcmp($iptable["INPUT"]["21tcp"]["target"],"ACCEPT")) {
+-			$iptable["INPUT"]["21tcp"] = 0;
++	if(isset($iptable["Bubba_IN"]["21tcp"]))
++		if(!strcmp($iptable["Bubba_IN"]["21tcp"]["target"],"ACCEPT")) {
++			$iptable["Bubba_IN"]["21tcp"] = 0;
+ 			$retval["allowFTP"]=true;
+ 		}
+ 
+-	if(isset($iptable["INPUT"]["22tcp"]))
+-		if(!strcmp($iptable["INPUT"]["22tcp"]["target"],"ACCEPT")){
+-			$iptable["INPUT"]["22tcp"] = 0;
++	if(isset($iptable["Bubba_IN"]["22tcp"]))
++		if(!strcmp($iptable["Bubba_IN"]["22tcp"]["target"],"ACCEPT")){
++			$iptable["Bubba_IN"]["22tcp"] = 0;
+ 			$retval["allowSSH"]=true;
+ 		}
+ 
+-	if(isset($iptable["INPUT"]["80tcp"]))
+-		if(!strcmp($iptable["INPUT"]["80tcp"]["target"],"ACCEPT")){
+-			$iptable["INPUT"]["80tcp"] = 0;
+-			$iptable["INPUT"]["443tcp"] = 0;
++	if(isset($iptable["Bubba_IN"]["80tcp"]))
++		if(!strcmp($iptable["Bubba_IN"]["80tcp"]["target"],"ACCEPT")){
++			$iptable["Bubba_IN"]["80tcp"] = 0;
++			$iptable["Bubba_IN"]["443tcp"] = 0;
+ 			$retval["allowWWW"]=true;
+ 		}
+ 
+-	if(isset($iptable["INPUT"]["25tcp"]))
+-		if(!strcmp($iptable["INPUT"]["25tcp"]["target"],"ACCEPT")){
+-			$iptable["INPUT"]["25tcp"] = 0;
++	if(isset($iptable["Bubba_IN"]["25tcp"]))
++		if(!strcmp($iptable["Bubba_IN"]["25tcp"]["target"],"ACCEPT")){
++			$iptable["Bubba_IN"]["25tcp"] = 0;
+ 			$retval["allowMail"]=true;
+ 		}
+ 
+-	if(isset($iptable["INPUT"]["143tcp"]))
+-		if(!strcmp($iptable["INPUT"]["143tcp"]["target"],"ACCEPT")){
+-			$iptable["INPUT"]["143tcp"] = 0;
+-			$iptable["INPUT"]["993tcp"] = 0;
++	if(isset($iptable["Bubba_IN"]["143tcp"]))
++		if(!strcmp($iptable["Bubba_IN"]["143tcp"]["target"],"ACCEPT")){
++			$iptable["Bubba_IN"]["143tcp"] = 0;
++			$iptable["Bubba_IN"]["993tcp"] = 0;
+ 			$retval["allowIMAP"]=true;
+ 		}
+ 
+-	if(isset($iptable["INPUT"]["pingicmp"]))
+-		if(!strcmp($iptable["INPUT"]["pingicmp"]["target"],"ACCEPT")){
+-			$iptable["INPUT"]["pingicmp"] = 0;
++	if(isset($iptable["Bubba_IN"]["pingicmp"]))
++		if(!strcmp($iptable["Bubba_IN"]["pingicmp"]["target"],"ACCEPT")){
++			$iptable["Bubba_IN"]["pingicmp"] = 0;
+ 			$retval["allowPing"]=true;
+ 		}
+ 
+-	if(isset($iptable["INPUT"]["10000:14000tcp"]))
+-		if(!strcmp($iptable["INPUT"]["10000:14000tcp"]["target"],"ACCEPT")){
+-			$iptable["INPUT"]["10000:14000tcp"] = 0;
++	if(isset($iptable["Bubba_IN"]["10000:14000tcp"]))
++		if(!strcmp($iptable["Bubba_IN"]["10000:14000tcp"]["target"],"ACCEPT")){
++			$iptable["Bubba_IN"]["10000:14000tcp"] = 0;
+ 			$retval["allowTorrent"]=true;
+ 		}
+ 
+ 	$retval['fwports'] = array();
+-	if(isset($iptable["INPUT"])) {
+-		foreach($iptable["INPUT"] as $key => $rule) {
++	if(isset($iptable["Bubba_IN"])) {
++		foreach($iptable["Bubba_IN"] as $key => $rule) {
+ 			if (!strcmp($rule["target"],"ACCEPT")) {
+ 				$retval["fwports"][$key]=$rule;
+ 				if(!isset($retval["fwports"][$key]["to_ip"])) {
+@@ -985,8 +990,8 @@
+ 		}
+ 	}
+   
+-	if(isset($iptable["PREROUTING"])) {
+-		foreach($iptable["PREROUTING"] as $key => $rule) {
++	if(isset($iptable["Bubba_DNAT"])) {
++		foreach($iptable["Bubba_DNAT"] as $key => $rule) {
+ 			//if($rule["source"]=="0.0.0.0/0") {
+ 			//	$rule["source"]="all";
+ 			//}
+@@ -1027,14 +1032,14 @@
+ 
+ function open_port($port) {
+ 
+-	$cmd = FIREWALL." openport $port[dport] $port[protocol] $port[source] filter INPUT";
++	$cmd = FIREWALL." openport $port[dport] $port[protocol] $port[source] filter Bubba_IN";
+ 	exec($cmd,$out,$ret);
+ 	return $out;
+ }
+ 
+ function close_port($port) {
+ 
+-	$cmd = FIREWALL." closeport $port[dport] $port[protocol] $port[source] filter INPUT";
++	$cmd = FIREWALL." closeport $port[dport] $port[protocol] $port[source] filter Bubba_IN";
+ 	exec($cmd,$out,$ret);
+ 	return $out;
+ }
+@@ -1044,18 +1049,18 @@
+ 	foreach($portlist as $port => $open) {
+ 		if($open) { // OPEN ports
+ 			if (!strcmp($port,"ping"))
+-				$cmd = FIREWALL." openport 8 icmp 0 filter INPUT";
++				$cmd = FIREWALL." openport 8 icmp 0 filter Bubba_IN";
+ 			else 
+-				$cmd = FIREWALL." openport $port tcp 0 filter INPUT";
++				$cmd = FIREWALL." openport $port tcp 0 filter Bubba_IN";
+ 			exec($cmd,$out,$ret);
+ 		  	
+ 			// Additional related ports (mainly encrypted traffic ports
+ 			if ($port == 80) {
+-				$cmd = FIREWALL." openport 443 tcp 0 filter INPUT";
++				$cmd = FIREWALL." openport 443 tcp 0 filter Bubba_IN";
+ 				exec($cmd,$out,$ret);
+ 			}
+ 			if ($port == 143) {
+-				$cmd = FIREWALL." openport 993 tcp 0 filter INPUT";
++				$cmd = FIREWALL." openport 993 tcp 0 filter Bubba_IN";
+ 				exec($cmd,$out,$ret);
+ 			}
+ 			unset($out); // exec seems to append to $out.
+@@ -1063,16 +1068,16 @@
+ 		} else { // Close ports
+ 	
+ 			if (!strcmp($port,"ping"))
+-				$cmd = FIREWALL." closeport 8 icmp 0 filter INPUT";
++				$cmd = FIREWALL." closeport 8 icmp 0 filter Bubba_IN";
+ 			else 
+-				$cmd = FIREWALL." closeport $port tcp 0 filter INPUT";
++				$cmd = FIREWALL." closeport $port tcp 0 filter Bubba_IN";
+ 			exec($cmd,$out,$ret);
+ 			if ($port == 80) {
+-				$cmd = FIREWALL." closeport 443 tcp 0 filter INPUT";
++				$cmd = FIREWALL." closeport 443 tcp 0 filter Bubba_IN";
+ 				exec($cmd,$out,$ret);
+ 			}
+ 			if ($port == 143) {
+-				$cmd = FIREWALL." closeport 993 tcp 0 filter INPUT";
++				$cmd = FIREWALL." closeport 993 tcp 0 filter Bubba_IN";
+ 				exec($cmd,$out,$ret);
+ 			}
+ 			unset($out); // exec seems to append to $out.
+@@ -1231,8 +1236,8 @@
+ 	exec($cmd,$out,$ret);
+ 	$versions = array();
+ 	foreach( $out as $line ) {
+-		list( $name, $version ) = explode( ' ', $line );
+-		$versions[$name] = $version;
++		list( $name, $version ) = explode( ' ', $line." null" );
++		$versions["$name"] = $version;
+ 	}
+ 
+ 	if( count($versions) == 1 ) {
+@@ -1299,7 +1304,7 @@
+ 
+ function get_timezone_info() {
+ 	
+-	$zoneinfo = '/usr/share/zoneinfo/right';
++	$zoneinfo = '/usr/share/zoneinfo';
+ 	if ($h_zonebase = opendir($zoneinfo)) {
+ 		
+ 		$zones = array();
+diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
+--- a/web-admin/bin/firewall.pl	2015-08-25 09:54:13.318204456 +0200
++++ b/web-admin/bin/firewall.pl	2015-08-25 09:52:53.191449325 +0200
+@@ -1,11 +1,12 @@
+-#! /usr/bin/perl 
++#!/usr/bin/perl 
+ 
+ use strict;
+ use IPC::Open3;
+ use XML::Simple;
+ $XML::Simple::PREFERRED_PARSER = 'XML::Parser';
+ 
+-use constant WAN_IF=>"eth0";
++# Gordon: 2015-06-19 - eth0 should not be hardcoded as WAN interface
++#use constant WAN_IF=>"eth0";
+ use constant IPTABLES=>"/sbin/iptables";
+ use constant IPTABLES_XML=>"/usr/bin/iptables-xml";
+ use constant DEBUG=>0;
+@@ -13,6 +14,26 @@
+ use vars qw($ruleset);
+ 
+ 
++# Gordon: 2015-06-19 - function to retrieve WAN interface
++#                      assume default route for now
++sub get_wanif {
++	my($wtr, $rdr, $err, $if);
++	$err = 1; # we want to dump errors here
++
++	my $pid = open3($wtr, $rdr, $err,"/bin/ip route get 128");
++	my @data=<$rdr>;
++	my @err=<$err>;
++	waitpid($pid,0);
++
++	foreach (@data){
++		if( /dev (\w+)/ ){
++			$if = $1;
++		}
++	}
++	return $if;
++}
++
++
+ sub d_print {
+ 
+ 	if(DEBUG) {
+@@ -26,19 +47,19 @@
+ 	my($in, $out, $err);
+ 	$err = 1; # we want to dump errors here
+ 
+-	my $pid = open3($in, $out, $err,"/sbin/ifconfig " . $IF);
++	my $pid = open3($in, $out, $err,"/bin/ifconfig " . $IF);
+ 
+ 	my $lines=join("",<$out>);
+ 	waitpid($pid,0);
+ 	my @if;
+ 
+ 	# get the IP address
+-	if( $lines =~ m/addr:(\d+\.\d+\.\d+\.\d+)/) {
++	if( $lines =~ m/inet (\d+\.\d+\.\d+\.\d+)/) {
+ 		$if[0] = $1;
+ 	}
+ 
+ 	# get the netmask
+-	if($lines =~ m/Mask:(\d+\.\d+\.\d+\.\d+)\s/) {
++	if($lines =~ m/netmask (\d+\.\d+\.\d+\.\d+)\s/) {
+ 		$if[1] = $1;
+ 	}
+ 	return @if;
+@@ -176,7 +197,7 @@
+ 
+ sub save_rules {
+ 
+-	my $cmd = IPTABLES . "-save > /etc/network/firewall.conf";
++	my $cmd = IPTABLES . "-save > /etc/bubba/firewall.conf";
+ 
+ 	my($wtr, $rdr, $err);
+ 	$err = 1; # we want to dump errors here
+@@ -222,7 +243,7 @@
+ 			$localip_match = ($h_conditions->{match}->{d} =~ m/$localip/)
+ 		} else {
+ 			# no destination may exist in the rule
+-			if($h_conditions->{match}->{d} && !($chain eq "PREROUTING") ) {
++			if($h_conditions->{match}->{d} && !($chain eq "Bubba_DNAT") ) {
+ 				$localip_match = 0;
+ 			}
+ 		}
+@@ -282,12 +303,12 @@
+ 	my $netmask   = netmask2net($ARGV[6]);
+ 	my $serverip  = $ARGV[7];
+ 
+-	my @nat_rules = check_port($port,$prot,$source,"nat","PREROUTING",0); # destination IP is of interest here.
+-	my @filter_rules = check_port($localport,$prot,$source,"filter","FORWARD",$ip);
+-	my @input_rules = check_port($port,$prot,$source,"filter","INPUT",$ip);
+-	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","POSTROUTING",$ip);
++	my @nat_rules = check_port($port,$prot,$source,"nat","Bubba_DNAT",0); # destination IP is of interest here.
++	my @filter_rules = check_port($localport,$prot,$source,"filter","Bubba_FWD",$ip);
++	my @input_rules = check_port($port,$prot,$source,"filter","Bubba_IN",$ip);
++	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","Bubba_SNAT",$ip);
+ 
+-	my @if = get_ifinfo(WAN_IF);
++	my @if = get_ifinfo(get_wanif());
+ 
+ 	if(@nat_rules || @filter_rules || @input_rules || @POSTROUTE_rules) {
+ 		print( "Confliction with existing rules\n");
+@@ -296,28 +317,28 @@
+ 			foreach my $rule (@nat_rules) {
+ 				d_print( "$rule ");
+ 			}
+-			d_print( " in NAT->PREROUTING\n");
++			d_print( " in NAT->Bubba_DNAT\n");
+ 		}
+ 		if(@filter_rules) {
+ 			d_print( " Rule ");
+ 			foreach my $rule (@filter_rules) {
+ 				d_print( "$rule ");
+ 			}
+-			d_print( " in FILTER->FORWARD\n");
++			d_print( " in FILTER->Bubba_FWD\n");
+ 		}
+ 		if(@POSTROUTE_rules) {
+ 			d_print( " Rule ");
+ 			foreach my $rule (@POSTROUTE_rules) {
+ 				d_print( "$rule ");
+ 			}
+-			d_print( " in NAT->POSTROUTEING\n");
++			d_print( " in NAT->Bubba_SNAT\n");
+ 		}
+ 		if(@input_rules) {
+ 			d_print( " Rule ");
+ 			foreach my $rule (@input_rules) {
+ 				d_print( "$rule ");
+ 			}
+-			d_print( " in FILTER->INPUT\n");
++			d_print( " in FILTER->Bubba_IN\n");
+ 		}
+ 	} else {
+ 		my $exec_retval;
+@@ -325,7 +346,7 @@
+ 
+ 		d_print "Port $port ok to forward\n";
+ 		# Create prerouting rule
+-		my $cmd = IPTABLES . " -t nat -A PREROUTING -p $prot -d " . $if[0] . "/32 --dport $port";
++		my $cmd = IPTABLES . " -t nat -A Bubba_DNAT -p $prot -d " . $if[0] . "/32 --dport $port";
+ 		if ($source) {
+ 			$cmd .= " -s $source";
+ 		}
+@@ -340,7 +361,7 @@
+ 		if($port =~ m/(\d+):(\d+)/) { # portrange
+ 			$localport = $localport . ":" . ($localport+($2-$1));
+ 		}
+-		$cmd = "iptables -A FORWARD -p $prot -d $ip --dport $localport";
++		$cmd = "iptables -A Bubba_FWD -p $prot -d $ip --dport $localport";
+ 		if ($source) {
+ 			$cmd .= " -s $source";
+ 		}
+@@ -352,7 +373,7 @@
+ 
+ 		# Create POSTROUTING rule
+ 		# local port range already fixed in FORWARD rule.
+-		$cmd = "iptables -t nat -A POSTROUTING -p $prot -d $ip --dport $localport --source $serverip/$netmask -j SNAT --to-source $serverip";
++		$cmd = "iptables -t nat -A Bubba_SNAT -p $prot -d $ip --dport $localport --source $serverip/$netmask -j SNAT --to-source $serverip";
+ 		d_print("POSTROUTING RULE: ".$cmd."\n");
+ 		if ($exec_retval = exec_cmd($cmd)) {
+ 			$ret .= $exec_retval;
+@@ -371,9 +392,9 @@
+ 	my $ip        = $ARGV[4];
+ 	my $localport = $ARGV[5];
+ 
+-	my @nat_rules = check_port($port,$prot,$source,"nat","PREROUTING",0);
+-	my @filter_rules = check_port($localport,$prot,$source,"filter","FORWARD",$ip);
+-	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","POSTROUTING",$ip);
++	my @nat_rules = check_port($port,$prot,$source,"nat","Bubba_DNAT",0);
++	my @filter_rules = check_port($localport,$prot,$source,"filter","Bubba_FWD",$ip);
++	my @POSTROUTE_rules = check_port($localport,$prot,"*","nat","Bubba_SNAT",$ip);
+ 
+ 
+ 	if(@nat_rules && @filter_rules) { # matching rules in both chains
+@@ -382,7 +403,7 @@
+ 		my $ret;
+ 
+ 		foreach my $rule (reverse(@nat_rules)) {
+-			my $cmd = "iptables -t nat -D PREROUTING $rule";
++			my $cmd = "iptables -t nat -D Bubba_DNAT $rule";
+ 			d_print("Remove NAT: $cmd\n");
+ 			if ($exec_retval = exec_cmd($cmd)) {
+ 				$ret .= $exec_retval;
+@@ -390,7 +411,7 @@
+ 		}
+ 
+ 		foreach my $rule (reverse(@filter_rules)) {
+-			my $cmd = "iptables -t filter -D FORWARD $rule";
++			my $cmd = "iptables -t filter -D Bubba_FWD $rule";
+ 			d_print("Remove FORWARD: $cmd\n");
+ 			if ($exec_retval = exec_cmd($cmd)) {
+ 				$ret .= $exec_retval;
+@@ -398,7 +419,7 @@
+ 		}
+ 		if(@POSTROUTE_rules) {  # do not require the rule to be in the POSTROUTE
+ 			foreach my $rule (reverse(@POSTROUTE_rules)) {
+-				my $cmd = "iptables -t nat -D POSTROUTING $rule";
++				my $cmd = "iptables -t nat -D Bubba_SNAT $rule";
+ 				d_print("Remove POSTROUTE: $cmd\n");
+ 				if ($exec_retval = exec_cmd($cmd)) {
+ 					$ret .= $exec_retval;
+@@ -440,7 +461,7 @@
+ 		d_print " in table/chain: $table/$chain\n";
+ 	} else {
+ 		d_print( "Port $port ok to open\n");
+-		my $cmd = IPTABLES . " -t $table -A $chain -p $prot -i " .WAN_IF;
++		my $cmd = IPTABLES . " -t $table -A $chain -p $prot -i " .get_wanif();
+ 		if ($prot eq "icmp") {
+ 			$cmd .= " --icmp-type $port";
+ 		} else {
+@@ -490,11 +511,11 @@
+ 	my $if = $ARGV[1];
+ 	my $old_if = $if eq 'eth1' ? 'br0' : 'eth1';
+ 
+-	unless( -f '/etc/network/firewall.conf' ) {
+-		system("/sbin/iptables-save > /etc/network/firewall.conf");
++	unless( -f '/etc/bubba/firewall.conf' ) {
++		system("/sbin/iptables-save > /etc/bubba/firewall.conf");
+ 	}
+ 	my $parser = new XML::LibXML();
+-	my $file_fw = qx{/usr/bin/iptables-xml /etc/network/firewall.conf};
++	my $file_fw = qx{/usr/bin/iptables-xml /etc/bubba/firewall.conf};
+ 	my $doc = $parser->parse_string( $file_fw );
+ 	foreach my $context( $doc->findnodes("//match/i[. = \"$old_if\"]/text()")->get_nodelist() ) {
+ 		$context->setData( $if );
+@@ -502,7 +523,7 @@
+ 	my ($fh, $filename) = tempfile();
+ 	$doc->toFH($fh);
+ 	close( $fh );
+-	system( "xsltproc /usr/share/bubba-backend/iptables.xslt $filename | iptables-restore" );
++	system( "xsltproc /var/lib/bubba/iptables.xslt $filename | iptables-restore" );
+ 	unlink( $filename );
+ 	save_rules();
+ }
+diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
+--- a/web-admin/lib/Bubba.pm	2015-08-25 09:54:14.058266848 +0200
++++ b/web-admin/lib/Bubba.pm	2015-08-25 09:52:53.201450169 +0200
+@@ -416,13 +416,9 @@
+    my ($name)=@_;
+    my $ret=0;
+ 
+-   system("userdel $name");
++   system("smbpasswd -x $name &>/dev/null && userdel $name");
+    $ret=$?;
+    
+-   if ($ret==0) {
+-      system("smbpasswd -x $name");
+-   }
+-
+    return $ret;
+ }
+ 
+@@ -532,6 +528,28 @@
+ 
+ }
+ 
++# Gordon : 2015-06-22 - added function to keep existing hosts entries
++sub update_hostsfile {
++
++	my ($lanip,$name) = @_;	
++	if ($lanip=="127.0.0.1") { return 0;}
++	my $oldname;
++	use File::Slurp;
++	my $hosts = read_file('/etc/hosts');
++	my @lines = split("\n", $hosts);
++	chomp(@lines);
++	foreach (@lines) {
++		if ( /^$lanip(.+)$/ ) {
++			/\s([^\s\.]+)[\s\.]/;
++			$oldname=$1;
++		}
++	}
++	$hosts =~ s/\$oldname/$lanip/g;
++	write_file( '/etc/hosts', $hosts );
++
++}
++
++
+ # Change hostname
+ #
+ # Args   : name - New hostname  
+@@ -544,14 +562,15 @@
+ 	my ($name)=@_;
+ 
+ 	system("echo $name > /proc/sys/kernel/hostname");
+-	system("echo $name > /etc/hostname");
+-	system("echo $name.localdomain > /etc/mailname");
++	system("sed -i \"s/\s*\(hostname=\).*$/\\1\\\"$name\\\"/\"   /etc/conf.d/hostname");
++#	system("echo $name.localdomain > /etc/mailname");
+ 
+ 	%ifs = read_interfaces();
+ 	chomp($lan = _get_lanif);
+ 	$lanip = $ifs{$lan}{"options"}{"address"};
+ 	$lanip = '127.0.0.1' unless $lanip;
+-	write_hostsfile($lanip,$name);
++#	write_hostsfile($lanip,$name);
++	update_hostsfile($lanip,$name);
+ 
+ 	if(!query_service("dnsmasq")){
+ 		#restart dnsmasq
+@@ -564,10 +583,10 @@
+ 	system("echo send host-name \\\"$name\\\"\\\; >> /etc/dhcp/dhclient.conf.new");
+ 	system("mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
+ 	$lan = _get_lanif;
+-	system("/sbin/ifup --force eth0 $lan");
++	system("rc-config restart `rc-config list default | grep "^\s*net\."`");
+ 
+ 	if(change_ftp_servername($name)){
+-		system("/etc/init.d/proftpd restart");
++		system("rc-config restart proftpd");
+ 	}
+ 
+ 	restart_avahi();
+@@ -589,7 +608,7 @@
+ sub power_off{
+ 	use Bubba::Info;
+ 	if(isB3()){
+-		system("/sbin/write-magic 0xdeadbeef");
++		system("/opt/bubba/bin/write-magic 0xdeadbeef");
+ 		return system("/sbin/reboot");
+ 	}elsif(isB2()){
+ 		if( -e "/sys/devices/platform/bubbatwo/magic" ){
+@@ -639,9 +658,9 @@
+    my ($if)=@_;
+    my $ret;
+ 
+-   $ret=system("/sbin/ifdown $if");
++   $ret=system("rc-config stop net.$if");
+    if ($ret==0) {
+-      $ret=system("/sbin/ifup $if");
++      $ret=system("rc-config start net.$if");
+    }
+    return $ret;
+ }
+@@ -769,7 +788,25 @@
+ sub set_nameserver{
+ 	my ($ns)=@_;
+ 	
+-	return system("echo -ne 'search\nnameserver $ns\n'>/etc/resolv.conf");
++#	return system("echo -ne 'search\nnameserver $ns\n'>/etc/resolv.conf");
++# Gordon : 2015-06-22 Don't delete domain information in this file
++	my $findstring="nameserver";
++	my $ret;
++        use File::Slurp;
++        my $resolvconf = read_file('/etc/resolv.conf');
++        my @lines = split("\n", resolvconf);
++        chomp(@lines);
++        foreach (@lines) {
++                if ( /^$findstring/ ) {
++                        $ret .= "nameserver $ns\n";
++			$findstring="-";
++                }else {
++			$ret .= $_"\n";
++		}
++        }
++        
++        write_file( '/etc/resolv.conf', $ret );
++
+ }
+ 
+ # Is service running?
+@@ -786,8 +823,6 @@
+ 	
+ 	if ($service eq "fetchmail"){
+ 		$pidfile="/var/run/fetchmail/.fetchmail";
+-	} elsif ($service eq "dnsmasq") {
+-		$pidfile="/var/run/dnsmasq/dnsmasq.pid";
+ 	} elsif ($service eq "avahi-daemon"){
+ 		$pidfile="/var/run/avahi-daemon/pid";
+ 	} elsif ($service eq "tor"){
+@@ -869,7 +904,7 @@
+ sub add_service{
+    my ($service)=@_;
+    
+-   return system("/usr/sbin/update-rc.d $service defaults");  
++   return system("/sbin/rc-update add $service default");
+ }
+ 
+ # Add service att specific init "level"
+@@ -881,7 +916,8 @@
+ sub add_service_at_level{
+    my ($service, $level)=@_;
+ 
+-   return system("/usr/sbin/update-rc.d $service defaults $level");
++# Gordon : 2015-06-22 - load order of services can not be altered this way in Gentoo
++   return system("/sbin/rc-update add $service default");
+ }
+ 
+ # Remove service
+@@ -892,7 +928,7 @@
+ sub remove_service{
+    my ($service)=@_;
+    
+-   return system("/usr/sbin/update-rc.d -f $service remove");  
++   return system("/sbin/rc-update del $service default");
+ }
+ 
+ # Query service
+@@ -903,7 +939,7 @@
+ sub query_service{
+    my ($service)=@_;
+ 
+-   return system("ls /etc/rc2.d/S??$service 1>/dev/null 2>/dev/null");
++   return system("ls /etc/runlevels/default/$service 1>/dev/null 2>/dev/null");
+ 
+ }
+ 
