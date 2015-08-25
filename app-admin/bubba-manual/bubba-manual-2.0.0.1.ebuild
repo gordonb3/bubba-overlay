@@ -20,7 +20,7 @@ fi
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~ppc -arm"
+KEYWORDS="~ppc"
 
 
 src_install() {

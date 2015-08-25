@@ -14,7 +14,7 @@ SRC_URI="http://update.excito.org/pool/main/p/${PN}/${PN}_${PV}.tar.gz"
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm"
+KEYWORDS="~arm ~ppc"
 IUSE=""
 
 DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"

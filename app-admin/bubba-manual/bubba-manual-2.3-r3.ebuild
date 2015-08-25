@@ -20,7 +20,7 @@ fi
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm -ppc"
+KEYWORDS="~arm"
 
 
 S=${WORKDIR}/${PN}

@@ -9,7 +9,7 @@ inherit eutils
 MY_P=${P/_*/}
 DESCRIPTION="The Bubba meta package"
 HOMEPAGE="https://github.com/gordonb3/bubba-overlay"
-KEYWORDS="~arm"
+KEYWORDS="~arm ~ppc"
 SRC_URI=""
 LICENSE="GPL-3+"
 SLOT="0"

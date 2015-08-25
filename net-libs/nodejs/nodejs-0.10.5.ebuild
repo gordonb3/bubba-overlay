@@ -17,7 +17,7 @@ SRC_URI="http://nodejs.org/dist/v${PV}/node-v${PV}.tar.gz"
 
 LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT"
 SLOT="0"
-KEYWORDS="~arm"
+KEYWORDS="~arm ~ppc"
 IUSE="+npm -snapshot"
 
 RDEPEND="dev-libs/openssl"

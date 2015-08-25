@@ -12,7 +12,7 @@ SRC_URI="http://update.excito.org/pool/main/b/bubba-backend/bubba-backend_${PV}.
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm"
+KEYWORDS="~arm ~ppc"
 IUSE="+dhcp +remote-router"
 
 DEPEND="dev-embedded/u-boot-tools"

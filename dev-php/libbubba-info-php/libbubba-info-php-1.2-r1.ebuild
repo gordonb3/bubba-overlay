@@ -13,7 +13,7 @@ SRC_URI="http://update.excito.org/pool/main/libb/${PN}/${PN}_${PV}.tar.gz"
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm"
+KEYWORDS="~arm ~ppc"
 IUSE="apache2"
 
 DEPEND=""
