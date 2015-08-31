@@ -37,6 +37,7 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
+	app-admin/hddtemp
 	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,crypt,imap]
 	apache2? ( dev-lang/php[apache2] )
 	apache2? ( >=www-servers/apache-2.4.9[apache2_modules_proxy,apache2_modules_proxy_fcgi,apache2_modules_proxy_http,apache2_modules_rewrite] )
