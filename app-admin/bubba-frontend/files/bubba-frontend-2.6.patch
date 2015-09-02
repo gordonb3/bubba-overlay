@@ -1,6 +1,6 @@
 diff -ruN a/Makefile b/Makefile
 --- a/Makefile	2013-06-26 22:25:47.000000000 +0200
-+++ b/Makefile	2015-07-23 17:13:26.578563113 +0200
++++ b/Makefile	2015-09-02 11:18:58.675196885 +0200
 @@ -120,7 +120,7 @@
  		po4a.conf
  	rm -f po4a.stamp
@@ -12,7 +12,7 @@ diff -ruN a/Makefile b/Makefile
  	$(foreach ll,$(basename $(notdir $(wildcard po/php/*.mo))),\
 diff -ruN a/admin/config/browser_cap.php b/admin/config/browser_cap.php
 --- a/admin/config/browser_cap.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/config/browser_cap.php	2015-07-23 17:13:26.578563113 +0200
++++ b/admin/config/browser_cap.php	2015-09-02 11:18:58.675196885 +0200
 @@ -3,5 +3,5 @@
  
  $config['cache_path'] = '/var/cache/web-admin';
@@ -22,7 +22,7 @@ diff -ruN a/admin/config/browser_cap.php b/admin/config/browser_cap.php
  ?>
 diff -ruN a/admin/config/config.php b/admin/config/config.php
 --- a/admin/config/config.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/config/config.php	2015-07-23 17:13:26.578563113 +0200
++++ b/admin/config/config.php	2015-09-02 11:18:58.675196885 +0200
 @@ -11,7 +11,7 @@
  |	http://www.your-site.com/
  |
@@ -33,8 +33,8 @@ diff -ruN a/admin/config/config.php b/admin/config/config.php
  /*
  |--------------------------------------------------------------------------
 diff -ruN a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_settings.php
---- a/admin/controllers/ajax_settings.php	2015-07-23 17:16:02.193094178 +0200
-+++ b/admin/controllers/ajax_settings.php	2015-07-23 17:13:26.588564047 +0200
+--- a/admin/controllers/ajax_settings.php	2015-09-02 11:17:31.667851875 +0200
++++ b/admin/controllers/ajax_settings.php	2015-09-02 11:18:58.695198574 +0200
 @@ -76,12 +76,12 @@
    function get_versions() {
        $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
@@ -53,7 +53,7 @@ diff -ruN a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_setting
    function update(){
 diff -ruN a/admin/controllers/disk.php b/admin/controllers/disk.php
 --- a/admin/controllers/disk.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/disk.php	2015-07-23 17:13:26.598564980 +0200
++++ b/admin/controllers/disk.php	2015-09-02 11:18:58.695198574 +0200
 @@ -174,6 +174,7 @@
  			case '/dev/sda1':
  			case '/dev/sda2':
@@ -144,7 +144,7 @@ diff -ruN a/admin/controllers/disk.php b/admin/controllers/disk.php
                          case 'pv':
 diff -ruN a/admin/controllers/network.php b/admin/controllers/network.php
 --- a/admin/controllers/network.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/network.php	2015-07-23 17:13:26.598564980 +0200
++++ b/admin/controllers/network.php	2015-09-02 11:18:58.695198574 +0200
 @@ -472,12 +472,12 @@
  
  			if($edit) {
@@ -174,7 +174,7 @@ diff -ruN a/admin/controllers/network.php b/admin/controllers/network.php
  			$data["olip"] = parse_ip( $lifc["address"] );
 diff -ruN a/admin/controllers/services.php b/admin/controllers/services.php
 --- a/admin/controllers/services.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/services.php	2015-07-23 17:13:26.608565914 +0200
++++ b/admin/controllers/services.php	2015-09-02 11:18:58.705199418 +0200
 @@ -42,15 +42,12 @@
  		$logitechmediaserver_installed=is_installed($logitechmediaserver_packagename);
  		$logitechmediaserver_enabled=$this->input->post('logitechmediaserver_enabled');
@@ -234,7 +234,7 @@ diff -ruN a/admin/controllers/services.php b/admin/controllers/services.php
  		if($strip){
 diff -ruN a/admin/controllers/settings.php b/admin/controllers/settings.php
 --- a/admin/controllers/settings.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/settings.php	2015-07-23 17:14:54.096735432 +0200
++++ b/admin/controllers/settings.php	2015-09-02 11:18:58.705199418 +0200
 @@ -240,7 +240,7 @@
      case 'get_versions':
        $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
@@ -343,7 +343,7 @@ diff -ruN a/admin/controllers/settings.php b/admin/controllers/settings.php
        $flat = array();
 diff -ruN a/admin/controllers/stat.php b/admin/controllers/stat.php
 --- a/admin/controllers/stat.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/stat.php	2015-07-23 17:13:26.618566848 +0200
++++ b/admin/controllers/stat.php	2015-09-02 11:18:58.705199418 +0200
 @@ -36,7 +36,7 @@
      }
  
@@ -355,7 +355,7 @@ diff -ruN a/admin/controllers/stat.php b/admin/controllers/stat.php
  
 diff -ruN a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_helper.php
 --- a/admin/helpers/bubba_socket_helper.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/helpers/bubba_socket_helper.php	2015-07-23 17:13:26.618566848 +0200
++++ b/admin/helpers/bubba_socket_helper.php	2015-09-02 11:18:58.715200262 +0200
 @@ -140,7 +140,7 @@
  			'/usr/sbin/bubba-networkmanager', 
  			array(
@@ -365,12 +365,83 @@ diff -ruN a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_h
  			),
  			'/tmp/bubba-networkmanager.sock' 
  		);
+diff -ruN a/admin/helpers/exec_helper.php b/admin/helpers/exec_helper.php
+--- a/admin/helpers/exec_helper.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/helpers/exec_helper.php	2015-09-02 11:20:48.324452223 +0200
+@@ -32,8 +32,8 @@
+ 
+ function invoke_rc_d( $name, $action ) {
+     $cmd = array(
+-        "/usr/sbin/invoke-rc.d", 
+-        "--try-anyway", 
++        "/sbin/rc-service", 
++        "-q", 
+         $name, 
+         $action
+     );
+@@ -42,31 +42,31 @@
+ }
+ 
+ function update_rc_d( $name, $action="defaults", $priority=0, $runlevel=0) {
+-		if( ($runlevel != 0) && ($priority != 0) ) {
+-		  $cmd = array(
+-		      "/usr/sbin/update-rc.d", 
+-		      $name, 
+-		      $action,
+-		      $priority,
+-		      $runlevel,
+-		      "."
+-		  );
+-		} else {
+-		  if($action == "remove") {
+-			  $cmd = array(
+-		      "/usr/sbin/update-rc.d", 
+-		      "-f", 
+-		      $name, 
+-		      $action
+-			  );
+-		  } else {
+-			  $cmd = array(
+-		      "/usr/sbin/update-rc.d", 
+-		      $name, 
+-		      $action
+-				);
+-			}
+-		}
++	if($action == "enable") {
++		$cmd = array(
++			"/sbin/rc-update",
++			"-q",
++			"add",
++			$name,
++			"default"
++		);
++	} elseif($action == "disable") {
++		$cmd = array(
++			"/sbin/rc-update",
++			"-q",
++			"del",
++			$name,
++			"default"
++		);
++	} else {
++		$cmd = array(
++			"/sbin/rc-update",
++			"-q",
++			$action,
++			$name,
++			"default"
++		);
++	}
+ 	exec( escapeshellargs( $cmd ), $output, $retval );
+ 	return $retval == 0;
+ }
 diff -ruN a/admin/index.php b/admin/index.php
 --- a/admin/index.php	1970-01-01 01:00:00.000000000 +0100
-+++ b/admin/index.php	2015-07-23 17:13:26.628567782 +0200
++++ b/admin/index.php	2015-09-02 11:23:46.149459660 +0200
 @@ -0,0 +1,32 @@
 +<?php
-+define('ENVIRONMENT', 'development');
++define('ENVIRONMENT', 'production');
 +
 +if (defined('ENVIRONMENT'))
 +{
@@ -403,7 +474,7 @@ diff -ruN a/admin/index.php b/admin/index.php
 +
 diff -ruN a/admin/legacy/defines.php b/admin/legacy/defines.php
 --- a/admin/legacy/defines.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/legacy/defines.php	2015-07-23 17:13:26.628567782 +0200
++++ b/admin/legacy/defines.php	2015-09-02 11:18:58.715200262 +0200
 @@ -1,23 +1,24 @@
  <?php
  $CI =& get_instance();
@@ -442,7 +513,7 @@ diff -ruN a/admin/legacy/defines.php b/admin/legacy/defines.php
  
 diff -ruN a/admin/libraries/Browscap_raw.php b/admin/libraries/Browscap_raw.php
 --- a/admin/libraries/Browscap_raw.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/libraries/Browscap_raw.php	2015-07-23 17:13:26.638568716 +0200
++++ b/admin/libraries/Browscap_raw.php	2015-09-02 11:18:58.715200262 +0200
 @@ -136,14 +136,14 @@
  	 *
  	 * @var string
@@ -462,7 +533,7 @@ diff -ruN a/admin/libraries/Browscap_raw.php b/admin/libraries/Browscap_raw.php
  	 * Path to the cache directory
 diff -ruN a/admin/models/auth_model.php b/admin/models/auth_model.php
 --- a/admin/models/auth_model.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/auth_model.php	2015-07-23 17:13:26.638568716 +0200
++++ b/admin/models/auth_model.php	2015-09-02 11:18:58.725201107 +0200
 @@ -80,7 +80,7 @@
  	private $realname = "";
  
@@ -474,7 +545,7 @@ diff -ruN a/admin/models/auth_model.php b/admin/models/auth_model.php
  	function Auth_model(){
 diff -ruN a/admin/models/disk_model.php b/admin/models/disk_model.php
 --- a/admin/models/disk_model.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/disk_model.php	2015-07-23 17:13:26.648569650 +0200
++++ b/admin/models/disk_model.php	2015-09-02 11:18:58.725201107 +0200
 @@ -617,5 +617,16 @@
  		return trim($this->_raw_system( "hddtemp", "-n", $dev ));
  	}
@@ -494,7 +565,7 @@ diff -ruN a/admin/models/disk_model.php b/admin/models/disk_model.php
  
 diff -ruN a/admin/models/networkmanager.php b/admin/models/networkmanager.php
 --- a/admin/models/networkmanager.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/networkmanager.php	2015-07-23 17:13:26.648569650 +0200
++++ b/admin/models/networkmanager.php	2015-09-02 11:20:48.344453911 +0200
 @@ -100,7 +100,7 @@
              return false;
          }
@@ -513,9 +584,51 @@ diff -ruN a/admin/models/networkmanager.php b/admin/models/networkmanager.php
      str_replace(
        array('@LANIP@', '@NAME@'),
        array($lanip, $name),
+@@ -1036,7 +1036,7 @@
+     if($this->tor_running()) {
+ 			return $enabled = true;
+ 		} else {
+-			$cmd = 'ps aux | grep "/usr/sbin/tor" | grep -v "grep"';
++			$cmd = 'ps aux | grep "/usr/bin/tor" | grep -v "grep"';
+ 			exec($cmd, $output);
+ 			if($output) {
+ 				return $enabled = true;
+@@ -1202,7 +1202,7 @@
+             "##          Any manual changes in this file might be lost when updating from web-admin.",
+             "##",
+             "",
+-            'Log notice file /var/log/tor/notices.log',
++            'Log notice file /var/log/tor-notices.log',
+             "Nickname $data[nickname]",
+             "ContactInfo $data[contact]",
+             "ORPort $data[relay_port]"
+@@ -1334,19 +1334,19 @@
+         $oldcfg = file_get_contents($cfg_file);
+ 
+         if(preg_match("#ORPort (?P<port>\d+)#", $oldcfg, $m)) {
+-            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'INPUT');
++            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'Bubba_IN');
+         }
+ 
+         if(preg_match("#DirPort (?P<port>\d+)#", $oldcfg, $m)) {
+-            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'INPUT');
++            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'Bubba_IN');
+         }
+ 
+         if( $enabled ) {
+             if($relay_port){
+-                _system( FIREWALL, 'openport', $relay_port, 'tcp', 0, 'filter', 'INPUT');
++                _system( FIREWALL, 'openport', $relay_port, 'tcp', 0, 'filter', 'Bubba_IN');
+             }
+             if($dir_port){
+-                _system( FIREWALL, 'openport', $dir_port, 'tcp', 0, 'filter', 'INPUT');
++                _system( FIREWALL, 'openport', $dir_port, 'tcp', 0, 'filter', 'Bubba_IN');
+             }
+         }
+     }
 diff -ruN a/admin/views/default/album/album_album_view.php b/admin/views/default/album/album_album_view.php
 --- a/admin/views/default/album/album_album_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/album/album_album_view.php	2015-07-23 17:13:26.658570584 +0200
++++ b/admin/views/default/album/album_album_view.php	2015-09-02 11:18:58.725201107 +0200
 @@ -413,7 +413,7 @@
  	<th colspan="2" class="ui-state-default ui-widget-header"><?=_("Existing albums")?></th>
  </tr>
@@ -527,7 +640,7 @@ diff -ruN a/admin/views/default/album/album_album_view.php b/admin/views/default
  	<td><div id="album_list" /></td>
 diff -ruN a/admin/views/default/disk/disk_view.php b/admin/views/default/disk/disk_view.php
 --- a/admin/views/default/disk/disk_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/disk/disk_view.php	2015-07-23 17:13:26.658570584 +0200
++++ b/admin/views/default/disk/disk_view.php	2015-09-02 11:18:58.735201951 +0200
 @@ -87,15 +87,20 @@
  	?></td>
  	<td><?=isset($devices[$legend['name']]['label'])?$devices[$legend['name']]['label']:""?></td> 
@@ -560,7 +673,7 @@ diff -ruN a/admin/views/default/disk/disk_view.php b/admin/views/default/disk/di
  </table>
 diff -ruN a/admin/views/default/services/services_view.php b/admin/views/default/services/services_view.php
 --- a/admin/views/default/services/services_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/services/services_view.php	2015-07-23 17:13:26.668571518 +0200
++++ b/admin/views/default/services/services_view.php	2015-09-02 11:18:58.735201951 +0200
 @@ -64,10 +64,6 @@
        <td><label for=""><?=_('Up and downloads')?></label></td>
        <td ><input name="download_enabled" type="checkbox" class="slide"value="1" <?= $download_status?"checked=\"checked\"":"" ?>/></td>
@@ -574,7 +687,7 @@ diff -ruN a/admin/views/default/services/services_view.php b/admin/views/default
  	<button class="submit" id="fn-settings-update"><?=_("Update")?></button>
 diff -ruN a/admin/views/default/settings/settings_logs_view.php b/admin/views/default/settings/settings_logs_view.php
 --- a/admin/views/default/settings/settings_logs_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/settings/settings_logs_view.php	2015-07-23 17:14:20.043555594 +0200
++++ b/admin/views/default/settings/settings_logs_view.php	2015-09-02 11:18:58.735201951 +0200
 @@ -1,3 +1,4 @@
 +<?$bgwhite=true?>
  <table class="ui-table-outline">

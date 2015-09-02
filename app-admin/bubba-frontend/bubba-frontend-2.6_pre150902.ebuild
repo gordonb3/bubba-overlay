@@ -24,7 +24,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache2 nginx"
+IUSE="+apache2 nginx debug"
 
 REQUIRED_USE="^^ ( apache2 nginx )"
 
@@ -36,7 +36,8 @@ DEPEND="
 	app-admin/bubba-backend
 "
 
-RDEPEND="
+RDEPEND="${DEPEND}
+	app-admin/hddtemp
 	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,crypt,imap]
 	apache2? ( dev-lang/php[apache2] )
 	apache2? ( >=www-servers/apache-2.4.9[apache2_modules_proxy,apache2_modules_proxy_fcgi,apache2_modules_proxy_http,apache2_modules_rewrite] )
@@ -67,6 +68,10 @@ src_prepare() {
 	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
 
 	patch -p1 < ${FILESDIR}/${PN}-${MY_PV}.patch
+
+	if use debug; then
+		sed  -i "s/^\(define('ENVIRONMENT', '\).*\(');\)$/\1development\2/"  ${S}/admin/index.php
+	fi
 
 	echo "date.timezone=\"`cat /etc/timezone`\"" >> php5-cgi.conf
 	echo "short_open_tag=On" >> php5-cgi.conf
