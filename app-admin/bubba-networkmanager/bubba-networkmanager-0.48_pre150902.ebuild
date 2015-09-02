@@ -7,7 +7,7 @@ EAPI="5"
 inherit eutils
 
 MY_PV=${PV/_*/}
-DESCRIPTION="Bubba network manager allows the web frontend to control verious network settings"
+DESCRIPTION="Bubba network manager allows the web frontend to control various network settings"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz"
 
@@ -56,6 +56,19 @@ src_install() {
 	doins tz-lc.txt
 
 	dodoc debian/changelog debian/copyright
+
+        # Check whether we have wifi support
+        if $(iwconfig 2>/dev/null| grep -q 802\.11); then
+                if $(ip link show wlan0 &>/dev/null); then
+                        ewarn "Your wifi adapter is incorrectly named"
+                        ewarn "Bubba-networkmanager will not handle your"
+                        ewarn "wifi settings unless you rename it to wlan0"
+                fi
+        fi
+
+	insinto /etc/dnsmasq.d
+	newins ${FILESDIR}/dnsmasq.conf bubba.conf
+
 }
 
 
