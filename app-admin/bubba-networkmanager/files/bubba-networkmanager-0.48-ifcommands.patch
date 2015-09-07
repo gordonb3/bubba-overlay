@@ -11,7 +11,7 @@ diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController
  
  bool InterfaceController::Down(const string& ifname){
 -	return do_call("/sbin/ifdown "+ifname+" 2>/dev/null")==0;
-+	return do_call("/sbin/rc-service -i net."+ifname+" stop")==0;
++	return do_call("/sbin/rc-service -i net."+ifname+" -D stop")==0;
  }
  
  

@@ -1,6 +1,6 @@
 diff -ru a/Makefile.PL b/Makefile.PL
---- a/Makefile.PL	2015-08-25 09:54:10.027927068 +0200
-+++ b/Makefile.PL	2015-08-25 09:52:53.171447639 +0200
+--- a/Makefile.PL	2013-06-24 14:48:18.000000000 +0200
++++ b/Makefile.PL	2015-09-07 13:20:53.796290111 +0200
 @@ -2,5 +2,5 @@
  use ExtUtils::MakeMaker;
  
@@ -10,8 +10,8 @@ diff -ru a/Makefile.PL b/Makefile.PL
 +	INSTALLVENDORSCRIPT => '/opt/bubba/bin',
 +	INSTALLSITESCRIPT => '/opt/bubba/bin');
 diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
---- a/web-admin/MANIFEST	2015-08-25 09:54:10.988008008 +0200
-+++ b/web-admin/MANIFEST	2015-08-25 09:52:53.171447639 +0200
+--- a/web-admin/MANIFEST	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/MANIFEST	2015-09-07 13:20:53.796290111 +0200
 @@ -2,14 +2,11 @@
  MANIFEST
  lib/Bubba.pm
@@ -28,8 +28,8 @@ diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
  bin/diskdaemon.pl
  bin/notify-dispatcher.pl
 diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
---- a/web-admin/Makefile.PL	2015-08-25 09:54:11.708068713 +0200
-+++ b/web-admin/Makefile.PL	2015-08-25 09:52:53.181448482 +0200
+--- a/web-admin/Makefile.PL	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/Makefile.PL	2015-09-07 13:20:53.796290111 +0200
 @@ -8,7 +8,6 @@
  	'bin/backend.pl',
  	'bin/disk.pl',
@@ -39,8 +39,8 @@ diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
  	'bin/diskdaemon.pl',
  	'bin/notify-dispatcher.pl',
 diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
---- a/web-admin/bin/adminfunctions.php	2015-08-25 09:54:12.468132791 +0200
-+++ b/web-admin/bin/adminfunctions.php	2015-08-25 10:00:49.381594863 +0200
+--- a/web-admin/bin/adminfunctions.php	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/bin/adminfunctions.php	2015-09-07 13:20:53.806291036 +0200
 @@ -2,7 +2,7 @@
  # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
  setlocale( LC_CTYPE, 'en_US.UTF-8' );
@@ -289,8 +289,8 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  		
  		$zones = array();
 diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
---- a/web-admin/bin/firewall.pl	2015-08-25 09:54:13.318204456 +0200
-+++ b/web-admin/bin/firewall.pl	2015-08-25 09:52:53.191449325 +0200
+--- a/web-admin/bin/firewall.pl	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/bin/firewall.pl	2015-09-07 13:24:12.904721755 +0200
 @@ -1,11 +1,12 @@
 -#! /usr/bin/perl 
 +#!/usr/bin/perl 
@@ -356,6 +356,22 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		$if[1] = $1;
  	}
  	return @if;
+@@ -79,13 +100,13 @@
+ 	my($wtr, $rdr, $err);
+ 	$err = 1; # we want to dump errors here
+ 
+-	my $pid = open3($wtr, $rdr, $err,"iptables -nL");
++	my $pid = open3($wtr, $rdr, $err,IPTABLES." -nL");
+ 	my @data=<$rdr>;
+ 	my @err=<$err>;
+ 	waitpid($pid,0);
+ 
+ 	$err = 1; # we want to dump errors here
+-	$pid = open3($wtr, $rdr, $err,"iptables -t nat -nL");
++	$pid = open3($wtr, $rdr, $err,IPTABLES." -t nat -nL");
+ 	my @nat=<$rdr>;
+ 	@err=<$err>;
+ 	waitpid($pid,0);
 @@ -176,7 +197,7 @@
  
  sub save_rules {
@@ -439,7 +455,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  			$localport = $localport . ":" . ($localport+($2-$1));
  		}
 -		$cmd = "iptables -A FORWARD -p $prot -d $ip --dport $localport";
-+		$cmd = "iptables -A Bubba_FWD -p $prot -d $ip --dport $localport";
++		$cmd = IPTABLES." -A Bubba_FWD -p $prot -d $ip --dport $localport";
  		if ($source) {
  			$cmd .= " -s $source";
  		}
@@ -448,7 +464,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		# Create POSTROUTING rule
  		# local port range already fixed in FORWARD rule.
 -		$cmd = "iptables -t nat -A POSTROUTING -p $prot -d $ip --dport $localport --source $serverip/$netmask -j SNAT --to-source $serverip";
-+		$cmd = "iptables -t nat -A Bubba_SNAT -p $prot -d $ip --dport $localport --source $serverip/$netmask -j SNAT --to-source $serverip";
++		$cmd = IPTABLES." -t nat -A Bubba_SNAT -p $prot -d $ip --dport $localport --source $serverip/$netmask -j SNAT --to-source $serverip";
  		d_print("POSTROUTING RULE: ".$cmd."\n");
  		if ($exec_retval = exec_cmd($cmd)) {
  			$ret .= $exec_retval;
@@ -470,7 +486,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  
  		foreach my $rule (reverse(@nat_rules)) {
 -			my $cmd = "iptables -t nat -D PREROUTING $rule";
-+			my $cmd = "iptables -t nat -D Bubba_DNAT $rule";
++			my $cmd = IPTABLES." -t nat -D Bubba_DNAT $rule";
  			d_print("Remove NAT: $cmd\n");
  			if ($exec_retval = exec_cmd($cmd)) {
  				$ret .= $exec_retval;
@@ -479,7 +495,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  
  		foreach my $rule (reverse(@filter_rules)) {
 -			my $cmd = "iptables -t filter -D FORWARD $rule";
-+			my $cmd = "iptables -t filter -D Bubba_FWD $rule";
++			my $cmd = IPTABLES." -t filter -D Bubba_FWD $rule";
  			d_print("Remove FORWARD: $cmd\n");
  			if ($exec_retval = exec_cmd($cmd)) {
  				$ret .= $exec_retval;
@@ -488,7 +504,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  		if(@POSTROUTE_rules) {  # do not require the rule to be in the POSTROUTE
  			foreach my $rule (reverse(@POSTROUTE_rules)) {
 -				my $cmd = "iptables -t nat -D POSTROUTING $rule";
-+				my $cmd = "iptables -t nat -D Bubba_SNAT $rule";
++				my $cmd = IPTABLES." -t nat -D Bubba_SNAT $rule";
  				d_print("Remove POSTROUTE: $cmd\n");
  				if ($exec_retval = exec_cmd($cmd)) {
  					$ret .= $exec_retval;
@@ -521,13 +537,13 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  	$doc->toFH($fh);
  	close( $fh );
 -	system( "xsltproc /usr/share/bubba-backend/iptables.xslt $filename | iptables-restore" );
-+	system( "xsltproc /var/lib/bubba/iptables.xslt $filename | iptables-restore" );
++	system( "/usr/bin/xsltproc /var/lib/bubba/iptables.xslt $filename | /sbin/iptables-restore" );
  	unlink( $filename );
  	save_rules();
  }
 diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
---- a/web-admin/lib/Bubba.pm	2015-08-25 09:54:14.058266848 +0200
-+++ b/web-admin/lib/Bubba.pm	2015-08-25 09:52:53.201450169 +0200
+--- a/web-admin/lib/Bubba.pm	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/lib/Bubba.pm	2015-09-07 13:20:53.816291962 +0200
 @@ -416,13 +416,9 @@
     my ($name)=@_;
     my $ret=0;

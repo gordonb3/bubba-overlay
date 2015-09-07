@@ -1,6 +1,6 @@
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2015-07-13 15:17:40.850071901 +0200
-+++ b/utils/InterfacesCfg.cpp	2015-07-13 15:26:14.407982724 +0200
+--- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.cpp	2015-09-07 12:41:44.248713319 +0200
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -91,7 +91,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  }
  
  Json::Value InterfacesCfg::GetCFG(){
-@@ -82,32 +122,109 @@
+@@ -82,32 +122,118 @@
  }
  
  bool InterfacesCfg::Commit(){
@@ -152,11 +152,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				arguments.resize(arguments.size()-1);
 +			}else{
 +				continue;
- 			}
--			ss<<endl;
--			res.push_back(ss.str());
--			ss.str("");
--;		}
++			}
 +		}
 +		if (!inarg) {
 +			if (!isroute and !devs.isMember(curif)){
@@ -164,13 +160,22 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			}else if (!isroute) {
 +				Json::Value NIC=devs[curif]["options"];
 +				int i=0;
-+				struct in_addr ipaddress;
-+				struct in_addr netmask;
-+				inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
-+				inet_aton(NIC["netmask"][i].asString().c_str(), &netmask);
-+				ipaddress.s_addr |= ~(netmask.s_addr);
-+				string broadcast=inet_ntoa(ipaddress);
-+				res.push_back("config_"+curif+"=\""+NIC["address"][i].asString()+" netmask "+NIC["netmask"][i].asString()+" brd "+broadcast+"\"\n");
++				if(devs[curif]["addressing"]=="dhcp"){
++					res.push_back("config_"+curif+"=\"dhcp\"\n");
++				}else{
++					if(devs[curif]["addressing"]=="manual"){
++						res.push_back("config_"+curif+"=\"null\"\n");
++					}else{
++//					if(devs[curif]["addressing"]=="static"){
++						struct in_addr ipaddress;
++						struct in_addr netmask;
++						inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
++						inet_aton(NIC["netmask"][i].asString().c_str(), &netmask);
++						ipaddress.s_addr |= ~(netmask.s_addr);
++						string broadcast=inet_ntoa(ipaddress);
++						res.push_back("config_"+curif+"=\""+NIC["address"][i].asString()+" netmask "+NIC["netmask"][i].asString()+" brd "+broadcast+"\"\n");
++					}
++				}
 +				string gateway="";
 +				string indent="";
 +				if(NIC.isMember("gateway")){
@@ -195,7 +200,11 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				}
 +				devs.removeMember(curif);
 +			}else{
-+			}
+ 			}
+-			ss<<endl;
+-			res.push_back(ss.str());
+-			ss.str("");
+-;		}
 +			isroute=false;
 +			curif="";
 +		}
@@ -222,7 +231,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
-@@ -117,6 +234,5 @@
+@@ -117,6 +243,5 @@
  
  }
  
@@ -231,8 +240,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  
 +}
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2015-07-13 15:17:50.350958261 +0200
-+++ b/utils/InterfacesCfg.h	2015-07-13 15:19:59.382995943 +0200
+--- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.h	2015-09-07 12:41:44.248713319 +0200
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  
