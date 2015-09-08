@@ -12,7 +12,7 @@ SRC_URI="mirror://nongnu/${PN}/${PN}-2.88dsf.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~arm"
+KEYWORDS=""
 IUSE="selinux ibm static kernel_FreeBSD +feroceon"
 
 CDEPEND="
@@ -116,7 +116,7 @@ src_prepare() {
 
 	# no use for agetty on headless system
 	sed -i "s/^\(c[0-9]:\)/#\1/" inittab
-	sed -i "s/^#\(s0:.*\)9600\(.*\)$/\1115200\2/" inittab
+	sed -i "s/^#*\(s0:.*\)9600\(.*\)$/\1115200\2/" inittab
 
 	if use feroceon ; then
 		cd "${S}"
