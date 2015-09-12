@@ -1,6 +1,6 @@
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 --- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/InterfacesCfg.cpp	2015-09-07 12:41:44.248713319 +0200
++++ b/utils/InterfacesCfg.cpp	2015-09-11 12:22:08.877573789 +0200
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -91,7 +91,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  }
  
  Json::Value InterfacesCfg::GetCFG(){
-@@ -82,32 +122,118 @@
+@@ -82,32 +122,121 @@
  }
  
  bool InterfacesCfg::Commit(){
@@ -139,7 +139,10 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +		}
 +		if (curif=="") {
 +			res.push_back(*fIt+"\n");
-+			curif="";
++			continue;
++		}
++		if (!cfg.isMember(curif)) {
++			res.push_back(*fIt+"\n");
 +			continue;
 +		}
 +		if (arguments.substr(0,1)=="\""){
@@ -152,12 +155,14 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				arguments.resize(arguments.size()-1);
 +			}else{
 +				continue;
-+			}
+ 			}
+-			ss<<endl;
+-			res.push_back(ss.str());
+-			ss.str("");
+-;		}
 +		}
 +		if (!inarg) {
-+			if (!isroute and !devs.isMember(curif)){
-+	                        res.push_back(*fIt+"\n");
-+			}else if (!isroute) {
++			if (!isroute) {
 +				Json::Value NIC=devs[curif]["options"];
 +				int i=0;
 +				if(devs[curif]["addressing"]=="dhcp"){
@@ -199,12 +204,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +					res.push_back("routes_"+curif+"=\""+gateway+"\"\n");
 +				}
 +				devs.removeMember(curif);
-+			}else{
- 			}
--			ss<<endl;
--			res.push_back(ss.str());
--			ss.str("");
--;		}
++			}
 +			isroute=false;
 +			curif="";
 +		}
@@ -215,23 +215,26 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +	for(Json::Value::Members::iterator oIt=opts.begin();oIt!=opts.end();oIt++){
 +		Json::Value NIC=devs[*oIt]["options"];
 +		int i=0;
-+		struct in_addr ipaddress;
-+		struct in_addr netmask;
-+		inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
-+		inet_aton(NIC["netmask"][i].asString().c_str(), &netmask);
-+		ipaddress.s_addr |= ~(netmask.s_addr);
-+		string broadcast=inet_ntoa(ipaddress);
-+		res.push_back("config_"+*oIt+"=\""+NIC["address"][i].asString()+" netmask "+NIC["netmask"][i].asString()+" brd "+broadcast+"\"\n");
++		if(devs[*oIt]["addressing"]=="dhcp"){
++			res.push_back("config_"+*oIt+"=\"dhcp\"\n");
++		}else{
++			struct in_addr ipaddress;
++			struct in_addr netmask;
++			inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
++			inet_aton(NIC["netmask"][i].asString().c_str(), &netmask);
++			ipaddress.s_addr |= ~(netmask.s_addr);
++			string broadcast=inet_ntoa(ipaddress);
++			res.push_back("config_"+*oIt+"=\""+NIC["address"][i].asString()+" netmask "+NIC["netmask"][i].asString()+" brd "+broadcast+"\"\n");
++		}
 +		if(NIC.isMember("gateway")){
 +			res.push_back("routes_"+*oIt+"=\"default via "+NIC["gateway"][i].asString()+"\"\n");
 +		}
  	}
-+	res.push_back("\n");
 +
  	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
-@@ -117,6 +243,5 @@
+@@ -117,6 +246,5 @@
  
  }
  
@@ -241,7 +244,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +}
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
 --- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/InterfacesCfg.h	2015-09-07 12:41:44.248713319 +0200
++++ b/utils/InterfacesCfg.h	2015-09-12 13:50:22.845350382 +0200
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  
