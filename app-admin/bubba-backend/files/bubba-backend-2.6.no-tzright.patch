@@ -1,6 +1,6 @@
 diff -ru a/Makefile.PL b/Makefile.PL
 --- a/Makefile.PL	2013-06-24 14:48:18.000000000 +0200
-+++ b/Makefile.PL	2015-09-07 13:20:53.796290111 +0200
++++ b/Makefile.PL	2015-11-05 16:10:46.709557182 +0100
 @@ -2,5 +2,5 @@
  use ExtUtils::MakeMaker;
  
@@ -9,9 +9,53 @@ diff -ru a/Makefile.PL b/Makefile.PL
 -	INSTALLSITESCRIPT => '$(PREFIX)/lib/web-admin');
 +	INSTALLVENDORSCRIPT => '/opt/bubba/bin',
 +	INSTALLSITESCRIPT => '/opt/bubba/bin');
+diff -ru a/bubba-easyfind.hook b/bubba-easyfind.hook
+--- a/bubba-easyfind.hook	2013-06-24 14:48:18.000000000 +0200
++++ b/bubba-easyfind.hook	2015-11-05 16:14:44.619560602 +0100
+@@ -9,5 +9,5 @@
+ else
+         # Update easyfind db
+         echo "Launching easyfind update script"
+-        /usr/lib/web-admin/easyfind.pl
++        /opt/bubba/bin/easyfind.pl
+ fi
+diff -ru a/bubba-easyfind.tac b/bubba-easyfind.tac
+--- a/bubba-easyfind.tac	2013-06-24 14:48:18.000000000 +0200
++++ b/bubba-easyfind.tac	2015-11-05 16:14:20.217508837 +0100
+@@ -88,7 +88,7 @@
+ """
+ 
+ application = service.Application("Easyfind Update Service")
+-config = ConfigObj('/etc/network/easyfind.conf', configspec=spec.split("\n"))
++config = ConfigObj('/etc/bubba/easyfind.conf', configspec=spec.split("\n"))
+ validator = Validator()
+ config.validate(validator, copy=True)
+ try:
+diff -ru a/personal-setting-files.txt b/personal-setting-files.txt
+--- a/personal-setting-files.txt	2013-06-24 14:48:18.000000000 +0200
++++ b/personal-setting-files.txt	2015-11-05 16:15:42.944464697 +0100
+@@ -1,7 +1,7 @@
+ # network related
+ /etc/network/interfaces
+-/etc/network/firewall.conf
+-/etc/network/easyfind.conf
++/etc/bubba/firewall.conf
++/etc/bubba/easyfind.conf
+ /etc/dnsmasq.d/bubba.conf
+ /etc/hostname
+ /etc/hosts
+@@ -16,7 +16,7 @@
+ /etc/postfix/sasl_passwd.db
+ /etc/ftd/ftdconfig.ini
+ /etc/hostapd/hostapd.conf
+-/etc/bubba-networkmanager.conf
++/etc/bubba/networkmanager.conf
+ 
+ /etc/minidlna.conf
+ 
 diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
 --- a/web-admin/MANIFEST	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/MANIFEST	2015-09-07 13:20:53.796290111 +0200
++++ b/web-admin/MANIFEST	2015-11-05 16:10:46.709557182 +0100
 @@ -2,14 +2,11 @@
  MANIFEST
  lib/Bubba.pm
@@ -29,7 +73,7 @@ diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
  bin/notify-dispatcher.pl
 diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
 --- a/web-admin/Makefile.PL	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/Makefile.PL	2015-09-07 13:20:53.796290111 +0200
++++ b/web-admin/Makefile.PL	2015-11-05 16:10:46.709557182 +0100
 @@ -8,7 +8,6 @@
  	'bin/backend.pl',
  	'bin/disk.pl',
@@ -40,7 +84,7 @@ diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
  	'bin/notify-dispatcher.pl',
 diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
 --- a/web-admin/bin/adminfunctions.php	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/adminfunctions.php	2015-09-07 13:20:53.806291036 +0200
++++ b/web-admin/bin/adminfunctions.php	2015-11-05 16:10:46.719558023 +0100
 @@ -2,7 +2,7 @@
  # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
  setlocale( LC_CTYPE, 'en_US.UTF-8' );
@@ -288,9 +332,21 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  	if ($h_zonebase = opendir($zoneinfo)) {
  		
  		$zones = array();
+diff -ru a/web-admin/bin/easyfind.pl b/web-admin/bin/easyfind.pl
+--- a/web-admin/bin/easyfind.pl	2013-06-25 14:03:54.000000000 +0200
++++ b/web-admin/bin/easyfind.pl	2015-11-05 16:16:26.068090670 +0100
+@@ -8,7 +8,7 @@
+ 
+ use strict;
+ use constant WAN_IF => "eth0";
+-use constant EASYFIND_CONF => "/etc/network/easyfind.conf";
++use constant EASYFIND_CONF => "/etc/bubba/easyfind.conf";
+ use constant KEY => "/etc/network/bubbakey";
+ use constant BOOTARGS => "/proc/cmdline";
+ 
 diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
 --- a/web-admin/bin/firewall.pl	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/firewall.pl	2015-09-07 13:24:12.904721755 +0200
++++ b/web-admin/bin/firewall.pl	2015-11-05 16:10:46.729558864 +0100
 @@ -1,11 +1,12 @@
 -#! /usr/bin/perl 
 +#!/usr/bin/perl 
@@ -543,7 +599,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  }
 diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
 --- a/web-admin/lib/Bubba.pm	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/lib/Bubba.pm	2015-09-07 13:20:53.816291962 +0200
++++ b/web-admin/lib/Bubba.pm	2015-11-05 16:12:25.937900158 +0100
 @@ -416,13 +416,9 @@
     my ($name)=@_;
     my $ret=0;
@@ -712,5 +768,14 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
 -   return system("ls /etc/rc2.d/S??$service 1>/dev/null 2>/dev/null");
 +   return system("ls /etc/runlevels/default/$service 1>/dev/null 2>/dev/null");
  
+ }
+ 
+@@ -1872,7 +1908,7 @@
+ 	if (!$cmd) {
+ 		$cmd = "";
+ 	}
+-	return system("/usr/lib/web-admin/easyfind.pl $cmd $name");
++	return system("/opt/bubba/bin/easyfind.pl $cmd $name");
+ 	
  }
  

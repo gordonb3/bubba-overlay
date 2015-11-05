@@ -33,8 +33,8 @@ RDEPEND="${DEPEND}
 	dev-perl/File-Slurp
 	dev-perl/IPC-Run
 	dev-perl/IPC-Run3
-	dev-perl/JSON
-	dev-perl/JSON-XS
+	>=dev-perl/JSON-2.900.0
+	>=dev-perl/JSON-XS-3.10.0
 	dev-perl/List-MoreUtils
 	dev-perl/Try-Tiny
 	dev-perl/XML-Parser
