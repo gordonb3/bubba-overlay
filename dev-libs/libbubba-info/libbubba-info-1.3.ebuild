@@ -26,6 +26,10 @@ src_prepare() {
 	sed -i "s/libtool --mode/libtool --tag=CC --mode/" Makefile
 }
 
+src_compile() {
+	LDFLAGS="-Wl,-O1" make all
+}
+
 
 src_install() {
 	make DESTDIR=${ED} install
