@@ -1,6 +1,6 @@
 diff -ru a/CMakeLists.txt b/CMakeLists.txt
 --- a/CMakeLists.txt	2013-02-14 11:16:18.000000000 +0100
-+++ b/CMakeLists.txt	2015-07-03 10:54:59.846809966 +0200
++++ b/CMakeLists.txt	2015-11-07 15:18:26.730360698 +0100
 @@ -29,9 +29,7 @@
  	message( FATAL_ERROR "tcl was not found" )
  endif()
@@ -21,3 +21,76 @@ diff -ru a/CMakeLists.txt b/CMakeLists.txt
  endif( NOT HAVE_POPT_H )
  
  pkg_check_modules ( SIGC++ sigc++-2.0>=2.0 )
+diff -ru a/libeutils/Services.cpp b/libeutils/Services.cpp
+--- a/libeutils/Services.cpp	2013-02-14 11:16:18.000000000 +0100
++++ b/libeutils/Services.cpp	2015-11-07 15:19:15.234449874 +0100
+@@ -70,7 +70,7 @@
+ }
+ 
+ bool IsEnabled(const string& service){
+-	list<string> res=FileUtils::Glob("/etc/rc2.d/S??"+service);
++	list<string> res=FileUtils::Glob("/etc/runlevels/default/"+service);
+ 	return res.size()>0;
+ }
+ 
+@@ -79,55 +79,23 @@
+ }
+ 
+ bool Stop(const string& service){
+-	return do_call("/etc/init.d/"+service+" stop >/dev/null")==0;
++	return do_call("/etc/init.d/"+service+" -D stop >/dev/null")==0;
+ }
+ 
+ bool Reload(const string& service){
+-	return do_call("/etc/init.d/"+service+" reload >/dev/null")==0;
++	return do_call("/etc/init.d/"+service+" -D reload >/dev/null")==0;
+ }
+ 
+ bool Enable(const string& service, int slevel, int klevel){
+-	stringstream ss;
+-	ss << "/usr/sbin/update-rc.d "<<service<<" defaults ";
+-
+-	if(slevel>0){
+-		ss << slevel;
+-		if(klevel>0){
+-			ss << " "<<klevel;
+-		}
+-	}else{
+-		if(klevel>0){
+-			return false;
+-		}
+-	}
+-
+-	return do_call(ss.str())==0;
++	return do_call("/sbin/rc-update add "+service+" default >/dev/null")==0;
+ }
+ 
+ bool Enable(const string& service, int sprio,const list<int>& slev, int kprio, const list<int>& klev){
+-	stringstream ss;
+-	ss << "/usr/sbin/update-rc.d "<<service;
+-
+-	if(sprio>0){
+-		ss <<" start "<< sprio;
+-		for(list<int>::const_iterator slIt=slev.begin();slIt!=slev.end();slIt++){
+-			ss << " "<<*slIt;
+-		}
+-		ss << " . ";
+-	}
+-
+-	if(kprio>0){
+-		ss << " stop " << kprio;
+-		for(list<int>::const_iterator klIt=klev.begin();klIt!=klev.end();klIt++){
+-			ss << " "<<*klIt;
+-		}
+-		ss << " . ";
+-	}
+-	return do_call(ss.str())==0;
++	return do_call("/sbin/rc-update add "+service+" default >/dev/null")==0;
+ }
+ 
+ bool Disable(const string& service){
+-	return do_call("/usr/sbin/update-rc.d -f "+service+" remove >/dev/null")==0;
++	return do_call("/bin/rc-update del "+service+" default >/dev/null")==0;
+ }
+ 
+ }

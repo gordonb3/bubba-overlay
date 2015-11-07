@@ -38,7 +38,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch ${FILESDIR}/${PF}.patch
+	epatch ${FILESDIR}/${P}.patch
 }
 
 
