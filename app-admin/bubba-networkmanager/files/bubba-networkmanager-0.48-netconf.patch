@@ -1,6 +1,35 @@
+diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
+--- a/Dispatcher.cpp	2010-06-09 15:24:27.000000000 +0200
++++ b/Dispatcher.cpp	2015-11-07 16:33:12.658470768 +0100
+@@ -332,18 +332,21 @@
+ 				// "Deactivate" old interface
+ 				InterfaceController::Instance().SetRawCfg(olf,Json::Value(Json::objectValue));
+ 				InterfaceController::Down(olf);
+-				// Pick up new if
+-				InterfaceController::Up(newif);
+ 
+ 				// If this was a move from two wlan (bridge) update rc.d
+ 				if(newiftype=="bridge"){
++					system("ln -s net.lo /etc/init.d/net.br0");
+ 					list<int> start,stop;
+ 					start.push_back(2);
+-					Services::Enable("ifup-br0",19,start,0,stop);
++					Services::Enable("net.br0",19,start,0,stop);
+ 				}else{
+-					Services::Disable("ifup-br0");
++					Services::Disable("net.br0");
++					system("rm /etc/init.d/net.br0");
+ 				}
+ 
++				// Pick up new if
++				InterfaceController::Up(newif);
++
+ 			}
+ 		}catch(runtime_error& err){
+ 			res["status"]=false;
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2015-09-12 15:14:39.803315642 +0200
-+++ b/utils/InterfacesCfg.cpp	2015-09-12 15:16:48.525229375 +0200
+--- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.cpp	2015-11-07 16:32:53.326841763 +0100
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -10,12 +39,13 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  #include <iostream>
  #include <sstream>
  using namespace std;
-@@ -47,29 +49,69 @@
+@@ -47,29 +49,82 @@
  void InterfacesCfg::parse_cfg(){
  	list<string> fil=FileUtils::GetContent(IFSFILE);
  	string curif;
 +	bool inarg=false;
 +	bool isroute=false;
++	bool isbridge=false;
 +
  	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
  		string line=StringTools::Trimmed(*fIt," \t");
@@ -45,6 +75,12 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			arguments=line.substr(argsep+1);
 +			isroute=true;
 +		}
++		if(line.substr(0,7)=="bridge_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(7,(argsep-7));
++			arguments=line.substr(argsep+1);
++			isbridge=true;
++		}
 +		if (arguments=="" or curif.substr(0,3)=="ppp"){
 +			continue;
 +		}
@@ -69,6 +105,11 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				this->cfg[curif]["options"]["gateway"].append(words.back());
 +			} else if(isroute){
 +				this->cfg[curif]["options"]["routes"].append(arguments);
++			} else if(isbridge){
++				while (!words.empty()){
++					this->cfg[curif]["options"]["bridge_ports"].append(words.front());
++					words.pop_front();
++				}
 + 			}else{
 +				this->cfg[curif]["addressing"]="static";
 +				this->cfg[curif]["options"]["address"].append(words.front());
@@ -86,6 +127,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +		if (!inarg) {
 +			curif="";
 +			isroute=false;
++			isbridge=false;
 +		}
 +
  	}
@@ -93,7 +135,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  }
  
  Json::Value InterfacesCfg::GetCFG(){
-@@ -82,32 +124,132 @@
+@@ -82,32 +137,195 @@
  }
  
  bool InterfacesCfg::Commit(){
@@ -104,6 +146,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +	string curif="";
 +	bool inarg=false;
 +	bool isroute=false;
++	bool isbridge=false;
++	bool isbrctl=false;
  	stringstream ss;
  	list<string> res;
 -	for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
@@ -120,13 +164,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 -			Json::Value opval=val["options"][*oIt];
 -			for(size_t i=0; i<val["options"][*oIt].size();i++){
 -				ss << " "<< val["options"][*oIt][i].asString();
--			}
--			ss<<endl;
--			res.push_back(ss.str());
--			ss.str("");
--;		}
- 
--		res.push_back("\n");
++
 +	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
 +		string line=StringTools::Trimmed(*fIt," \t");
 +		if(line=="" or line[0]=='#'){
@@ -145,11 +183,24 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			arguments=line.substr(argsep+1);
 +			isroute=true;
 +		}
++		if(line.substr(0,7)=="bridge_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(7,(argsep-7));
++			arguments=line.substr(argsep+1);
++			isbridge=true;
++		}
++		if(line.substr(0,6)=="brctl_"){
++			size_t argsep=line.find_first_of("=");
++			curif=line.substr(6,(argsep-6));
++			arguments=line.substr(argsep+1);
++			isbrctl=true;
++		}
 +		if (curif=="") {
 +			res.push_back(*fIt+"\n");
 +			continue;
 +		}
-+		if (!cfg.isMember(curif)) {
++//		if (!cfg.isMember(curif)) {
++		if ( (curif!="eth0") && (curif!="eth1") && (curif!="wlan0") && (curif!="br0") ) {
 +			res.push_back(*fIt+"\n");
 +			continue;
 +		}
@@ -163,12 +214,43 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				arguments.resize(arguments.size()-1);
 +			}else{
 +				continue;
-+			}
+ 			}
++		}
++		if (!cfg.isMember(curif)) {
++			continue;
 +		}
 +		if (!inarg) {
-+			if (!isroute) {
++			if (isroute) {
++				isroute=false;
++				continue;
++			} else if (isbridge) {
++				isbridge=false;
++				continue;
++			} else if (isbrctl) {
++				isbrctl=false;
++				continue;
++			} else {
 +				Json::Value NIC=devs[curif]["options"];
 +				int i=0;
++				if (NIC.isMember("bridge_ports")){
++					ss.str("");
++					string indent="";
++					for (size_t j=0; j<NIC["bridge_ports"].size();j++){
++						string devname = NIC["bridge_ports"][j].asString();
++						if (devname!="") {
++							res.push_back("config_"+devname+"=\"null\"\n");
++							ss << indent << devname;
++							indent=" ";
++						}
++					}
++					ss << "\"";
++					ss<<endl;
++					res.push_back("bridge_"+curif+"=\"");
++					res.push_back(ss.str());
++					res.push_back("brctl_"+curif+"=\"setfd 0\n");
++					res.push_back("sethello 10\n");
++					res.push_back("stp on\"\n");
++				}
 +				if(devs[curif]["addressing"]=="dhcp"){
 +					res.push_back("config_"+curif+"=\"dhcp\"\n");
 +				}else{
@@ -176,8 +258,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +						res.push_back("config_"+curif+"=\"null\"\n");
 +						NIC.removeMember("gateway");
 +						NIC.removeMember("routes");
-+					}else{
-+//					if(devs[curif]["addressing"]=="static"){
++					}else if(NIC["address"][i].asString()!=""){
 +						struct in_addr ipaddress;
 +						struct in_addr netmask;
 +						inet_aton(NIC["address"][i].asString().c_str(), &ipaddress);
@@ -213,7 +294,6 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				}
 +				devs.removeMember(curif);
 +			}
-+			isroute=false;
 +			curif="";
 +		}
 +	}
@@ -222,6 +302,29 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +	for(Json::Value::Members::iterator oIt=opts.begin();oIt!=opts.end();oIt++){
 +		Json::Value NIC=devs[*oIt]["options"];
 +		int i=0;
++		if (NIC.isMember("bridge_ports")){
++			ss.str("");
++			string indent="";
++			for (size_t j=0; j<NIC["bridge_ports"].size();j++){
++				string devname = NIC["bridge_ports"][j].asString();
++				if (devname!="") {
++					res.push_back("config_"+devname+"=\"null\"\n");
++					ss << indent << devname;
++					indent=" ";
++				}
++			}
++			ss << "\"";
+ 			ss<<endl;
++			res.push_back("bridge_"+*oIt+"=\"");
+ 			res.push_back(ss.str());
+-			ss.str("");
+-;		}
+-
+-		res.push_back("\n");
++			res.push_back("brctl_"+*oIt+"=\"setfd 0\n");
++			res.push_back("sethello 10\n");
++			res.push_back("stp on\"\n");
++		}
 +		if(devs[*oIt]["addressing"]=="dhcp"){
 +			res.push_back("config_"+*oIt+"=\"dhcp\"\n");
 +		}else{
@@ -248,7 +351,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
-@@ -117,6 +259,5 @@
+@@ -117,6 +335,5 @@
  
  }
  
@@ -256,10 +359,9 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 -
  
 +}
-Only in b/utils: InterfacesCfg.d
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2015-09-12 15:14:43.643671083 +0200
-+++ b/utils/InterfacesCfg.h	2015-09-12 15:16:48.525229375 +0200
+--- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.h	2015-11-07 16:31:42.230850762 +0100
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  
@@ -269,4 +371,3 @@ diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
  
  #include <libeutils/json/json.h>
  
-Only in b/utils: InterfacesCfg.o

@@ -59,11 +59,11 @@ src_install() {
 
         # Check whether we have wifi support
         if $(iwconfig 2>/dev/null| grep -q 802\.11); then
-                if $(ip link show wlan0 &>/dev/null); then
+                ip link show wlan0 &>/dev/null || {
                         ewarn "Your wifi adapter is incorrectly named"
                         ewarn "Bubba-networkmanager will not handle your"
                         ewarn "wifi settings unless you rename it to wlan0"
-                fi
+                }
         fi
 
 	insinto /etc/dnsmasq.d
