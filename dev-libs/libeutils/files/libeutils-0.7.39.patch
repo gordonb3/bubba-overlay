@@ -90,7 +90,7 @@ diff -ru a/libeutils/Services.cpp b/libeutils/Services.cpp
  
  bool Disable(const string& service){
 -	return do_call("/usr/sbin/update-rc.d -f "+service+" remove >/dev/null")==0;
-+	return do_call("/bin/rc-update del "+service+" default >/dev/null")==0;
++	return do_call("/sbin/rc-update del "+service+" default >/dev/null")==0;
  }
  
  }
