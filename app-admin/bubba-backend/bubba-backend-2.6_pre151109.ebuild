@@ -35,10 +35,12 @@ RDEPEND="${DEPEND}
 	dev-perl/IPC-Run3
 	>=dev-perl/JSON-2.900.0
 	>=dev-perl/JSON-XS-3.10.0
+	dev-perl/libbubba-info-perl
 	dev-perl/List-MoreUtils
 	dev-perl/Try-Tiny
 	dev-perl/XML-Parser
 	dev-perl/XML-Simple
+	dev-php/libbubba-info-php
 	dev-python/pycups
 	dev-python/twisted-core
 	>=sys-libs/timezone-data-2015e
