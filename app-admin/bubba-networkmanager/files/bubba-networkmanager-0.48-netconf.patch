@@ -1,7 +1,22 @@
 diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
---- a/Dispatcher.cpp	2010-06-09 15:24:27.000000000 +0200
-+++ b/Dispatcher.cpp	2015-11-07 16:33:12.658470768 +0100
-@@ -332,18 +332,21 @@
+--- a/Dispatcher.cpp	2015-11-09 12:33:31.625299243 +0100
++++ b/Dispatcher.cpp	2015-11-09 15:10:03.935621533 +0100
+@@ -241,6 +241,7 @@
+ 		}
+ 
+ 		InterfaceController& ifc = InterfaceController::Instance();
++		cfg.Update("lanif",newif);
+ 
+ 		try{
+ 			auto_ptr<Interface> in = ifc.GetInterface(olf);
+@@ -326,24 +327,29 @@
+ 			}
+ 			if(!res["status"]){
+ 				// Try restoring original settings
++				cfg.Update("lanif",olf);
+ 				in->SetConfigurations(ocfgsave);
+ 				InterfaceController::Up(olf);
+ 			}else{
  				// "Deactivate" old interface
  				InterfaceController::Instance().SetRawCfg(olf,Json::Value(Json::objectValue));
  				InterfaceController::Down(olf);
@@ -22,14 +37,15 @@ diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
  				}
  
 +				// Pick up new if
++				InterfaceController::Down(newif);
 +				InterfaceController::Up(newif);
 +
  			}
  		}catch(runtime_error& err){
  			res["status"]=false;
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/InterfacesCfg.cpp	2015-11-07 16:32:53.326841763 +0100
+--- a/utils/InterfacesCfg.cpp	2015-11-09 12:33:33.915491894 +0100
++++ b/utils/InterfacesCfg.cpp	2015-11-09 12:29:44.986234518 +0100
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -135,7 +151,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  }
  
  Json::Value InterfacesCfg::GetCFG(){
-@@ -82,32 +137,195 @@
+@@ -82,32 +137,223 @@
  }
  
  bool InterfacesCfg::Commit(){
@@ -148,6 +164,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +	bool isroute=false;
 +	bool isbridge=false;
 +	bool isbrctl=false;
++	bool isrcnetneed=false;
  	stringstream ss;
  	list<string> res;
 -	for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
@@ -165,12 +182,19 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 -			for(size_t i=0; i<val["options"][*oIt].size();i++){
 -				ss << " "<< val["options"][*oIt][i].asString();
 +
++	res.push_back("modules=\"iproute2 !iwconfig !wpa_supplicant\"\n");
 +	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
 +		string line=StringTools::Trimmed(*fIt," \t");
 +		if(line=="" or line[0]=='#'){
 +			res.push_back(*fIt+"\n");
 +			continue;
 +		}
++		if(line.substr(0,7)=="modules"){
++			if(line.substr(7,1)!="_"){
++				continue;
+ 			}
++		}
++
 +		string arguments=line;
 +		if(line.substr(0,7)=="config_"){
 +			size_t argsep=line.find_first_of("=");
@@ -195,6 +219,13 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			arguments=line.substr(argsep+1);
 +			isbrctl=true;
 +		}
++		if(line.substr(0,7)=="rc_net_"){
++			size_t argsep=line.find_first_of("=");
++			arguments=line.substr(7,(argsep-7));
++			argsep=line.find_first_of("_");
++			curif=arguments.substr(0,argsep+1);
++			isrcnetneed=true;
++		}
 +		if (curif=="") {
 +			res.push_back(*fIt+"\n");
 +			continue;
@@ -214,7 +245,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				arguments.resize(arguments.size()-1);
 +			}else{
 +				continue;
- 			}
++			}
 +		}
 +		if (!cfg.isMember(curif)) {
 +			continue;
@@ -229,6 +260,9 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			} else if (isbrctl) {
 +				isbrctl=false;
 +				continue;
++			} else if (isrcnetneed) {
++				isrcnetneed=false;
++				continue;
 +			} else {
 +				Json::Value NIC=devs[curif]["options"];
 +				int i=0;
@@ -238,7 +272,12 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +					for (size_t j=0; j<NIC["bridge_ports"].size();j++){
 +						string devname = NIC["bridge_ports"][j].asString();
 +						if (devname!="") {
-+							res.push_back("config_"+devname+"=\"null\"\n");
++							if (devname.substr(0,2)!="wl"){
++								res.push_back("config_"+devname+"=\"null\"\n");
++							} else {
++//							if (devname.substr(0,2)=="wl"){
++								res.push_back("rc_net_"+curif+"_need=\"hostapd\"\n");
++							}
 +							ss << indent << devname;
 +							indent=" ";
 +						}
@@ -308,7 +347,12 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			for (size_t j=0; j<NIC["bridge_ports"].size();j++){
 +				string devname = NIC["bridge_ports"][j].asString();
 +				if (devname!="") {
-+					res.push_back("config_"+devname+"=\"null\"\n");
++					if (devname.substr(0,2)!="wl"){
++						res.push_back("config_"+devname+"=\"null\"\n");
++					} else {
++//					if (devname.substr(0,2)=="wl"){
++						res.push_back("rc_net_"+*oIt+"_need=\"hostapd\"\n");
++					}
 +					ss << indent << devname;
 +					indent=" ";
 +				}
@@ -351,7 +395,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
-@@ -117,6 +335,5 @@
+@@ -117,6 +363,5 @@
  
  }
  
@@ -360,8 +404,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  
 +}
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
-+++ b/utils/InterfacesCfg.h	2015-11-07 16:31:42.230850762 +0100
+--- a/utils/InterfacesCfg.h	2015-11-09 12:33:35.055587799 +0100
++++ b/utils/InterfacesCfg.h	2015-11-09 09:46:56.524352709 +0100
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  
