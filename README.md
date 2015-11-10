@@ -3,14 +3,17 @@ This is work in progress, adding functions to the Excito B3 that are not in the 
 
 As of 25-06-2015 (EU date format) I've added a bubba metapackage that will provide you with core packages for your Excito B3, including the Bubba web frontend since 23-07-2015.
 
+#### Prerequisits for running the Bubba web admin
+The web admin interface requires a web server to operate. Supported web servers are apache2 and nginx, but it must be noted that if you want to use file uploads (currently not yet implemented in this overlay) you should choose apache or find the maximum file size to be very restricted (with apache it will be essentially unlimited). The packages default to using apache2 and if you're okay with that there's no need for changing anything. If however you like to use nginx you must at the same time disable apache2 USE flag on the bubba packages. This may seem like a lot of fuzz, but it prevents building (and needing to maintain) a lot of packages you don't actually need.
 
-Current optional packages are:
 
-#### Gentoo sources 4.0.1
-This is a copy of the retired original gentoo release. If you're running Sakaki's kernel and need to build additional (3th party) modules, you'll need this source.
+<p><br>Current optional packages are:</p>
 
-#### Sysvinit-9999
-Although not a rolling release, this was given version number 9999 to stay on top indefinitely. It contains a patched shutdown command that handles the hardware specific routine required for the Excito B3, meaning you can simply type 'halt' while in console, rather than running the prescribed write-magic and reboot as done by the Bubba web frontend. Also eliminates the regular TTY terminals which are useless on the B3 and sets the correct speed for the serial console. A sanity check is included by verifying that the system runs on a Kirkwood Feroceon SoC.
+#### Gentoo sources
+Currently contains kernel versions 4.0.1 and 4.1.6, matching the kernels from sakaki's <a href="https://github.com/sakaki-/gentoo-on-b3">gentoo-on-b3</a> releases. These are copies of retired original gentoo releases, kept here for your convenience whenever you need need to build additional (3th party) modules.
+
+#### Sysvinit-2.88-r100 (masked)
+The high revision number is to keep out of the way of the main gentoo development and to keep this version on top as long as version 2.88 stays in use. The package contains a patched shutdown command that handles the hardware specific routine required for the Excito B3, meaning you can simply type 'halt' while in console, rather than running the prescribed flash writing tool 'write-magic' and then reboot as done by the Bubba web frontend. Also eliminates the regular TTY terminals which are useless on the B3 and sets the correct speed for the serial console. A sanity check is included by verifying that the system runs on a Kirkwood Feroceon SoC.
 
 #### Bubba Easyfind 2.6
 Originally this is part of the bubba-backend package, but I've decided to make this a separate package. Contains the various methods that allow you to use the myownb3.com dynamic DNS service. Only works with registered Excito brand B3's. By default all methods are installed, but you may control this by disabling the USE flags for non required methods (dhcp hook script | service to verify public address if behind a remote router).
