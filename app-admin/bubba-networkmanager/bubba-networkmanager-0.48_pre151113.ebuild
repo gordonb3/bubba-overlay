@@ -43,10 +43,10 @@ src_compile() {
 }
 
 src_install() {
-	exeinto /usr/sbin
+	exeinto /opt/bubba/sbin
 	doexe bubba-networkmanager
 
-	exeinto /usr/bin/
+	exeinto /opt/bubba/bin/
 	doexe bubba-networkmanager-cli
 
 	insinto /etc/bubba

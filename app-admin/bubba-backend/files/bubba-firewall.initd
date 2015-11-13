@@ -48,6 +48,7 @@ checkkernel() {
 	fi
 	return 0
 }
+
 checkconfig() {
 	if [ ! -f ${iptables_save} ] ; then
 		eerror "Not starting firewall.  First create some rules then run:"
@@ -91,7 +92,7 @@ stop() {
 reload() {
 	checkkernel || return 1
 	checkrules || return 1
-	local LAN_if=$(bubba-networkmanager-cli getlanif)
+	local LAN_if=$(/opt/bubba/bin/bubba-networkmanager-cli getlanif)
 	local LAN_net=$(ip route show dev ${LAN_if} scope link | cut -d ' ' -f1)
 	ebegin "Flushing firewall"
 	flush_rules

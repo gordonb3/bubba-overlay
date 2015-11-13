@@ -1,6 +1,6 @@
 diff -ru a/Makefile.PL b/Makefile.PL
 --- a/Makefile.PL	2013-06-24 14:48:18.000000000 +0200
-+++ b/Makefile.PL	2015-11-05 16:10:46.709557182 +0100
++++ b/Makefile.PL	2015-11-13 16:17:14.071559790 +0100
 @@ -2,5 +2,5 @@
  use ExtUtils::MakeMaker;
  
@@ -9,9 +9,28 @@ diff -ru a/Makefile.PL b/Makefile.PL
 -	INSTALLSITESCRIPT => '$(PREFIX)/lib/web-admin');
 +	INSTALLVENDORSCRIPT => '/opt/bubba/bin',
 +	INSTALLSITESCRIPT => '/opt/bubba/bin');
+diff -ru a/bubba-aptd.tac b/bubba-aptd.tac
+--- a/bubba-aptd.tac	2013-06-24 14:48:18.000000000 +0200
++++ b/bubba-aptd.tac	2015-11-13 16:19:15.091719670 +0100
+@@ -414,13 +414,13 @@
+ 
+     # Current LAN interface
+     LAN = subprocess.Popen(
+-        ['bubba-networkmanager-cli', 'getlanif'],
++        ['/opt/bubba/bin/bubba-networkmanager-cli', 'getlanif'],
+         stdout=subprocess.PIPE
+     ).communicate()[0].strip()
+ 
+     # current WAN interface
+     WAN = subprocess.Popen(
+-        ['bubba-networkmanager-cli', 'getwanif'],
++        ['/opt/bubba/bin/bubba-networkmanager-cli', 'getwanif'],
+         stdout=subprocess.PIPE
+     ).communicate()[0].strip()
+ 
 diff -ru a/bubba-easyfind.hook b/bubba-easyfind.hook
 --- a/bubba-easyfind.hook	2013-06-24 14:48:18.000000000 +0200
-+++ b/bubba-easyfind.hook	2015-11-05 16:14:44.619560602 +0100
++++ b/bubba-easyfind.hook	2015-11-13 16:17:14.071559790 +0100
 @@ -9,5 +9,5 @@
  else
          # Update easyfind db
@@ -21,7 +40,7 @@ diff -ru a/bubba-easyfind.hook b/bubba-easyfind.hook
  fi
 diff -ru a/bubba-easyfind.tac b/bubba-easyfind.tac
 --- a/bubba-easyfind.tac	2013-06-24 14:48:18.000000000 +0200
-+++ b/bubba-easyfind.tac	2015-11-05 16:14:20.217508837 +0100
++++ b/bubba-easyfind.tac	2015-11-13 16:18:38.058610654 +0100
 @@ -88,7 +88,7 @@
  """
  
@@ -31,9 +50,18 @@ diff -ru a/bubba-easyfind.tac b/bubba-easyfind.tac
  validator = Validator()
  config.validate(validator, copy=True)
  try:
+@@ -139,7 +139,7 @@
+ 
+     # current WAN interface
+     WAN = subprocess.Popen(
+-        ['bubba-networkmanager-cli', 'getwanif'],
++        ['/opt/bubba/bin/bubba-networkmanager-cli', 'getwanif'],
+         stdout=subprocess.PIPE
+     ).communicate()[0].strip()
+ 
 diff -ru a/personal-setting-files.txt b/personal-setting-files.txt
 --- a/personal-setting-files.txt	2013-06-24 14:48:18.000000000 +0200
-+++ b/personal-setting-files.txt	2015-11-05 16:15:42.944464697 +0100
++++ b/personal-setting-files.txt	2015-11-13 16:17:14.081560630 +0100
 @@ -1,7 +1,7 @@
  # network related
  /etc/network/interfaces
@@ -55,7 +83,7 @@ diff -ru a/personal-setting-files.txt b/personal-setting-files.txt
  
 diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
 --- a/web-admin/MANIFEST	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/MANIFEST	2015-11-05 16:10:46.709557182 +0100
++++ b/web-admin/MANIFEST	2015-11-13 16:17:14.081560630 +0100
 @@ -2,14 +2,11 @@
  MANIFEST
  lib/Bubba.pm
@@ -73,7 +101,7 @@ diff -ru a/web-admin/MANIFEST b/web-admin/MANIFEST
  bin/notify-dispatcher.pl
 diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
 --- a/web-admin/Makefile.PL	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/Makefile.PL	2015-11-05 16:10:46.709557182 +0100
++++ b/web-admin/Makefile.PL	2015-11-13 16:17:14.081560630 +0100
 @@ -8,7 +8,6 @@
  	'bin/backend.pl',
  	'bin/disk.pl',
@@ -84,7 +112,7 @@ diff -ru a/web-admin/Makefile.PL b/web-admin/Makefile.PL
  	'bin/notify-dispatcher.pl',
 diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
 --- a/web-admin/bin/adminfunctions.php	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/adminfunctions.php	2015-11-05 16:10:46.719558023 +0100
++++ b/web-admin/bin/adminfunctions.php	2015-11-13 16:21:00.520574042 +0100
 @@ -2,7 +2,7 @@
  # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
  setlocale( LC_CTYPE, 'en_US.UTF-8' );
@@ -94,6 +122,15 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  class AdminException extends Exception {
  
  	const MYSQL_CONNECT_ERROR = 0x01;
+@@ -16,7 +16,7 @@
+ function _getlanif(){
+ 	static $lanif="";
+ 	if($lanif==""){
+-		$lanif=shell_exec("/usr/bin/bubba-networkmanager-cli getlanif");
++		$lanif=shell_exec("/opt/bubba/bin/bubba-networkmanager-cli getlanif");
+ 	}
+ 	return rtrim($lanif);
+ }
 @@ -467,17 +467,19 @@
  	return $res;
  }
@@ -334,7 +371,7 @@ diff -ru a/web-admin/bin/adminfunctions.php b/web-admin/bin/adminfunctions.php
  		$zones = array();
 diff -ru a/web-admin/bin/easyfind.pl b/web-admin/bin/easyfind.pl
 --- a/web-admin/bin/easyfind.pl	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/easyfind.pl	2015-11-05 16:16:26.068090670 +0100
++++ b/web-admin/bin/easyfind.pl	2015-11-13 16:17:14.091561469 +0100
 @@ -8,7 +8,7 @@
  
  use strict;
@@ -346,7 +383,7 @@ diff -ru a/web-admin/bin/easyfind.pl b/web-admin/bin/easyfind.pl
  
 diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
 --- a/web-admin/bin/firewall.pl	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/firewall.pl	2015-11-05 16:10:46.729558864 +0100
++++ b/web-admin/bin/firewall.pl	2015-11-13 16:17:14.101562309 +0100
 @@ -1,11 +1,12 @@
 -#! /usr/bin/perl 
 +#!/usr/bin/perl 
@@ -599,7 +636,7 @@ diff -ru a/web-admin/bin/firewall.pl b/web-admin/bin/firewall.pl
  }
 diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
 --- a/web-admin/lib/Bubba.pm	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/lib/Bubba.pm	2015-11-05 16:12:25.937900158 +0100
++++ b/web-admin/lib/Bubba.pm	2015-11-13 16:20:09.526290968 +0100
 @@ -416,13 +416,9 @@
     my ($name)=@_;
     my $ret=0;
@@ -779,3 +816,12 @@ diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
  	
  }
  
+@@ -1999,7 +2035,7 @@
+ }
+ 
+ sub _get_lanif {
+-	return `/usr/bin/bubba-networkmanager-cli getlanif`;
++	return `/opt/bubba/bin/bubba-networkmanager-cli getlanif`;
+ }
+ 
+ sub _notify_read_config {

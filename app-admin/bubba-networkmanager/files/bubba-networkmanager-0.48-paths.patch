@@ -15,7 +15,7 @@ diff -ru a/client.cpp b/client.cpp
  		return 1;
  	}
 -	std::string command("/usr/sbin/bubba-networkmanager --socket /tmp/bubba-networkmanager.sock --config /etc/bubba-networkmanager.conf");
-+	std::string command("/usr/sbin/bubba-networkmanager --socket /tmp/bubba-networkmanager.sock --config /etc/bubba/networkmanager.conf");
++	std::string command("/opt/bubba/sbin/bubba-networkmanager --socket /tmp/bubba-networkmanager.sock --config /etc/bubba/networkmanager.conf");
  	std::string socket("/tmp/bubba-networkmanager.sock");
  	EUtils::NetClient client( command, socket );
  	Json::Reader reader;
