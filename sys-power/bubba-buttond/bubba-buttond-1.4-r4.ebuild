@@ -25,7 +25,7 @@ S=${WORKDIR}/buttond
 
 pkg_setup() {
 	ebegin "checking for write-magic enabled sysvinit"
-	if [ `equery -q l sys-apps/sysvinit` == "sys-apps/sysvinit-9999" ]; then
+	if [ "$(cat /var/db/pkg/sys-apps/sysvinit-*/repository)" == "bubba" ]; then
 		eend 0
 		ENABLE_COMPAT="no"
 	else
@@ -47,7 +47,7 @@ create_runscript() {
 #!/sbin/runscript
 
 NAME=bubba-buttond
-APPROOT=/sbin
+APPROOT=/opt/bubba/sbin
 DAEMON=buttond
 PIDFILE=/var/run/\${NAME}.pid
 
@@ -68,7 +68,7 @@ EOF
 }
 
 src_install() {
-	exeinto /sbin
+	exeinto /opt/bubba/sbin
 	doexe buttond
 
 	exeinto /opt/bubba/bin
@@ -83,20 +83,24 @@ src_install() {
 }
 
 pkg_postinst() {
-	elog "To intercept signals from the B3 power button, you should add"
-	elog "bubba-buttond to your default runlevel with the following"
-	elog "command:"
-	elog ""
-	elog "\trc-update add bubba-buttond default"
-	elog ""
+	rc-status default | grep -q bubba-buttond || rc-config add bubba-buttond default
+	if $(rc-service bubba-buttond status &>/dev/null); then
+		rc-service bubba-buttond restart
+	else
+		rc-service bubba-buttond start
+	fi
 	if [ ${ENABLE_COMPAT} == "yes" ];then
-		elog "To shutdown the B3 manually use this command:"
+		elog "To manually shutdown the B3 manually use this command:"
 		elog ""
 		elog "\twrite-magic 0xdeadbeef && reboot"
-	else
-		elog "A copy of the old write-magic shutdown helper application"
-		elog "has been placed in /opt/bubba/bin for your convenience"
 	fi
 	elog ""
 
 }
+
+pkg_prerm()
+{
+	rc-service bubba-buttond status &>/dev/null && rc-service bubba-buttond stop
+	rc-status default | grep -q bubba-buttond && rc-config delete bubba-buttond default
+}
+
