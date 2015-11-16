@@ -1,6 +1,6 @@
 diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
---- a/Dispatcher.cpp	2015-11-09 12:33:31.625299243 +0100
-+++ b/Dispatcher.cpp	2015-11-09 15:10:03.935621533 +0100
+--- a/Dispatcher.cpp	2010-06-09 15:24:27.000000000 +0200
++++ b/Dispatcher.cpp	2015-11-16 12:28:42.319038110 +0100
 @@ -241,6 +241,7 @@
  		}
  
@@ -44,8 +44,8 @@ diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
  		}catch(runtime_error& err){
  			res["status"]=false;
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2015-11-09 12:33:33.915491894 +0100
-+++ b/utils/InterfacesCfg.cpp	2015-11-09 12:29:44.986234518 +0100
+--- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.cpp	2015-11-16 15:12:10.063857040 +0100
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -151,7 +151,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  }
  
  Json::Value InterfacesCfg::GetCFG(){
-@@ -82,32 +137,223 @@
+@@ -82,32 +137,233 @@
  }
  
  bool InterfacesCfg::Commit(){
@@ -161,10 +161,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +	list<string> fil=FileUtils::GetContent(IFSFILE);
 +	string curif="";
 +	bool inarg=false;
-+	bool isroute=false;
-+	bool isbridge=false;
-+	bool isbrctl=false;
-+	bool isrcnetneed=false;
++	bool ignoreline=false;
++	bool coutwritten=false;
  	stringstream ss;
  	list<string> res;
 -	for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
@@ -182,56 +180,68 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 -			for(size_t i=0; i<val["options"][*oIt].size();i++){
 -				ss << " "<< val["options"][*oIt][i].asString();
 +
++	res.push_back("# basic setup for B3\n");
 +	res.push_back("modules=\"iproute2 !iwconfig !wpa_supplicant\"\n");
 +	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
 +		string line=StringTools::Trimmed(*fIt," \t");
-+		if(line=="" or line[0]=='#'){
-+			res.push_back(*fIt+"\n");
-+			continue;
-+		}
 +		if(line.substr(0,7)=="modules"){
 +			if(line.substr(7,1)!="_"){
 +				continue;
- 			}
++			}
++		}
++		if(line=="# basic setup for B3") {
++			continue;
++		}
++		if(line=="" or line[0]=='#'){
++			res.push_back(*fIt+"\n");
++			continue;
 +		}
 +
 +		string arguments=line;
 +		if(line.substr(0,7)=="config_"){
 +			size_t argsep=line.find_first_of("=");
-+			curif=line.substr(7,(argsep-7));
 +			arguments=line.substr(argsep+1);
++			curif=line.substr(7,(argsep-7));
 +		}
 +		if(line.substr(0,7)=="routes_"){
 +			size_t argsep=line.find_first_of("=");
-+			curif=line.substr(7,(argsep-7));
 +			arguments=line.substr(argsep+1);
-+			isroute=true;
++			curif=line.substr(7,(argsep-7));
++			ignoreline=true;
 +		}
 +		if(line.substr(0,7)=="bridge_"){
 +			size_t argsep=line.find_first_of("=");
-+			curif=line.substr(7,(argsep-7));
 +			arguments=line.substr(argsep+1);
-+			isbridge=true;
++			curif=line.substr(7,(argsep-7));
++			ignoreline=true;
 +		}
 +		if(line.substr(0,6)=="brctl_"){
 +			size_t argsep=line.find_first_of("=");
-+			curif=line.substr(6,(argsep-6));
 +			arguments=line.substr(argsep+1);
-+			isbrctl=true;
++			curif=line.substr(6,(argsep-6));
++			ignoreline=true;
 +		}
 +		if(line.substr(0,7)=="rc_net_"){
 +			size_t argsep=line.find_first_of("=");
-+			arguments=line.substr(7,(argsep-7));
-+			argsep=line.find_first_of("_");
-+			curif=arguments.substr(0,argsep+1);
-+			isrcnetneed=true;
++			arguments=line.substr(argsep+1);
++			string rcnet=line.substr(7,(argsep-7));
++			argsep=rcnet.find_first_of("_");
++			curif=rcnet.substr(0,argsep);
++			ignoreline=true;
 +		}
 +		if (curif=="") {
 +			res.push_back(*fIt+"\n");
 +			continue;
 +		}
-+//		if (!cfg.isMember(curif)) {
++		if ( (curif=="eth1") || (curif=="wlan0") || (curif=="br0") ) {
++			if (cfg.isMember("br0")) {
++				devs.removeMember("eth1");
++				devs.removeMember("wlan0");
+ 			}
++		}
 +		if ( (curif!="eth0") && (curif!="eth1") && (curif!="wlan0") && (curif!="br0") ) {
++			cout << "Keep device " << curif << " : not handled by this script\n";
++			curif="";
 +			res.push_back(*fIt+"\n");
 +			continue;
 +		}
@@ -247,23 +257,22 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				continue;
 +			}
 +		}
-+		if (!cfg.isMember(curif)) {
-+			continue;
-+		}
++//		if (!devs.isMember(curif)) {
++//			continue;
++//		}
 +		if (!inarg) {
-+			if (isroute) {
-+				isroute=false;
-+				continue;
-+			} else if (isbridge) {
-+				isbridge=false;
-+				continue;
-+			} else if (isbrctl) {
-+				isbrctl=false;
-+				continue;
-+			} else if (isrcnetneed) {
-+				isrcnetneed=false;
++			if (!devs.isMember(curif)) {
++				if (!ignoreline && !coutwritten) {
++					cout << "Remove device " << curif << "\n";
++					coutwritten=true;
++					continue;
++				}
++			}
++			if (ignoreline) {
++				ignoreline=false;
 +				continue;
 +			} else {
++				cout << "Change config for device " << curif << "\n";
 +				Json::Value NIC=devs[curif]["options"];
 +				int i=0;
 +				if (NIC.isMember("bridge_ports")){
@@ -272,10 +281,9 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +					for (size_t j=0; j<NIC["bridge_ports"].size();j++){
 +						string devname = NIC["bridge_ports"][j].asString();
 +						if (devname!="") {
-+							if (devname.substr(0,2)!="wl"){
-+								res.push_back("config_"+devname+"=\"null\"\n");
-+							} else {
-+//							if (devname.substr(0,2)=="wl"){
++							res.push_back("config_"+devname+"=\"null\"\n");
++							res.push_back("rc_net_"+devname+"_provide=\"!net\"\n");
++							if (devname.substr(0,2)=="wl"){
 +								res.push_back("rc_net_"+curif+"_need=\"hostapd\"\n");
 +							}
 +							ss << indent << devname;
@@ -334,11 +342,13 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				devs.removeMember(curif);
 +			}
 +			curif="";
++			coutwritten=false;
 +		}
 +	}
 +
 +	Json::Value::Members opts=devs.getMemberNames();
 +	for(Json::Value::Members::iterator oIt=opts.begin();oIt!=opts.end();oIt++){
++		cout << "Add config for device " << *oIt << "\n";
 +		Json::Value NIC=devs[*oIt]["options"];
 +		int i=0;
 +		if (NIC.isMember("bridge_ports")){
@@ -347,10 +357,9 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			for (size_t j=0; j<NIC["bridge_ports"].size();j++){
 +				string devname = NIC["bridge_ports"][j].asString();
 +				if (devname!="") {
-+					if (devname.substr(0,2)!="wl"){
-+						res.push_back("config_"+devname+"=\"null\"\n");
-+					} else {
-+//					if (devname.substr(0,2)=="wl"){
++					res.push_back("config_"+devname+"=\"null\"\n");
++					res.push_back("rc_net_"+devname+"_provide=\"!net\"\n");
++					if (devname.substr(0,2)=="wl"){
 +						res.push_back("rc_net_"+*oIt+"_need=\"hostapd\"\n");
 +					}
 +					ss << indent << devname;
@@ -373,7 +382,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			res.push_back("config_"+*oIt+"=\"dhcp\"\n");
 +		}else{
 +			if(NIC["address"][i].asString()=="0.0.0.0"){
-+				res.push_back("config_"+curif+"=\"null\"\n");
++				res.push_back("config_"+*oIt+"=\"null\"\n");
 +				NIC.removeMember("gateway");
 +			}else{
 +				struct in_addr ipaddress;
@@ -392,10 +401,11 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +		}
  	}
 +
++	cout << "Write config\n";
  	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
-@@ -117,6 +363,5 @@
+@@ -117,6 +373,5 @@
  
  }
  
@@ -404,8 +414,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  
 +}
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2015-11-09 12:33:35.055587799 +0100
-+++ b/utils/InterfacesCfg.h	2015-11-09 09:46:56.524352709 +0100
+--- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.h	2015-11-16 12:28:42.329038951 +0100
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  
