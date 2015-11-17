@@ -1,0 +1,45 @@
+diff -ru a/src/Downloader.h b/src/Downloader.h
+--- a/src/Downloader.h	2011-05-27 15:38:37.000000000 +0200
++++ b/src/Downloader.h	2015-11-17 13:14:51.911271796 +0100
+@@ -30,6 +30,7 @@
+ #include <config.h>
+ #endif
+ 
++#include <unistd.h>
+ #include <string>
+ #include <map>
+ #include <list>
+diff -ru a/src/TorrentDownloader.cpp b/src/TorrentDownloader.cpp
+--- a/src/TorrentDownloader.cpp	2012-05-24 12:43:22.000000000 +0200
++++ b/src/TorrentDownloader.cpp	2015-11-17 17:00:22.808512838 +0100
+@@ -446,7 +446,7 @@
+ 
+ 		torrent_info ti=this->handle.get_torrent_info();
+ 		for(torrent_info::file_iterator fIt=ti.begin_files();fIt!=ti.end_files();fIt++){
+-			string filename=(*fIt).path.native_file_string();
++			string filename=ti.files().file_path(*fIt);
+ 
+             boost::filesystem::path p(filename);
+             if(boost::filesystem::exists(p)) {
+@@ -1026,7 +1026,8 @@
+ 
+ 	this->s.set_settings(settings);
+ 
+-	if(!this->s.listen_on(make_pair(startport,endport))){
++	this->s.listen_on(make_pair(startport,endport));
++	if(!this->s.is_listening()){
+ 		syslog(LOG_CRIT,"Could not open a listening port.");
+ 		throw std::runtime_error("Could not open a listening port.");
+ 	}
+diff -ru a/src/filetransferdaemon.cpp b/src/filetransferdaemon.cpp
+--- a/src/filetransferdaemon.cpp	2011-05-27 15:38:37.000000000 +0200
++++ b/src/filetransferdaemon.cpp	2015-11-17 17:05:33.494625094 +0100
+@@ -134,7 +134,7 @@
+ int main(int argc,char** argv){
+ 	int daemonize=0;
+ 	int version=0;
+-	const char* group="www-data";
++	const char* group="apache";
+ 
+ 	try {
+ 		openlog("ftd",LOG_PERROR,LOG_DAEMON);
