@@ -67,7 +67,7 @@ src_prepare() {
 	# Fix patch errors due to DOS line endings in some files
 	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
 
-	patch -p1 < ${FILESDIR}/${PN}-${MY_PV}.patch
+	epatch ${FILESDIR}/${PN}-${MY_PV}.patch
 
 	if use debug; then
 		sed  -i "s/^\(define('ENVIRONMENT', '\).*\(');\)$/\1development\2/"  ${S}/admin/index.php
@@ -132,7 +132,8 @@ src_install() {
 	newins ${FILESDIR}/bubba-adminphp.conf adminphp.conf
 	use nginx && sed "s/apache/nginx/" -i ${ED}/etc/bubba/adminphp.conf
 
-	dodoc "${S}/debian/copyright" "${S}/debian/changelog"
+	dodoc "${S}/debian/copyright" ${FILESDIR}/Changelog
+	newdoc "${S}/debian/changelog" changelog.deb
 	insinto /usr/share/doc/${PF}/examples
 	docompress -x /usr/share/doc/${PF}/examples
 	doins php5-cgi.conf php5-apache.conf php5-xcache.ini ${FILESDIR}/*.conf ${FILESDIR}/*.initd
@@ -140,6 +141,15 @@ src_install() {
 
 
 pkg_postinst() {
+	rc-status default | grep -q bubba-adminphp || {
+		elog "add bubba-adminphp service to default runlevel"
+		rc-config add bubba-adminphp default >/dev/null
+	}
+	rc-service bubba-adminphp status &>/dev/null || {
+		elog "auto starting bubba-adminphp service"
+		rc-service bubba-adminphp start
+	}
+
 	if use nginx; then
 		elog "Although this package was configured for nginx, you may still use it"
 		elog "also with apache, provided it was configured with the right use flags."

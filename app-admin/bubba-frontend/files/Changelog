@@ -1,3 +1,103 @@
+2015-11-16
+
+Moved bubba-diskmanager to /opt/bubba tree (commands changed)
+
+Changed paths for File Transfer Daemon
+
+Remove reference to Horde in userdel procedure
+
+Let installer add and start bubba-adminphp service
+
+-------------------------------------------------------------------
+2015-11-16
+
+Fixed wlanupdate page always timing out. The only time out that is still
+occurring is when wifi is switched on or off. This is unavoidable and
+will thus remain.
+
+-------------------------------------------------------------------
+2015-11-13
+
+Moved bubba-networkmanager to /opt/bubba tree (commands changed)
+
+Fixed an issue with enabling/disabling automatic time updates
+(service renamed)
+
+-------------------------------------------------------------------
+2015-09-12
+
+Sanitized handling of "null" configured NICs (i.e. NICs that do need to
+be initialized because they are part of a bridge or a PPPoE connection
+but should not receive address for themselves). The web UI will now
+display these as having address 0.0.0.0 rather than "automatic" and you
+can also set a NIC to "null" configuration by setting this address in
+the web UI 
+
+-------------------------------------------------------------------
+2015-09-07
+
+Fixed creation of incorrect network conf entries when adapter is set
+to use dhcp or "null"
+
+Fixed race condition during changing of network parameters
+
+Fixed incorrect display of firewall settings due to missing paths
+
+-------------------------------------------------------------------
+2015-09-02
+
+Added debug USE flag to bubba-frontend to control whether php errors
+should be shown to the user - as of now the default without this USE
+flag is "not"
+
+Fixed Tor service page
+
+-------------------------------------------------------------------
+2015-08-31
+
+Fixed issue with apache vhost conf file
+
+Added HDD temperature to the stat page, which I only discovered to be
+missing today because it was originally added as an optional element
+and thus did not throw any error or display invalid data.
+
+-------------------------------------------------------------------
+2015-08-25
+
+Fixed issue with latest release of timezone-data (2015e) dropping the
+part of the database that was referenced by bubba-backend.
+
+-------------------------------------------------------------------
+2015-08-11
+
+Fixed dnsmasq service tracker. Now properly showing service running
+status and display of DHCP leases if applicable.
+
+-------------------------------------------------------------------
+2015-07-31
+
+Fixed the wireless settings being blocked by interfaces not hardcoded in
+bubba-networkmanager. Wireless interface still must be named according
+to the old standards (i.e. wlan0)
+
+-------------------------------------------------------------------
+2015-07-24
+
+Log file listing is now dynamically determined. Added some color scheming to the list as well, so it gets easier to identify what service a log file belongs to.
+
+Fixed an issue with PHP 5.6 and HTTP_RAW_POST_DATA
+
+-------------------------------------------------------------------
+2015-07-23
+
+Fixed an issue with the delete user routine - you can't delete a samba
+user if you already deleted the unix user.
+
+Fixed the problem with the obsolete bubba-igd service
+
+Printer service can now also be controlled - it was renamed from 'cups'
+to 'cupsd'
+
 -------------------------------------------------------------------
 2015-07-22
 We're moving to fpm because the old cgi method no longer works

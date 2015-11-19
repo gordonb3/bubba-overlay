@@ -76,7 +76,8 @@ src_install() {
 	newinitd ${FILESDIR}/bubba-firewall.initd  bubba-firewall
 	newconfd ${FILESDIR}/bubba-firewall.confd  bubba-firewall
 
-	dodoc "${S}/debian/copyright" "${S}/debian/changelog"
+	dodoc "${S}/debian/copyright" ${FILESDIR}/Changelog
+	newdoc "${S}/debian/changelog" changelog.deb
         insinto /usr/share/doc/${PF}/examples
         docompress -x /usr/share/doc/${PF}/examples
 	doins services/*

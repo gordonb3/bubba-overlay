@@ -1,9 +1,47 @@
+2015-11-13
+
+Moved bubba-diskmanager to /opt/bubba tree (commands changed)
+
+Identify pid file for filetransferdaemon (ftd.pid) in code
+
+-------------------------------------------------------------------
+2015-11-13
+
+Moved bubba-networkmanager to /opt/bubba tree (commands changed)
+
+-------------------------------------------------------------------
+2015-11-09
+
+Fixed dependency issue with libbubba-info
+
+-------------------------------------------------------------------
+2015-09-07
+
+Fixed incorrect display of firewall settings due to missing paths
+
+-------------------------------------------------------------------
+2015-08-23
+
+Fixed last references towards mybubba.org domain
+
+-------------------------------------------------------------------
+2015-07-23
+
+Fixed an issue with the delete user routine - you can't delete a samba
+user if you already deleted the unix user.
+
+Fixed problem with the obsolete bubba-igd service
+
+Fixed printer service name (changed from 'cups' to 'cupsd')
+
 -------------------------------------------------------------------
 2015-07-21
+
 Fix MakeMaker warnings
 
 -------------------------------------------------------------------
 2015-07-21
+
 Added identify_box script
 
 Removed easyfind.pl from this install, it conflicts with the
@@ -12,9 +50,11 @@ bubba-easyfind package
 
 -------------------------------------------------------------------
 2015-07-16
+
 Fixed editing advanced firewall editing 
 
 -------------------------------------------------------------------
 2015-07-07
+
 Added first release
 

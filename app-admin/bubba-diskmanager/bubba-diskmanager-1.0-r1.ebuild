@@ -38,7 +38,7 @@ src_prepare() {
 }
 
 src_install() {
-	exeinto /usr/sbin
+	exeinto /opt/bubba/sbin
 	doexe diskmanager
 
 	dodoc debian/changelog debian/copyright
