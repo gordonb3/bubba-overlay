@@ -9,6 +9,9 @@ The web admin interface requires a web server to operate. Supported web servers 
 
 <p><br>Current optional packages are:</p>
 
+#### File Transfer Daemon 0.55
+This package adds download and upload capabilities to the bubba web admin. Uploading files requires the use of apache web server running the web admin. Downloading of torrents has been made an optional component (but is currently enabled by default) in this Excito original code that was written against rb_libtorrent &lt; 0.16. The torrent module has no magnet support and rb_libtorrent functions that currently only generate warnings about being deprecated may fail in the future. Torrent support may at some time default to not being enabled and eventually be removed all together.
+
 #### Gentoo sources
 Currently contains kernel versions 4.0.1 and 4.1.6, matching the kernels from sakaki's <a href="https://github.com/sakaki-/gentoo-on-b3">gentoo-on-b3</a> releases. These are copies of retired original gentoo releases, kept here for your convenience whenever you need need to build additional (3th party) modules.
 
