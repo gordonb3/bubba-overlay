@@ -1,6 +1,6 @@
 diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
---- a/Dispatcher.cpp	2015-11-27 14:49:09.903494776 +0100
-+++ b/Dispatcher.cpp	2015-11-27 14:41:44.130867722 +0100
+--- a/Dispatcher.cpp	2010-06-09 15:24:27.000000000 +0200
++++ b/Dispatcher.cpp	2015-11-16 12:28:42.319038110 +0100
 @@ -241,6 +241,7 @@
  		}
  
@@ -43,17 +43,9 @@ diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
  			}
  		}catch(runtime_error& err){
  			res["status"]=false;
-@@ -499,6 +505,7 @@
- Dispatcher::Result Dispatcher::getdefaultroute(EUtils::UnixClientSocket *con, const Json::Value & v){
- 	Json::Value res(Json::objectValue);
- 	res["status"]=true;
-+	Route::Instance().Refresh();
- 	res["gateway"]=Route::Instance().Default()["gateway"];
- 	this->send_jsonvalue(con,res);
- 
 diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2015-11-27 14:49:09.903494776 +0100
-+++ b/utils/InterfacesCfg.cpp	2015-11-27 14:17:02.300049357 +0100
+--- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.cpp	2015-11-16 15:12:10.063857040 +0100
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -159,7 +151,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  }
  
  Json::Value InterfacesCfg::GetCFG(){
-@@ -82,32 +137,229 @@
+@@ -82,32 +137,233 @@
  }
  
  bool InterfacesCfg::Commit(){
@@ -188,11 +180,6 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 -			for(size_t i=0; i<val["options"][*oIt].size();i++){
 -				ss << " "<< val["options"][*oIt][i].asString();
 +
-+	if (devs.isMember("br0")) {
-+		devs.removeMember("eth1");
-+		devs.removeMember("wlan0");
-+	}
-+
 +	res.push_back("# basic setup for B3\n");
 +	res.push_back("modules=\"iproute2 !iwconfig !wpa_supplicant\"\n");
 +	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
@@ -200,7 +187,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +		if(line.substr(0,7)=="modules"){
 +			if(line.substr(7,1)!="_"){
 +				continue;
- 			}
++			}
 +		}
 +		if(line=="# basic setup for B3") {
 +			continue;
@@ -246,6 +233,12 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +			res.push_back(*fIt+"\n");
 +			continue;
 +		}
++		if ( (curif=="eth1") || (curif=="wlan0") || (curif=="br0") ) {
++			if (cfg.isMember("br0")) {
++				devs.removeMember("eth1");
++				devs.removeMember("wlan0");
+ 			}
++		}
 +		if ( (curif!="eth0") && (curif!="eth1") && (curif!="wlan0") && (curif!="br0") ) {
 +			cout << "Keep device " << curif << " : not handled by this script\n";
 +			curif="";
@@ -264,6 +257,9 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 +				continue;
 +			}
 +		}
++//		if (!devs.isMember(curif)) {
++//			continue;
++//		}
 +		if (!inarg) {
 +			if (!devs.isMember(curif)) {
 +				if (!ignoreline && !coutwritten) {
@@ -409,7 +405,7 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  	FileUtils::Write(IFSFILE,res,0644);
  	return true;
  }
-@@ -117,6 +369,5 @@
+@@ -117,6 +373,5 @@
  
  }
  
@@ -418,8 +414,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
  
 +}
 diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2015-11-27 14:49:09.913495735 +0100
-+++ b/utils/InterfacesCfg.h	2015-11-27 11:06:41.834064254 +0100
+--- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.h	2015-11-16 12:28:42.329038951 +0100
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  

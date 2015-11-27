@@ -26,6 +26,7 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
+	net-misc/dhcpcd
 "
 
 S=${WORKDIR}/${PN}-${MY_PV}
@@ -36,6 +37,7 @@ src_prepare() {
 	epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-ifcommands.patch
         epatch ${FILESDIR}/${PN}-${MY_PV}-ifpolicies.patch
+        epatch ${FILESDIR}/${PN}-${MY_PV}-fqdn.patch
 }
 
 src_compile() {
@@ -69,6 +71,8 @@ src_install() {
 	insinto /etc/dnsmasq.d
 	newins ${FILESDIR}/dnsmasq.conf bubba.conf
 
+	insinto /lib/dhcpcd/dhcpcd-hooks
+	doins ${FILESDIR}/bubba-fqdn.hook
 }
 
 

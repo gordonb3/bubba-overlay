@@ -1,0 +1,36 @@
+diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController.cpp
+--- a/controllers/InterfaceController.cpp	2015-11-27 09:29:57.692224379 +0100
++++ b/controllers/InterfaceController.cpp	2015-11-27 10:40:22.853959879 +0100
+@@ -520,7 +520,7 @@
+ 		string hostname=FileUtils::GetContentAsString("/proc/sys/kernel/hostname");
+ 
+ 		// add self reference to fulfil FQDN requirement
+-		string ip = "127.0.0.1";
++		string ip = "256.0.0.1";
+ 		Hosts::Entries e=h.Find(hostname);
+ 		Hosts::UpdateIP(e,ip,hostname);
+ 
+diff -ru a/utils/Hosts.cpp b/utils/Hosts.cpp
+--- a/utils/Hosts.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/Hosts.cpp	2015-11-27 09:59:16.029520248 +0100
+@@ -67,8 +67,8 @@
+ 	if(ip!=""){
+ 		Hosts::Entry ent(3);
+ 		ent[0]=ip;
+-		ent[1]=name;
+-		ent[2]=name+".localdomain";
++		ent[1]=name+".localdomain";
++		ent[2]=name;
+ 		e.push_back(ent);
+ 	}
+ 
+@@ -99,8 +99,8 @@
+ 
+ 		for(Hosts::Entries::iterator entry=e.begin();entry!=e.end();entry++){
+ 			(*entry).erase((*entry).begin()+1,(*entry).end());
+-			(*entry).insert((*entry).end(),name);
+ 			(*entry).insert((*entry).end(),name+".localdomain");
++			(*entry).insert((*entry).end(),name);
+ 		}
+ 
+ 	}

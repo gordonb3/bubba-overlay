@@ -1,0 +1,125 @@
+#!/bin/bash
+
+DEBUG=0
+
+function dolog() {
+	if [ ${DEBUG} -eq 1 ]; then
+		echo -e $* >> /tmp/bubba-fqdn-hook.log
+	fi
+}
+
+dolog "script start at $(date)"
+#initialize variables
+my_hostname=$(hostname)
+if [ "x$new_domain_name" != x ]; then
+	my_domain=${new_domain_name}
+elif [ "x$old_domain_name" != x ]; then
+	my_domain=${old_domain_name}
+else
+	my_domain=localdomain
+fi
+old_fqdn_name=${my_hostname}.${old_domain_name}
+new_fqdn_name=${my_hostname}.${my_domain}
+
+new_hostnames="${new_fqdn_name}\t${my_hostname}"
+altnames=""
+old_hostentry=""
+
+lanif=$(/opt/bubba/bin/bubba-networkmanager-cli getlanif)
+
+
+#sanitize files accessed by this script
+sed -i "s/$//" /etc/hosts
+sed -i "s/$//" /etc/resolv.conf
+
+
+# add loopback entry if missing
+localhost_entry=$(grep "^127.0.0.1" /etc/hosts)
+if [ "x${localhost_entry}" = "x" ]; then
+dolog "add localhost entry"
+	dolog "127.0.0.1\tlocalhost" >> /etc/hosts
+fi
+
+
+# add search entry to resolv.conf
+if [ "x$new_domain_search" != x ]; then
+	search_entry=$(grep "^search" /etc/resolv.conf)
+	if [ "x${search_entry}" != "x" ]; then
+dolog "change search entry"
+		sed -i "/^search/csearch ${new_domain_search}" /etc/resolv.conf
+	else
+dolog "add search entry"
+		echo  "search ${new_domain_search}" >> /etc/resolv.conf
+	fi
+elif [ "x$new_domain_name" != x ]; then
+	search_entry=$(grep "^search" /etc/resolv.conf)
+	if [ "x${search_entry}" != "x" ]; then
+dolog "change domain entry"
+		sed -i "/^search/csearch ${new_domain_name}" /etc/resolv.conf
+	else
+dolog "add domain entry"
+		echo "search ${new_domain_name}" >> /etc/resolv.conf
+	fi
+fi
+
+dolog "interface = ${interface}"
+if [ "${interface}" = "${lanif}" ]; then
+
+	bubbadynamic_entry=$(grep "^256.0.0.1" /etc/hosts)
+	if [ "x${bubbadynamic_entry}" != "x" ]; then
+dolog "found bubba dynamic entry"
+		if [ "x${new_ip_address}" != "x" ]; then
+dolog "changing bubba dynamic entry"
+			sed -i "s/^${bubbadynamic_entry}/${new_ip_address}/" /etc/resolv.conf
+			new_ip_address=""
+		fi
+	fi
+
+
+	if [ "x${old_ip_address}" != "x" ]; then 
+dolog "destroy old ip address ${old_ip_address}"
+		old_hostentry=$(grep "^${old_ip_address}\s" /etc/hosts)
+		if [ "x${old_hostentry}" != "x" ]; then
+dolog "old hostentry : $old_hostentry"
+			#keep alternate names if defined
+			needle=$(echo "^${old_ip_address}\$|${my_hostname}\$|${old_fqdn_name}\$|${new_fqdn_name}\$|localhost|^\$"| sed "s/\./\\\./g")
+			altnames=$(echo $(echo ${old_hostentry} | sed "s/\s\s*/\n/g" | eval "grep -vP \"${needle}\"") | sed "s/\s\s*/\t/")
+			if [ "x${altnames}" != "x" ]; then
+dolog "saving alternate names : $altnames"
+				echo -n $(echo -n ${altnames}) >> /tmp/.dhclient-keepaltnames
+			fi
+			sed -i "/^${old_ip_address}\s/d" /etc/hosts
+		fi
+	fi
+
+
+	if [ "x${new_ip_address}" != "x" ]; then
+		old_hostentry=$(grep "^${new_ip_address}\s" /etc/hosts)
+dolog "existing hostentry : $old_hostentry"
+		if [ "x${old_hostentry}" != "x" ]; then
+dolog "changing entry for ip address ${new_ip_address}"
+			#keep alternate names if defined
+			needle=$(echo "^${new_ip_address}\$|${my_hostname}\$|${old_fqdn_name}\$|${new_fqdn_name}\$|localhost|^\$"| sed "s/\./\\\./g")
+			altnames=$(echo $(echo ${old_hostentry} | sed "s/\s\s*/\n/g" | eval "grep -vP \"${needle}\"") | sed "s/\s\s*/\t/")
+			if [ "x${altnames}" != "x" ]; then
+dolog "got alternate names : \"${altnames}\""
+				new_hostnames="${new_fqdn_name}\t${my_hostname}\t${altnames}"
+			fi
+			sed -i "/^${new_ip_address}\s/c${new_ip_address}\t${new_hostnames}" /etc/hosts
+		else
+dolog "add new ip address ${new_ip_address}"
+			if [ -e /tmp/.dhclient-keepaltnames ]; then
+dolog "restoring alternate names : $(cat /tmp/.dhclient-keepaltnames)"
+				new_hostnames="${new_fqdn_name}\t${my_hostname}\t$(cat /tmp/.dhclient-keepaltnames)"
+				rm -f /tmp/.dhclient-keepaltnames
+			fi
+			echo -e "${new_ip_address}\t${new_hostnames}" >> /etc/hosts
+		fi
+	fi
+
+fi
+
+numlines=$(grep -c "" /etc/hosts)
+dolog "hosts file has $numlines lines"
+dolog "script end\n\n"
+
