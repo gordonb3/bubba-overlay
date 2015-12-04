@@ -1,6 +1,6 @@
 diff -ruN a/Makefile b/Makefile
 --- a/Makefile	2013-06-26 22:25:47.000000000 +0200
-+++ b/Makefile	2015-11-24 10:53:21.319146114 +0100
++++ b/Makefile	2015-12-04 13:22:20.450083576 +0100
 @@ -120,7 +120,7 @@
  		po4a.conf
  	rm -f po4a.stamp
@@ -12,7 +12,7 @@ diff -ruN a/Makefile b/Makefile
  	$(foreach ll,$(basename $(notdir $(wildcard po/php/*.mo))),\
 diff -ruN a/admin/config/browser_cap.php b/admin/config/browser_cap.php
 --- a/admin/config/browser_cap.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/config/browser_cap.php	2015-11-24 10:53:21.319146114 +0100
++++ b/admin/config/browser_cap.php	2015-12-04 13:22:20.460084529 +0100
 @@ -3,5 +3,5 @@
  
  $config['cache_path'] = '/var/cache/web-admin';
@@ -22,7 +22,7 @@ diff -ruN a/admin/config/browser_cap.php b/admin/config/browser_cap.php
  ?>
 diff -ruN a/admin/config/config.php b/admin/config/config.php
 --- a/admin/config/config.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/config/config.php	2015-11-24 10:53:21.329146953 +0100
++++ b/admin/config/config.php	2015-12-04 13:22:20.460084529 +0100
 @@ -11,7 +11,7 @@
  |	http://www.your-site.com/
  |
@@ -33,8 +33,8 @@ diff -ruN a/admin/config/config.php b/admin/config/config.php
  /*
  |--------------------------------------------------------------------------
 diff -ruN a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_settings.php
---- a/admin/controllers/ajax_settings.php	2015-11-24 10:52:45.666155249 +0100
-+++ b/admin/controllers/ajax_settings.php	2015-11-24 10:53:21.329146953 +0100
+--- a/admin/controllers/ajax_settings.php	2015-12-04 13:21:45.826783216 +0100
++++ b/admin/controllers/ajax_settings.php	2015-12-04 13:22:20.460084529 +0100
 @@ -76,12 +76,12 @@
    function get_versions() {
        $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
@@ -53,7 +53,7 @@ diff -ruN a/admin/controllers/ajax_settings.php b/admin/controllers/ajax_setting
    function update(){
 diff -ruN a/admin/controllers/disk.php b/admin/controllers/disk.php
 --- a/admin/controllers/disk.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/disk.php	2015-11-24 10:53:21.329146953 +0100
++++ b/admin/controllers/disk.php	2015-12-04 13:22:20.470085483 +0100
 @@ -174,6 +174,7 @@
  			case '/dev/sda1':
  			case '/dev/sda2':
@@ -144,7 +144,7 @@ diff -ruN a/admin/controllers/disk.php b/admin/controllers/disk.php
                          case 'pv':
 diff -ruN a/admin/controllers/downloads.php b/admin/controllers/downloads.php
 --- a/admin/controllers/downloads.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/downloads.php	2015-11-24 10:53:21.339147792 +0100
++++ b/admin/controllers/downloads.php	2015-12-04 13:22:20.470085483 +0100
 @@ -10,7 +10,9 @@
  
  		require_once(APPPATH."/legacy/defines.php");
@@ -166,7 +166,7 @@ diff -ruN a/admin/controllers/downloads.php b/admin/controllers/downloads.php
  	}	
 diff -ruN a/admin/controllers/network.php b/admin/controllers/network.php
 --- a/admin/controllers/network.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/network.php	2015-11-24 10:53:21.339147792 +0100
++++ b/admin/controllers/network.php	2015-12-04 13:22:20.470085483 +0100
 @@ -472,12 +472,12 @@
  
  			if($edit) {
@@ -205,7 +205,7 @@ diff -ruN a/admin/controllers/network.php b/admin/controllers/network.php
  		if($strip){
 diff -ruN a/admin/controllers/services.php b/admin/controllers/services.php
 --- a/admin/controllers/services.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/services.php	2015-11-24 10:53:21.339147792 +0100
++++ b/admin/controllers/services.php	2015-12-04 13:22:20.480086436 +0100
 @@ -42,15 +42,12 @@
  		$logitechmediaserver_installed=is_installed($logitechmediaserver_packagename);
  		$logitechmediaserver_enabled=$this->input->post('logitechmediaserver_enabled');
@@ -265,7 +265,7 @@ diff -ruN a/admin/controllers/services.php b/admin/controllers/services.php
  		if($strip){
 diff -ruN a/admin/controllers/settings.php b/admin/controllers/settings.php
 --- a/admin/controllers/settings.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/settings.php	2015-11-24 10:55:07.948090996 +0100
++++ b/admin/controllers/settings.php	2015-12-04 13:22:20.480086436 +0100
 @@ -240,7 +240,7 @@
      case 'get_versions':
        $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
@@ -414,7 +414,7 @@ diff -ruN a/admin/controllers/settings.php b/admin/controllers/settings.php
              throw new Exception(sprintf(_("Easyfind failed with following error: %s"), $msg));
 diff -ruN a/admin/controllers/stat.php b/admin/controllers/stat.php
 --- a/admin/controllers/stat.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/stat.php	2015-11-24 10:53:21.349148631 +0100
++++ b/admin/controllers/stat.php	2015-12-04 13:22:20.490087389 +0100
 @@ -36,7 +36,7 @@
      }
  
@@ -426,7 +426,7 @@ diff -ruN a/admin/controllers/stat.php b/admin/controllers/stat.php
  
 diff -ruN a/admin/controllers/users.php b/admin/controllers/users.php
 --- a/admin/controllers/users.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/users.php	2015-11-24 10:53:21.359149469 +0100
++++ b/admin/controllers/users.php	2015-12-04 13:22:20.490087389 +0100
 @@ -296,13 +296,15 @@
  					if($userdata){
  						if(rm("/home/$username","root")==0){
@@ -446,7 +446,7 @@ diff -ruN a/admin/controllers/users.php b/admin/controllers/users.php
  					$error = sprintf(_('Fatal error when trying to remove the user %s'), $username);
 diff -ruN a/admin/controllers/wizard.php b/admin/controllers/wizard.php
 --- a/admin/controllers/wizard.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/controllers/wizard.php	2015-11-24 10:56:38.835715340 +0100
++++ b/admin/controllers/wizard.php	2015-12-04 13:22:20.490087389 +0100
 @@ -150,8 +150,7 @@
                  $valid = $this->networkmanager->easyfind_validate($easyfind_name);
                  if($valid) {
@@ -481,7 +481,7 @@ diff -ruN a/admin/controllers/wizard.php b/admin/controllers/wizard.php
  
 diff -ruN a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_helper.php
 --- a/admin/helpers/bubba_socket_helper.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/helpers/bubba_socket_helper.php	2015-11-24 10:53:21.359149469 +0100
++++ b/admin/helpers/bubba_socket_helper.php	2015-12-04 13:22:20.500088343 +0100
 @@ -118,7 +118,7 @@
  class OldBubbaAptSocket extends BubbaSocket {
  	function __construct() {
@@ -523,7 +523,7 @@ diff -ruN a/admin/helpers/bubba_socket_helper.php b/admin/helpers/bubba_socket_h
  function apt_query_progress() {
 diff -ruN a/admin/helpers/exec_helper.php b/admin/helpers/exec_helper.php
 --- a/admin/helpers/exec_helper.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/helpers/exec_helper.php	2015-11-24 10:53:21.369150308 +0100
++++ b/admin/helpers/exec_helper.php	2015-12-04 13:22:20.500088343 +0100
 @@ -32,8 +32,8 @@
  
  function invoke_rc_d( $name, $action ) {
@@ -594,7 +594,7 @@ diff -ruN a/admin/helpers/exec_helper.php b/admin/helpers/exec_helper.php
  }
 diff -ruN a/admin/index.php b/admin/index.php
 --- a/admin/index.php	1970-01-01 01:00:00.000000000 +0100
-+++ b/admin/index.php	2015-11-24 10:53:21.479159537 +0100
++++ b/admin/index.php	2015-12-04 13:22:20.500088343 +0100
 @@ -0,0 +1,32 @@
 +<?php
 +define('ENVIRONMENT', 'development');
@@ -630,7 +630,7 @@ diff -ruN a/admin/index.php b/admin/index.php
 +
 diff -ruN a/admin/legacy/defines.php b/admin/legacy/defines.php
 --- a/admin/legacy/defines.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/legacy/defines.php	2015-11-24 10:53:21.369150308 +0100
++++ b/admin/legacy/defines.php	2015-12-04 13:22:20.510089296 +0100
 @@ -1,23 +1,24 @@
  <?php
  $CI =& get_instance();
@@ -669,7 +669,7 @@ diff -ruN a/admin/legacy/defines.php b/admin/legacy/defines.php
  
 diff -ruN a/admin/libraries/Browscap_raw.php b/admin/libraries/Browscap_raw.php
 --- a/admin/libraries/Browscap_raw.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/libraries/Browscap_raw.php	2015-11-24 10:53:21.379151147 +0100
++++ b/admin/libraries/Browscap_raw.php	2015-12-04 13:22:20.510089296 +0100
 @@ -136,14 +136,14 @@
  	 *
  	 * @var string
@@ -689,7 +689,7 @@ diff -ruN a/admin/libraries/Browscap_raw.php b/admin/libraries/Browscap_raw.php
  	 * Path to the cache directory
 diff -ruN a/admin/models/auth_model.php b/admin/models/auth_model.php
 --- a/admin/models/auth_model.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/auth_model.php	2015-11-24 10:53:21.379151147 +0100
++++ b/admin/models/auth_model.php	2015-12-04 13:22:20.510089296 +0100
 @@ -80,7 +80,7 @@
  	private $realname = "";
  
@@ -701,7 +701,7 @@ diff -ruN a/admin/models/auth_model.php b/admin/models/auth_model.php
  	function Auth_model(){
 diff -ruN a/admin/models/disk_model.php b/admin/models/disk_model.php
 --- a/admin/models/disk_model.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/disk_model.php	2015-11-24 10:53:21.379151147 +0100
++++ b/admin/models/disk_model.php	2015-12-04 13:22:20.520090249 +0100
 @@ -1,7 +1,7 @@
  <?php
  
@@ -728,9 +728,30 @@ diff -ruN a/admin/models/disk_model.php b/admin/models/disk_model.php
 +	}
  }
  
+diff -ruN a/admin/models/menu.php b/admin/models/menu.php
+--- a/admin/models/menu.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/models/menu.php	2015-12-04 13:33:37.794512206 +0100
+@@ -63,14 +63,14 @@
+             ),
+             array(
+                 'label' => pgettext('menu',"Webmail"),
+-                'id' => 'pim',
+-                'uri' => '/pim',
++                'id' => 'webmail',
++                'uri' => '/webmail',
+                 'auth' => false,
+                 'class' => 'ui-login-menubar-a',
+                 'icon' => 'default-icon',
+                 'lock-icon' => array("default-icon-mail","default-icon-mail-lock"),
+                 'abs_uri' => true,
+-                'target' => "window_pim",
++                'target' => "window_webmail",
+             ),
+             array(
+                 'label' => pgettext('menu',"User settings"),
 diff -ruN a/admin/models/networkmanager.php b/admin/models/networkmanager.php
 --- a/admin/models/networkmanager.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/networkmanager.php	2015-11-24 10:53:21.389151986 +0100
++++ b/admin/models/networkmanager.php	2015-12-04 13:22:20.520090249 +0100
 @@ -162,7 +162,7 @@
  
      $lanip = $this->_get_ip($this->get_lan_interface());
@@ -819,7 +840,7 @@ diff -ruN a/admin/models/networkmanager.php b/admin/models/networkmanager.php
      }
 diff -ruN a/admin/models/oldbackup.php b/admin/models/oldbackup.php
 --- a/admin/models/oldbackup.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/models/oldbackup.php	2015-11-24 10:53:21.389151986 +0100
++++ b/admin/models/oldbackup.php	2015-12-04 13:22:20.530091203 +0100
 @@ -50,7 +50,7 @@
  }
  
@@ -831,7 +852,7 @@ diff -ruN a/admin/models/oldbackup.php b/admin/models/oldbackup.php
          // change this to read a history file with status of each job and time
 diff -ruN a/admin/views/default/album/album_album_view.php b/admin/views/default/album/album_album_view.php
 --- a/admin/views/default/album/album_album_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/album/album_album_view.php	2015-11-24 10:53:21.399152825 +0100
++++ b/admin/views/default/album/album_album_view.php	2015-12-04 13:22:20.530091203 +0100
 @@ -413,7 +413,7 @@
  	<th colspan="2" class="ui-state-default ui-widget-header"><?=_("Existing albums")?></th>
  </tr>
@@ -843,7 +864,7 @@ diff -ruN a/admin/views/default/album/album_album_view.php b/admin/views/default
  	<td><div id="album_list" /></td>
 diff -ruN a/admin/views/default/disk/disk_view.php b/admin/views/default/disk/disk_view.php
 --- a/admin/views/default/disk/disk_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/disk/disk_view.php	2015-11-24 10:53:21.399152825 +0100
++++ b/admin/views/default/disk/disk_view.php	2015-12-04 13:22:20.530091203 +0100
 @@ -87,15 +87,20 @@
  	?></td>
  	<td><?=isset($devices[$legend['name']]['label'])?$devices[$legend['name']]['label']:""?></td> 
@@ -876,7 +897,7 @@ diff -ruN a/admin/views/default/disk/disk_view.php b/admin/views/default/disk/di
  </table>
 diff -ruN a/admin/views/default/downloads/downloads_index_view.php b/admin/views/default/downloads/downloads_index_view.php
 --- a/admin/views/default/downloads/downloads_index_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/downloads/downloads_index_view.php	2015-11-24 10:53:21.409153664 +0100
++++ b/admin/views/default/downloads/downloads_index_view.php	2015-12-04 13:22:20.540092156 +0100
 @@ -16,7 +16,11 @@
  
  <?if(!$enabled):?>
@@ -890,9 +911,21 @@ diff -ruN a/admin/views/default/downloads/downloads_index_view.php b/admin/views
  </div>
  <?endif?>
  
+diff -ruN a/admin/views/default/main_view.php b/admin/views/default/main_view.php
+--- a/admin/views/default/main_view.php	2013-06-26 22:25:46.000000000 +0200
++++ b/admin/views/default/main_view.php	2015-12-04 13:33:06.161508353 +0100
+@@ -83,7 +83,7 @@
+ 
+ var login_dialog;
+ var window_music;
+-var window_pim;
++var window_webmail;
+ var window_album;
+ 
+ jQuery.validator.setDefaults({ 
 diff -ruN a/admin/views/default/services/services_view.php b/admin/views/default/services/services_view.php
 --- a/admin/views/default/services/services_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/services/services_view.php	2015-11-24 10:53:21.409153664 +0100
++++ b/admin/views/default/services/services_view.php	2015-12-04 13:22:20.540092156 +0100
 @@ -64,10 +64,6 @@
        <td><label for=""><?=_('Up and downloads')?></label></td>
        <td ><input name="download_enabled" type="checkbox" class="slide"value="1" <?= $download_status?"checked=\"checked\"":"" ?>/></td>
@@ -906,7 +939,7 @@ diff -ruN a/admin/views/default/services/services_view.php b/admin/views/default
  	<button class="submit" id="fn-settings-update"><?=_("Update")?></button>
 diff -ruN a/admin/views/default/settings/settings_logs_view.php b/admin/views/default/settings/settings_logs_view.php
 --- a/admin/views/default/settings/settings_logs_view.php	2013-06-26 22:25:46.000000000 +0200
-+++ b/admin/views/default/settings/settings_logs_view.php	2015-11-24 10:53:21.409153664 +0100
++++ b/admin/views/default/settings/settings_logs_view.php	2015-12-04 13:22:20.540092156 +0100
 @@ -1,3 +1,4 @@
 +<?$bgwhite=true?>
  <table class="ui-table-outline">

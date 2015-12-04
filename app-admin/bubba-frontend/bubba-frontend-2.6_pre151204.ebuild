@@ -72,10 +72,6 @@ src_prepare() {
 	if use debug; then
 		sed  -i "s/^\(define('ENVIRONMENT', '\).*\(');\)$/\1development\2/"  ${S}/admin/index.php
 	fi
-
-	echo "date.timezone=\"`cat /etc/timezone`\"" >> php5-cgi.conf
-	echo "short_open_tag=On" >> php5-cgi.conf
-	echo "always_populate_raw_post_data=-1" >> php5-cgi.conf
 }
 
 
@@ -98,16 +94,23 @@ src_install() {
 	newins ${DISTDIR}/jquery-${JQ_PV}.js jquery.js
 	newins ${DISTDIR}/jquery-ui-${JQUI_PV}.js jquery-ui.js
 
-
 	PHP_CLI_INI_PATH=$(php -n --ini | grep -v "(none)" | awk '{print $NF}')
 	PHP_APACHE_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/apache2/")
 	PHP_FPM_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/fpm/")
+
+	echo "date.timezone=\"`cat /etc/timezone`\"" >> php5-cgi.conf
+	echo "short_open_tag=On" >> php5-cgi.conf
+	echo "always_populate_raw_post_data=-1" >> php5-cgi.conf
 
 	insinto ${PHP_FPM_INI_PATH}/ext
 	newins php5-cgi.conf bubba-admin.ini
 	dosym ${PHP_FPM_INI_PATH}/ext/bubba-admin.ini ${PHP_FPM_INI_PATH}/ext-active/bubba-admin.ini
 
 	if use apache2; then
+		echo "date.timezone=\"`cat /etc/timezone`\"" >> php5-apache.conf
+		echo "short_open_tag=On" >> php5-apache.conf
+		echo "always_populate_raw_post_data=-1" >> php5-apache.conf
+
 		insinto ${PHP_APACHE_INI_PATH}/ext
 		newins php5-apache.conf bubba-admin.ini
 		dosym ${PHP_APACHE_INI_PATH}/ext/bubba-admin.ini ${PHP_APACHE_INI_PATH}/ext-active/bubba-admin.ini
@@ -167,5 +170,3 @@ pkg_postinst() {
 	fi
 
 }
-
-
