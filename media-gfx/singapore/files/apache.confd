@@ -1,0 +1,23 @@
+	alias /album /opt/singapore/htdocs
+        <Directory /opt/singapore/htdocs/>
+		DirectoryIndex index.php index.html
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Require all granted
+
+		RewriteEngine on
+		RewriteCond %{REQUEST_FILENAME} !-d
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteRule ^([^,]+)(,([0-9]+))?/$ /album/index.php?gallery=$1&startat=$3&%{QUERY_STRING} [ne]
+		RewriteRule ^((.*)/)?([^/]+\.(jpeg|jpg|jpe|png|gif|bmp|tif|tiff))$ /album/index.php?gallery=$2&image=$3&%{QUERY_STRING} [ne,nc]
+		RewriteRule ^((.*)/)?feed.xml$ /album/index.php?gallery=$2&template=rss&%{QUERY_STRING} [ne]
+	</Directory>
+
+	alias /photos /home/web/photos
+        <Directory /home/web/photos/>
+		DirectoryIndex index.php index.html
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Require all granted
+	</Directory>
+

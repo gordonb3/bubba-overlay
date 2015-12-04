@@ -1,0 +1,81 @@
+diff -ru a/includes/config.class.php b/includes/config.class.php
+--- a/includes/config.class.php	2010-12-23 20:00:50.000000000 +0100
++++ b/includes/config.class.php	2015-12-04 11:57:11.003998463 +0100
+@@ -49,7 +49,13 @@
+ 
+     //import values into object scope
+     foreach($ini_values as $key => $value) $this->$key = $value;
+- 
++
++    //do not track views from LAN addresses
++    isset($_SERVER["HTTP_X_FORWARDED_FOR"])&&strlen($_SERVER["HTTP_X_FORWARDED_FOR"]) > 0?$clientip=$_SERVER["HTTP_X_FORWARDED_FOR"]:$clientip=$_SERVER["REMOTE_ADDR"];
++    if (substr($clientip,0,3) == "10.") $this->track_views = 0;
++    if (substr($clientip,0,8) == "192.168.") $this->track_views = 0;
++    if ((substr($clientip,0,4) == "172.") && (substr($clientip, 4, 2) > 15) && (substr($clientip, 4, 2) < 32)) $this->track_views = 0;
++
+     return true;
+ 	}
+ }
+diff -ru a/index.php b/index.php
+--- a/index.php	2010-12-23 20:00:50.000000000 +0100
++++ b/index.php	2015-12-04 12:07:06.630541599 +0100
+@@ -12,6 +12,11 @@
+  * @version $Id: index.php,v 1.21 2006/08/05 19:56:32 thepavian Exp $
+  */
+ 
++
++if (!is_readable("singapore.ini")) {
++  system("cp -a /usr/share/doc/singapore*/singapore.ini.default ../photos/singapore.ini");
++}
++
+ //include main class
+ require_once "includes/singapore.class.php";
+ 
+diff -ru a/singapore.ini b/singapore.ini
+--- a/singapore.ini	2010-12-23 20:00:50.000000000 +0100
++++ b/singapore.ini	2015-12-04 11:57:11.024000362 +0100
+@@ -22,7 +22,7 @@
+      ;  im  = ImageMagick v5.x
+      ;  im6 = ImageMagick v6.x
+      
+-gallery_name = "singapore"
++gallery_name = "Bubba album"
+      ;this is the text that will appear in the title bar of all 
+      ;generated pages and also the root node of the crumb line
+   
+@@ -85,7 +85,7 @@
+ template_flipper = on
+      ;turn on to display a select box which allows users to select a template
+ 
+-full_image_resize = off
++full_image_resize = on
+      ;turn on to force all full-size images to be resized to the size specified
+      ;in the current template's template.ini
+      
+@@ -124,7 +124,7 @@
+ progressive_thumbs = on
+      ;generate progressive JPEG and interlaced GIF & PNG images. 
+      
+-use_mod_rewrite = off
++use_mod_rewrite = on
+      ;format generated URLs for use with Apache mod_rewrite
+      ;you need to enable mod_rewrite and create an appropriate .htaccess file
+      
+@@ -146,7 +146,7 @@
+      ;path to writable data directory
+      ;must be specified relative to singapore root
+      
+-pathto_galleries = "galleries/"
++pathto_galleries = "../photos/"
+      ;path to galleries directory
+      ;must be specified relative to singapore root
+      
+@@ -237,7 +237,7 @@
+      ;file-system-view absolute or relative path to installation
+      ;can usually be left blank
+      
+-base_url = ""
++base_url = "/album/"
+      ;web-view absolute or relative url of installation.
+      ;can usually be left blank
+      
