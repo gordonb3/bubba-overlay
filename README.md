@@ -14,7 +14,7 @@ This is a web image gallery I'm offering as a replacement for bubba album. Quite
 (Apache configured systems only - should work with nginx configured systems as well but will require manual configuration of the web server)
 
 
-### 'Bubba-ized' Roundcube 1.0.6
+#### 'Bubba-ized' Roundcube 1.0.6
 The original portage ebuild for this app uses an install scheme that appears to be intended for much larger schemes than we're going for with this personel device. We also like to obfuscate web content that should be readily available (i.e. can not be deleted through the samba share) and this install matches the vhost definition we created for the bubba web admin interface.
 (Apache configured systems only - should work with nginx configured systems as well but will require manual configuration of the web server)
 
