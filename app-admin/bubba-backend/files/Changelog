@@ -1,3 +1,17 @@
+2015-12-10
+
+Fixed backup and restore of system settings
+  This procedure is provided as is. Files and/or folders to include
+  as well can be added to /var/lib/bubba/personal-setting-files.txt
+
+-------------------------------------------------------------------
+2015-12-06
+
+Fixed incorrect management of fetchmail service:
+ - incorrect name for pid file
+ - wrong owner and rights on resource file
+
+-------------------------------------------------------------------
 2015-11-13
 
 Moved bubba-diskmanager to /opt/bubba tree (commands changed)
