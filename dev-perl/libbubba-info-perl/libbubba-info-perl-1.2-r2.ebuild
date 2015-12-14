@@ -37,7 +37,7 @@ src_compile() {
 }
 
 src_install() {
-	emake DESTDIR=${ED} install
+	emake DESTDIR=${ED} INSTALLDIRS=vendor install
 
 	dodoc debian/changelog debian/copyright
 
