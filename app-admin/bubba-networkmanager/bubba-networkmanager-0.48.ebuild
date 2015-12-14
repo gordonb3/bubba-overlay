@@ -57,7 +57,8 @@ src_install() {
 	insinto /var/lib/bubba
 	doins tz-lc.txt
 
-	dodoc debian/changelog debian/copyright
+	dodoc debian/copyright ${FILESDIR}/Changelog
+	newdoc debian/changelog changelog.debian
 
         # Check whether we have wifi support
         if $(iwconfig 2>/dev/null| grep -q 802\.11); then
