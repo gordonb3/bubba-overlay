@@ -15,7 +15,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE=""
+IUSE="+wifi"
 
 DEPEND="
 	dev-libs/glib
@@ -27,6 +27,10 @@ DEPEND="
 
 RDEPEND="${DEPEND}
 	net-misc/dhcpcd
+	wifi? ( net-misc/bridge-utils )
+	wifi? ( net-wireless/hostapd )
+	wifi? ( net-wireless/iw )
+	wifi? ( net-wireless/wireless-tools )
 "
 
 S=${WORKDIR}/${PN}-${MY_PV}
@@ -61,12 +65,14 @@ src_install() {
 	newdoc debian/changelog changelog.debian
 
         # Check whether we have wifi support
-        if $(iwconfig 2>/dev/null| grep -q 802\.11); then
-                ip link show wlan0 &>/dev/null || {
-                        ewarn "Your wifi adapter is incorrectly named"
-                        ewarn "Bubba-networkmanager will not handle your"
-                        ewarn "wifi settings unless you rename it to wlan0"
-                }
+	if use wifi; then
+	        if $(iwconfig 2>/dev/null| grep -q 802\.11); then
+        	        ip link show wlan0 &>/dev/null || {
+                	        ewarn "Your wifi adapter is incorrectly named"
+                        	ewarn "Bubba-networkmanager will not handle your"
+	                        ewarn "wifi settings unless you rename it to wlan0"
+        	        }
+		fi
         fi
 
 	insinto /etc/dnsmasq.d
