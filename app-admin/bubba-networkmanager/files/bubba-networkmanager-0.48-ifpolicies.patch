@@ -1,6 +1,13 @@
-diff -ru a/controllers/WlanController.cpp b/controllers/WlanController.cpp
---- a/controllers/WlanController.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/controllers/WlanController.cpp	2015-07-31 09:49:07.587083644 +0200
+Add support for dialup devices
+
+This doesn't really allow changing parameters for such connections, but will
+show IP and gateway if you (manually) set the wan adapter to be ppp? device
+in /etc/bubba/networkmanager.conf
+
+Patch by Gordon Bos
+
+--- controllers/WlanController.cpp
++++ controllers/WlanController.cpp
 @@ -43,7 +43,7 @@
  	bool haswlan=false;
  	PolicyController& pc=PolicyController::Instance();
@@ -10,9 +17,8 @@ diff -ru a/controllers/WlanController.cpp b/controllers/WlanController.cpp
  	for(list<string>::iterator iIt=ifs.begin();iIt!=ifs.end();iIt++){
  		if(pc.Allowed(*iIt,"iswlan")){
  			haswlan=true;
-diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController.cpp
---- a/controllers/InterfaceController.cpp	2015-09-02 13:07:38.975547392 +0200
-+++ b/controllers/InterfaceController.cpp	2015-09-02 13:14:05.961323487 +0200
+--- controllers/InterfaceController.cpp
++++ controllers/InterfaceController.cpp
 @@ -107,19 +107,15 @@
  			continue;
  		}
@@ -37,9 +43,8 @@ diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController
  	}
  
  	if(add_virtual_bridge){
-diff -ru a/controllers/PolicyController.cpp b/controllers/PolicyController.cpp
---- a/controllers/PolicyController.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/controllers/PolicyController.cpp	2015-09-02 13:26:03.817706768 +0200
+--- controllers/PolicyController.cpp
++++ controllers/PolicyController.cpp
 @@ -43,6 +43,9 @@
  	ifprofile["wlan3"]="wlan";
  	ifprofile["wlan4"]="wlan";

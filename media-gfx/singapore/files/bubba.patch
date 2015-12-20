@@ -1,6 +1,10 @@
-diff -ru a/includes/config.class.php b/includes/config.class.php
---- a/includes/config.class.php	2010-12-23 20:00:50.000000000 +0100
-+++ b/includes/config.class.php	2015-12-04 11:57:11.003998463 +0100
+Set default config for Bubba platform and skip LAN addresses when counting visitors
+viewing the published photos
+
+Patch by Gordon Bos
+
+--- includes/config.class.php
++++ includes/config.class.php
 @@ -49,7 +49,13 @@
  
      //import values into object scope
@@ -16,9 +20,8 @@ diff -ru a/includes/config.class.php b/includes/config.class.php
      return true;
  	}
  }
-diff -ru a/index.php b/index.php
---- a/index.php	2010-12-23 20:00:50.000000000 +0100
-+++ b/index.php	2015-12-04 12:07:06.630541599 +0100
+--- index.php
++++ index.php
 @@ -12,6 +12,11 @@
   * @version $Id: index.php,v 1.21 2006/08/05 19:56:32 thepavian Exp $
   */
@@ -31,9 +34,8 @@ diff -ru a/index.php b/index.php
  //include main class
  require_once "includes/singapore.class.php";
  
-diff -ru a/singapore.ini b/singapore.ini
---- a/singapore.ini	2010-12-23 20:00:50.000000000 +0100
-+++ b/singapore.ini	2015-12-04 11:57:11.024000362 +0100
+--- singapore.ini
++++ singapore.ini
 @@ -22,7 +22,7 @@
       ;  im  = ImageMagick v5.x
       ;  im6 = ImageMagick v6.x

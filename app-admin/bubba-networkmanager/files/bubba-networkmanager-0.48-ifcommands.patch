@@ -1,6 +1,9 @@
-diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController.cpp
---- a/controllers/InterfaceController.cpp	2010-06-09 15:24:26.000000000 +0200
-+++ b/controllers/InterfaceController.cpp	2015-07-13 15:40:23.177165380 +0200
+Controlling network interfaces require different commands in Gentoo
+
+Patch by Gordon Bos
+
+--- controllers/InterfaceController.cpp
++++ controllers/InterfaceController.cpp
 @@ -632,11 +632,11 @@
  }
  

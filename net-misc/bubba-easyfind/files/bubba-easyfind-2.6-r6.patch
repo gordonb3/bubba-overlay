@@ -1,6 +1,12 @@
-diff -ruN a/bubba-easyfind b/bubba-easyfind
---- a/bubba-easyfind	1970-01-01 01:00:00.000000000 +0100
-+++ b/bubba-easyfind	2015-11-06 08:58:30.857982129 +0100
+Add initd script and method to retrieve the easyfind secret key directly from
+the u-boot environment.
+
+Also fixes several issues with upgraded Perl components
+
+Patch by Gordon Bos
+
+--- bubba-easyfind
++++ bubba-easyfind
 @@ -0,0 +1,22 @@
 +#!/sbin/runscript
 +
@@ -24,9 +30,8 @@ diff -ruN a/bubba-easyfind b/bubba-easyfind
 +	        start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
 +        eend $?
 +}
-diff -ruN a/bubba-easyfind.hook b/bubba-easyfind.hook
---- a/bubba-easyfind.hook	2013-06-24 14:48:18.000000000 +0200
-+++ b/bubba-easyfind.hook	2015-11-06 08:58:30.857982129 +0100
+--- bubba-easyfind.hook
++++ bubba-easyfind.hook
 @@ -9,5 +9,5 @@
  else
          # Update easyfind db
@@ -34,9 +39,8 @@ diff -ruN a/bubba-easyfind.hook b/bubba-easyfind.hook
 -        /usr/lib/web-admin/easyfind.pl
 +        /opt/bubba/bin/easyfind.pl
  fi
-diff -ruN a/bubba-easyfind.tac b/bubba-easyfind.tac
---- a/bubba-easyfind.tac	2013-06-24 14:48:18.000000000 +0200
-+++ b/bubba-easyfind.tac	2015-11-06 08:58:30.867982970 +0100
+--- bubba-easyfind.tac
++++ bubba-easyfind.tac
 @@ -21,7 +21,7 @@
  from zope.interface import implements
  
@@ -90,9 +94,8 @@ diff -ruN a/bubba-easyfind.tac b/bubba-easyfind.tac
  
      interface = netifaces.ifaddresses(WAN)
      if netifaces.AF_LINK in interface:
-diff -ruN a/print-u-boot-env b/print-u-boot-env
---- a/print-u-boot-env	1970-01-01 01:00:00.000000000 +0100
-+++ b/print-u-boot-env	2015-11-06 08:58:30.867982970 +0100
+--- print-u-boot-env
++++ print-u-boot-env
 @@ -0,0 +1,30 @@
 +#!/bin/bash
 +#===============================================================
@@ -124,9 +127,8 @@ diff -ruN a/print-u-boot-env b/print-u-boot-env
 +
 +fw_printenv $*
 +
-diff -ruN a/web-admin/bin/easyfind.pl b/web-admin/bin/easyfind.pl
---- a/web-admin/bin/easyfind.pl	2013-06-25 14:03:54.000000000 +0200
-+++ b/web-admin/bin/easyfind.pl	2015-11-06 09:58:17.319489763 +0100
+--- web-admin/bin/easyfind.pl
++++ web-admin/bin/easyfind.pl
 @@ -6,10 +6,10 @@
  use CGI;
  use JSON;

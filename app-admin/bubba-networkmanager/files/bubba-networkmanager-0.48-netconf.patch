@@ -1,6 +1,11 @@
-diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
---- a/Dispatcher.cpp	2015-11-27 14:49:09.903494776 +0100
-+++ b/Dispatcher.cpp	2015-11-27 14:41:44.130867722 +0100
+Network configuration in Gentoo is completely different from Debian. This patch
+changes the source code to add the right structures and adds logic to keep
+networking definitions that the Bubba web UI does not handle.
+
+Patch by Gordon Bos
+
+--- Dispatcher.cpp
++++ Dispatcher.cpp
 @@ -241,6 +241,7 @@
  		}
  
@@ -51,9 +56,8 @@ diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
  	res["gateway"]=Route::Instance().Default()["gateway"];
  	this->send_jsonvalue(con,res);
  
-diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2015-11-27 14:49:09.903494776 +0100
-+++ b/utils/InterfacesCfg.cpp	2015-11-27 14:17:02.300049357 +0100
+--- utils/InterfacesCfg.cpp
++++ utils/InterfacesCfg.cpp
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -417,9 +421,8 @@ diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
 -
  
 +}
-diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
---- a/utils/InterfacesCfg.h	2015-11-27 14:49:09.913495735 +0100
-+++ b/utils/InterfacesCfg.h	2015-11-27 11:06:41.834064254 +0100
+--- utils/InterfacesCfg.h
++++ utils/InterfacesCfg.h
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  

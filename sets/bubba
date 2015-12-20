@@ -1,0 +1,15 @@
+app-admin/bubba
+dev-lang/php
+mail-client/roundcube
+mail-mta/postfix
+media-gfx/singapore
+net-dns/dnsmasq
+net-firewall/iptables
+net-fs/samba
+net-ftp/proftpd
+net-mail/dovecot
+net-misc/bubba-easyfind
+net-misc/mediatomb
+net-misc/minidlna
+net-misc/ntp
+net-misc/tor

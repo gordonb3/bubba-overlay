@@ -1,6 +1,9 @@
-diff -ru a/client.cpp b/client.cpp
---- a/client.cpp	2015-07-21 11:41:18.959786434 +0200
-+++ b/client.cpp	2015-07-21 11:41:43.972123824 +0200
+Change various file locations
+
+Patch by Gordon Bos
+
+--- client.cpp
++++ client.cpp
 @@ -20,6 +20,8 @@
  #include <string>
  #include <iostream>
@@ -19,9 +22,8 @@ diff -ru a/client.cpp b/client.cpp
  	std::string socket("/tmp/bubba-networkmanager.sock");
  	EUtils::NetClient client( command, socket );
  	Json::Reader reader;
-diff -ru a/examplecfg/nmconfig b/examplecfg/nmconfig
---- a/examplecfg/nmconfig	2015-07-21 11:41:18.969787368 +0200
-+++ b/examplecfg/nmconfig	2015-07-21 11:41:43.972123824 +0200
+--- examplecfg/nmconfig
++++ examplecfg/nmconfig
 @@ -1,5 +1,5 @@
  # Internal config file for bubba-network manager. DO not edit
  wanif=eth0
@@ -29,9 +31,8 @@ diff -ru a/examplecfg/nmconfig b/examplecfg/nmconfig
 -tz_map_file=/usr/share/bubba-networkmanager/tz-lc.txt
 +tz_map_file=/var/lib/bubba/tz-lc.txt
  tz_file=/etc/timezone
-diff -ru a/main.cpp b/main.cpp
---- a/main.cpp	2015-07-21 11:41:18.959786434 +0200
-+++ b/main.cpp	2015-07-21 11:44:58.550307189 +0200
+--- main.cpp
++++ main.cpp
 @@ -58,7 +58,7 @@
      p.AddOption( Option( "ttl",'t',Option::Int,"time to live in seconds","60","60" ) );
      p.AddOption( Option( "pidfile", '\0', Option::String, "PID file", "/var/run/bubba-networkmanager.pid", "/var/run/bubba-networkmanager.pid" ) );
@@ -41,9 +42,8 @@ diff -ru a/main.cpp b/main.cpp
  
      if ( !p.Parse( argc,argv ) ) {
          syslog( LOG_ERR,"Failed to parse arguments use %s -? for info",argv[0] );
-diff -ru a/utils/WlanCfg.cpp b/utils/WlanCfg.cpp
---- a/utils/WlanCfg.cpp	2015-07-21 11:41:18.959786434 +0200
-+++ b/utils/WlanCfg.cpp	2015-07-21 11:42:57.298976203 +0200
+--- utils/WlanCfg.cpp
++++ utils/WlanCfg.cpp
 @@ -46,7 +46,7 @@
  using namespace EUtils;
  using namespace std;

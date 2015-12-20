@@ -1,6 +1,10 @@
-diff -ru a/Makefile b/Makefile
---- a/Makefile	2015-07-31 10:00:38.595128750 +0200
-+++ b/Makefile	2015-07-30 13:33:04.575156805 +0200
+Original source was written for netlink 1 library. This fixes the source code
+to work with current netlink 3
+
+Patch by Gordon Bos
+
+--- Makefile
++++ Makefile
 @@ -40,8 +40,8 @@
  SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
  OBJS = $(SOURCES:%.cpp=%.o)
@@ -12,9 +16,8 @@ diff -ru a/Makefile b/Makefile
  
  APP_OBJS=$(APP_SRC:%.cpp=%.o)
  DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
-diff -ru a/utils/Nl80211.cpp b/utils/Nl80211.cpp
---- a/utils/Nl80211.cpp	2015-07-31 10:00:41.415365735 +0200
-+++ b/utils/Nl80211.cpp	2015-07-31 09:57:40.760185025 +0200
+--- utils/Nl80211.cpp
++++ utils/Nl80211.cpp
 @@ -25,6 +25,7 @@
  #include <cerrno>
  
