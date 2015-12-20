@@ -26,7 +26,11 @@ case $key in
     *)
 	if [ ${doshow} -eq 1 ]; then
 	    Package=$1
-	    Version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d -name ${Package}-[0-9]* | awk -F/ '{print $NF}' | eval "sed \"s/^${Package}-//\"")
+	    if [ "$Package" = "bubba3-kernel" ]; then
+		Version=$(uname -r)
+	    else 
+		Version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d -name ${Package}-[0-9]* | awk -F/ '{print $NF}' | eval "sed \"s/^${Package}-//\"")
+	    fi
 	    if [ "$Version" = "" ]; then
 		Status="unknown ok not-installed"
 	    else
@@ -40,9 +44,3 @@ case $key in
 esac
 shift
 done
-
-#if [ ! -z $package ]; then
-#    version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d -name ${package}-[0-9]* | awk -F/ '{print $NF}' | eval "sed \"s/^${package}-//\"")
-
-#    echo $package $version
-#fi
