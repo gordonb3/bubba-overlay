@@ -1,5 +1,5 @@
 app-admin/bubba
-mail-client/roundcube
+mail-client/bubba-roundcube
 mail-mta/postfix
 media-gfx/singapore
 media-sound/logitechmediaserver
@@ -7,6 +7,7 @@ net-dns/dnsmasq
 net-firewall/iptables
 net-fs/samba
 net-ftp/proftpd
+net-misc/dhcpcd
 net-mail/dovecot
 net-misc/bubba-easyfind
 net-misc/mediatomb
