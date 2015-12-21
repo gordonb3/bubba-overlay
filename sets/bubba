@@ -1,8 +1,8 @@
 app-admin/bubba
-dev-lang/php
 mail-client/roundcube
 mail-mta/postfix
 media-gfx/singapore
+media-sound/logitechmediaserver
 net-dns/dnsmasq
 net-firewall/iptables
 net-fs/samba
