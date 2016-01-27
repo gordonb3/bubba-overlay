@@ -41,7 +41,7 @@ src_unpack() {
 
 src_prepare() {
 	# link build directory
-	ln -s ${S} ${WORKDIR}/${PF}}_build
+	ln -s ${S} ${WORKDIR}/${PF}_build
 
 	ProjectHash=${COMMIT:0:7}
 	ProjectRevision=${PV:2}
