@@ -4,17 +4,17 @@
 
 EAPI="5"
 
-inherit cmake-utils eutils subversion systemd
+inherit cmake-utils eutils git-r3 systemd
 
-ESVN_REPO_URI="svn://svn.code.sf.net/p/domoticz/code/trunk"
+EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
 
 DESCRIPTION="Home automation system"
 HOMEPAGE="http://domoticz.com/"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm"
-IUSE="-staticboost systemd"
+KEYWORDS=""
+IUSE="systemd"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -28,28 +28,20 @@ DEPEND="${RDEPEND}
 	dev-util/cmake"
 
 src_prepare() {
-# create svnrevision file with subversion eclass internals:
-	echo "#define SVNVERSION ${ESVN_WC_REVISION}" > ${S}/svnversion.h
+	# create build directory and create copy of .git folder in it
+	ln -s ${S} ${WORKDIR}/${PF}_build
 
-	# disable generating the original svnrevision:
+	# disable static boost:
 	sed \
-		-e "s:ADD_CUSTOM_COMMAND(TARGET:#:" \
-		-e "s:-DSOURCE_DIR:#:" \
-		-e "s:-P:#:" \
 		-e "s:\${USE_STATIC_BOOST}:OFF:" \
 		-i CMakeLists.txt
-
-	# install svnversion.h to /usr/share/domoticz/
-	sed \
-		-e "s:filename=szStartupFolder+\"svnversion.h\":filename=\"/opt/domoticz/svnversion.h\":" \
-		-i main/domoticz.cpp
-
 }
 
 src_configure() {
 	local mycmakeargs=(
 		$(cmake-utils_use staticboost USE_STATIC_BOOST)
 	)
+#		-DCMAKE_BUILD_TYPE=Release
 
 	cmake-utils_src_configure
 }
