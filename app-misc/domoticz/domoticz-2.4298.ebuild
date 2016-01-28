@@ -66,15 +66,17 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
+		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
 		$(cmake-utils_use staticboost USE_STATIC_BOOST)
 	)
-#		-DCMAKE_BUILD_TYPE=Release
 
 	cmake-utils_src_configure
+
 }
 
 src_install() {
 	cmake-utils_src_install
+
 	if use systemd ; then
 		systemd_newunit "${FILESDIR}"/${PN}.service "${PN}.service"
 		systemd_install_serviced "${FILESDIR}"/${PN}.service.conf
@@ -82,4 +84,8 @@ src_install() {
 		newinitd "${FILESDIR}"/${PN}.init.d ${PN}
 		newconfd "${FILESDIR}"/${PN}.conf.d ${PN}
 	fi
+
+	insinto /var/lib/${PN}
+	touch ${ED}/var/lib/${PN}/.keep_db_folder
+
 }
