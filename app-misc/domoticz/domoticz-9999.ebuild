@@ -28,10 +28,10 @@ DEPEND="${RDEPEND}
 	dev-util/cmake"
 
 src_prepare() {
-	# create build directory and create copy of .git folder in it
+	# link build directory
 	ln -s ${S} ${WORKDIR}/${PF}_build
 
-	# disable static boost:
+	# Hard disable static boost:
 	sed \
 		-e "s:\${USE_STATIC_BOOST}:OFF:" \
 		-i CMakeLists.txt
@@ -39,15 +39,21 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
-		$(cmake-utils_use staticboost USE_STATIC_BOOST)
+		-DCMAKE_BUILD_TYPE="Release"
+		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
+		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
 	)
-#		-DCMAKE_BUILD_TYPE=Release
 
 	cmake-utils_src_configure
 }
 
+src_compile() {
+	cmake-utils_src_compile
+}
+
 src_install() {
 	cmake-utils_src_install
+
 	if use systemd ; then
 		systemd_newunit "${FILESDIR}"/${PN}.service "${PN}.service"
 		systemd_install_serviced "${FILESDIR}"/${PN}.service.conf
@@ -55,4 +61,7 @@ src_install() {
 		newinitd "${FILESDIR}"/${PN}.init.d ${PN}
 		newconfd "${FILESDIR}"/${PN}.conf.d ${PN}
 	fi
+
+	insinto /var/lib/${PN}
+	touch ${ED}/var/lib/${PN}/.keep_db_folder
 }
