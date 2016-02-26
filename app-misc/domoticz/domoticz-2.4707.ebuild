@@ -17,22 +17,23 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="-staticboost systemd"
+IUSE="systemd telldus openzwave"
 
-DEPEND="
-	dev-util/cmake
-"
 
-RDEPEND="${DEPEND}
-	net-misc/curl
+RDEPEND="net-misc/curl
 	dev-libs/libusb
 	dev-libs/libusb-compat
 	dev-embedded/libftdi
 	dev-db/sqlite
 	dev-libs/boost
 	sys-libs/zlib
+	telldus? ( app-misc/telldus-core )
+	openzwave? ( dev-libs/openzwave )
 "
 
+DEPEND="${RDEPEND}
+	dev-util/cmake
+"
 
 src_unpack() {
 	unpack ${A}

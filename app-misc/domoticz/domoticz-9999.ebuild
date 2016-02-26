@@ -14,7 +14,7 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="systemd"
+IUSE="systemd telldus openzwave"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -22,7 +22,10 @@ RDEPEND="net-misc/curl
 	dev-embedded/libftdi
 	dev-db/sqlite
 	dev-libs/boost
-	sys-libs/zlib"
+	sys-libs/zlib
+	telldus? ( app-misc/telldus-core )
+	openzwave? ( dev-libs/openzwave )
+"
 
 DEPEND="${RDEPEND}
 	dev-util/cmake"
