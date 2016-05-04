@@ -1,0 +1,17 @@
+#!/sbin/runscript
+
+NAME=easyfind-client
+DAEMON=/opt/bubba/sbin/efd
+PIDFILE=/run/easyfind.pid
+
+start() {
+        ebegin "Starting ${NAME}"
+		start-stop-daemon --start --quiet --background --exec ${DAEMON}
+        eend $?
+}
+
+stop() {
+        ebegin "Stopping ${NAME}"
+	        start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
+        eend $?
+}

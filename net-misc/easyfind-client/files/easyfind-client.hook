@@ -1,0 +1,13 @@
+#! /bin/sh
+
+# Check if this is the right reason and interface for us
+
+if [ "$reason" != "BOUND" ] && [ "$reason" != "RENEW" ] \
+	&& [ "$reason" != "REBIND" ] || [ "$interface" != "eth0" ]
+then
+        echo "Easyfind: nothing todo."
+else
+        # Update easyfind db
+        echo "Launching easyfind update script"
+        /opt/bubba/bin/ef -j
+fi

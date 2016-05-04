@@ -1,0 +1,12 @@
+[Unit]
+Description=Easyfind client update service
+After=network.target
+ConditionPathExists=/etc/bubba/easyfind.conf
+
+[Service]
+Type=forking
+PIDFile=/run/easyfind.pid
+ExecStart=/opt/bubba/sbin/efd
+
+[Install]
+WantedBy=multi-user.target
