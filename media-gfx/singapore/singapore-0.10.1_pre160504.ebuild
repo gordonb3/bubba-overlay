@@ -20,12 +20,13 @@ HOMEPAGE="http://www.sgal.org"
 SLOT="0"
 LICENSE="GPL-3"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache"
+IUSE="+apache +bubba"
 
-DEPEND=""
-
-RDEPEND="${DEPEND}
+DEPEND="
+	bubba? ( app-admin/bubba ) 
 "
+
+RDEPEND="${DEPEND}"
 
 S=${WORKDIR}/${PN}-${COMMIT}
 
@@ -40,8 +41,10 @@ src_install() {
 	docompress -x /usr/share/doc/${PF}
 	dodoc Readme.txt ${FILESDIR}/apache.confd
 	newdoc singapore.ini singapore.ini.default
-	fowners admin.users /usr/share/doc/${PF}/singapore.ini.default
-	fperms 0664 /usr/share/doc/${PF}/singapore.ini.default
+	if getent passwd admin >/dev/null; then
+		fowners admin.users /usr/share/doc/${PF}/singapore.ini.default
+		fperms 0664 /usr/share/doc/${PF}/singapore.ini.default
+	fi
 
 	insinto /opt/${PN}/htdocs
 	doins -r *.php data docs includes locale templates tools
