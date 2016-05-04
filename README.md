@@ -1,10 +1,8 @@
 
 
 
-As of 25-06-2015 (EU date format) I've added a bubba metapackage that will provide you with core packages for your Excito B3, including the Bubba web frontend since 23-07-2015.
-
 #### Prerequisits for running the Bubba web admin
-The web admin interface requires a web server to operate. Supported web servers are apache2 and nginx, but it must be noted that if you want to use file uploads (currently not yet implemented in this overlay) you should choose apache or find the maximum file size to be very restricted (with apache it will be essentially unlimited). The packages default to using apache2 and if you're okay with that there's no need for changing anything. If however you like to use nginx you must at the same time disable apache2 USE flag on the bubba packages. This may seem like a lot of fuzz, but it prevents building (and needing to maintain) a lot of packages you don't actually need.
+The web admin interface requires a web server to operate. Supported web servers are apache2 and nginx, but it must be noted that if you want to use file uploads you should choose apache or find the maximum file size to be very restricted (with apache it will be essentially unlimited). The packages default to using apache2 and if you're okay with that there's no need for changing anything. If however you like to use nginx you must at the same time disable apache2 USE flag on the bubba packages. This may seem like a lot of fuzz, but it prevents building (and needing to maintain) a lot of packages you don't actually need.
 
 
 <p><br>Current optional packages are:</p>
@@ -15,7 +13,7 @@ This is a web image gallery I'm offering as a replacement for bubba album. Quite
 
 
 #### 'Bubba-ized' Roundcube 1.0.6
-The original portage ebuild for this app uses an install scheme that appears to be intended for much larger schemes than we're going for with this personel device. We also like to obfuscate web content that should be readily available (i.e. can not be deleted through the samba share) and this install matches the vhost definition we created for the bubba web admin interface.
+The original portage ebuild for this app uses an install scheme that appears to be intended for much larger schemes than we're going for with this personal device. We also like to obfuscate web content that should be readily available (i.e. can not be deleted through the samba share) and this install matches the vhost definition we created for the bubba web admin interface.
 (Apache configured systems only - should work with nginx configured systems as well but will require manual configuration of the web server)
 
 #### File Transfer Daemon 0.55
@@ -32,12 +30,15 @@ Originally this is part of the bubba-backend package, but I've decided to make t
 
 Update: as of 27-07-2015 Rodeus, who now owns Excito, has taken control over the old Excito infrastructure that was temporarily and very gracefully hosted on the mybubba.org domain. New B3's should now also be able to use this service.
 
+#### Easyfind Client 0.3
+This is a new easyfind client written in C by Charles Leclerc (MouettE). Its functionality has been extended to allow seemless integration with the existing Bubba UI and the Gentoo package makes it a plug-in replacement for the original Perl and Python based Bubba Easyfind scripts.
+
 
 #### Logitech Media Server 7.8.0
 Although being meant a binary distribution, they stopped shipping the platform dependant libraries for ARMv5 a long time ago. This is therefore a source build and it's perl dependencies may pull in up to ~100 additional packages.
 
-#### Domoticz-9999
-This is a home automation system build largely around the rfxtrx433 RF transceiver @433MHz. Information about the project can be found here: http://www.domoticz.com/ This is a rolling release using a subversion source.
+#### Domoticz
+This is a home automation system. Information about the project can be found here: http://www.domoticz.com/ This is a rolling release using a git source but I do create ebuilds for specific commits on a regular base.
 
 #### Cryptodev paired with openssl (masked)
 This serves no actual use but is merely a play thing. The B3 CPU contains a hardware encryption module that theoretically could speed up certain processes. Not so much because the hardware crypto engine is a lot quicker, but because it runs in parallel with your other processes. The trouble is that the supported encryption has fallen out of grace and is in fact no longer enabled by default in openssl. Try if you like, but don't expect any miracles.
