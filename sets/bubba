@@ -8,9 +8,8 @@ net-firewall/iptables
 net-fs/samba
 net-ftp/proftpd
 net-misc/dhcpcd
+net-misc/easyfind-client
 net-mail/dovecot
-net-misc/bubba-easyfind
 net-misc/mediatomb
 net-misc/minidlna
 net-misc/ntp
-net-misc/tor
