@@ -2,6 +2,7 @@ app-admin/bubba
 mail-client/bubba-roundcube
 mail-mta/postfix
 media-gfx/singapore
+media-sound/forked-daapd
 media-sound/logitechmediaserver
 net-dns/dnsmasq
 net-firewall/iptables
