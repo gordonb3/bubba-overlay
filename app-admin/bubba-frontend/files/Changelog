@@ -1,3 +1,11 @@
+2016-05-09
+
+Let bubba-adminphp initd script verify existence of the php session dir
+and create if needed
+
+Upgrade package status to release
+
+-------------------------------------------------------------------
 2015-11-16
 
 Moved bubba-diskmanager to /opt/bubba tree (commands changed)

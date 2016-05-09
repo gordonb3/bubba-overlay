@@ -62,6 +62,9 @@ pkg_setup() {
 	which coffee 1>/dev/null  2>/dev/null || die "failed to install coffee - please verify npm command"
 }
 
+src_unpack() {
+	unpack ${PN}_${MY_PV}.tar.gz
+}
 
 src_prepare() {
 	# Fix patch errors due to DOS line endings in some files
