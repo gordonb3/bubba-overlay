@@ -6,7 +6,7 @@ EAPI="5"
 
 inherit eutils
 
-DESCRIPTION="PHP bindig for Bubba platform information library"
+DESCRIPTION="PHP binding for Bubba platform information library"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="http://update.excito.org/pool/main/libb/${PN}/${PN}_${PV}.tar.gz"
 
@@ -16,7 +16,7 @@ SLOT="0"
 KEYWORDS="~arm ~ppc"
 IUSE="apache2"
 
-DEPEND=""
+DEPEND="dev-lang/php"
 
 RDEPEND="${DEPEND}
 	dev-libs/libbubba-info
@@ -56,8 +56,6 @@ src_install() {
 			fi
 		fi
 	done
-
-	
 }
 
 
