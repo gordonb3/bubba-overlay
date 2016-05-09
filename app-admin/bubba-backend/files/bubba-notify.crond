@@ -1,0 +1,1 @@
+*/5 * * * * root test -x /opt/bubba/bin/notify-dispatcher.pl && /opt/bubba/bin/notify-dispatcher.pl

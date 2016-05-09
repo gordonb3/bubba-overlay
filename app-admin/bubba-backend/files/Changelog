@@ -1,3 +1,10 @@
+2016-05-09
+
+Fix backup routines and	missing	cron entries
+
+Upgrade	package	status to 'release'
+
+-------------------------------------------------------------------
 2015-12-20
 
 Clean up patch files and add comment section to them
