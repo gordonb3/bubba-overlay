@@ -3,7 +3,7 @@
 
 #### Description
 
-<img src="https://raw.githubusercontent.com/gordonb3/bubba-overlay/7e9a14e/Bubba.jpg" alt="Excito B3" width="250px" align="right"/>
+<img src="https://raw.githubusercontent.com/gordonb3/cache/master/Bubba/Excito-B3.jpg" alt="Excito B3" width="250px" align="right"/>
 This project contains an overlay for Gentoo that will bring the original Excito web based User Interface back to the B3 miniserver. The port is however not an exact mirror of the original Bubba OS. The old Horde webmail app was replaced by Roundcube and I selected SQLite as the database backend, which saves a lot of memory on the box. For the same reason I did not add bubba-album to this overlay but I did put in a replacement that use csv files and may optionally also use SQLite: Singapore Gallery.
 
 Unlike the original interface you may select what you want or don't want on the box. This speeds up updates because you don't need to build packages you don't use. Most of them at least. Some packages also contain USE flags that allow you even more control over what gets installed. If you want to have the full Bubba OS experience, simply run `emerge @bubba`
