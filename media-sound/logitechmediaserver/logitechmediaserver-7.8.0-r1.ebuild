@@ -46,6 +46,7 @@ DEPEND="
 RDEPEND="
 	!prefix? ( >=sys-apps/baselayout-2.0.0 )
 	!prefix? ( virtual/logger )
+	dev-db/sqlite
 	>=dev-lang/perl-5.8.8[ithreads]
 	>=dev-perl/Data-UUID-1.202
 	=dev-perl/Class-XSAccessor-1.190.0
@@ -134,7 +135,7 @@ pkg_setup() {
 
 
 src_unpack() {
-	unpack ${PF}-noCPAN.tgz
+	unpack ${PN}-${PV}-noCPAN.tgz
 	local S="${WORKDIR}/CPAN.upstream"
 	ESVN_REPO_URI="http://svn.slimdevices.com/repos/slim/${MY_SHORT_PV}/trunk/vendor/CPAN/"
 	subversion_src_unpack
@@ -224,6 +225,10 @@ src_install() {
 	# Delete files that also exist in Perl's vendor path
 	# (possibly hazardous on broken perl installs, but required to fix version conflicts)
 	lms_clean_oldfiles
+
+	# As said: dangerous...
+	#  - restore DBIx modules; the software specifically requires version 0.08112
+	cp -aR "${S}"/CPAN/DBIx "${ED}${OPTDIR}/CPAN/" || die "Unable to install package files"
 
 	# Documentation
 	dodoc Changelog*.html
