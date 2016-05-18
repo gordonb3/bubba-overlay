@@ -10,7 +10,7 @@ net-fs/samba
 net-ftp/proftpd
 net-mail/fetchmail
 net-misc/dhcpcd
-net-misc/easyfind-client
+net-misc/forked-easyfind-client
 net-mail/dovecot
 net-misc/mediatomb
 net-misc/minidlna

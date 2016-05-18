@@ -6,14 +6,14 @@ EAPI="5"
 
 inherit eutils systemd
 
-EF_SRC="easyfind-client"
-EF_COMMIT="63fb971917070275af152d499fe2880207d47114"
 CA_SRC="excito-release"
-CA_COMMIT="1c12d4e974b54619bde2997f53fc5b77e08d61a8"
+CA_COMMIT="1c12d4e"
 
-SRC_URI="https://github.com/Excito/${EF_SRC}/archive/${EF_COMMIT}.zip -> ${PN}-${PV}.zip
+SRC_URI="
+	https://github.com/gordonb3/${PN}/archive/debian/${PV}.tar.gz -> ${PF}.tgz
 	https://raw.githubusercontent.com/Excito/${CA_SRC}/${CA_COMMIT}/excito-ca.crt
 "
+
 RESTRICT="mirror"
 DESCRIPTION="Easyfind client"
 HOMEPAGE="http://www.excito.com/"
@@ -32,8 +32,8 @@ DEPEND="${RDEPEND}"
 
 
 src_unpack() {
-	unpack ${PN}-${PV}.zip
-	mv ${WORKDIR}/${EF_SRC}-${EF_COMMIT} ${S}
+	unpack ${PF}.tgz
+	mv ${WORKDIR}/${PN}* ${S}
 }
 
 src_compile() {
@@ -50,11 +50,25 @@ src_install() {
 	if use remote-router; then
 		exeinto /opt/bubba/sbin
 		dosym /opt/bubba/bin/ef /opt/bubba/sbin/efd
-		newinitd ${FILESDIR}/easyfind-client.initd ${PN}
+		newinitd ${FILESDIR}/easyfind-client.initd bubba-easyfind
 	fi
 	if use dhcp; then
 		insinto /lib/dhcpcd/dhcpcd-hooks
 		doins ${FILESDIR}/easyfind-client.hook
 	fi
 	dodoc ${S}/debian/changelog  ${S}/debian/copyright
+}
+
+pkg_postinst() {
+	elog "To manually enable easyfind, run:"
+	elog ""
+	elog "\t/opt/bubba/bin/ef <your name>"
+	elog ""
+	elog "If you did not disable the dhcp USE flag, a DHCP hook"
+	elog "script is provided to automatically update your IP on"
+	elog "the easyfind server. If however you have your B3 behind"
+	elog "another router, then you should enable the bubba-easyfind"
+	elog "service to track changes in your public IP address."
+	elog ""
+	elog ""
 }
