@@ -120,6 +120,13 @@ src_install() {
 	# change dir to CPAN binaries
 	cd "${S}"/../"${MY_PN}"-cpan*
 
+	if ! use linguas_he; then
+		rm CPAN/Locale/Hebrew.pm
+		rmdir --ignore-fail-on-non-empty CPAN/Locale
+		rm -r CPAN/arch/*/Locale/Hebrew
+		rmdir --ignore-fail-on-non-empty CPAN/arch/*/Locale
+	fi
+
 	# overwrite everything in Bin CPAN and Slim with our platform specific versions
 	cp -aR Bin CPAN Slim "${ED}${OPTDIR}" || die "Unable to install CPAN binaries"
 
