@@ -6,22 +6,20 @@
 <img src="https://raw.githubusercontent.com/gordonb3/cache/master/Bubba/Excito-B3.jpg" alt="Excito B3" width="250px" align="right"/>
 This project contains an overlay for Gentoo that will bring the original Excito web based User Interface back to the B3 miniserver. The port is however not an exact mirror of the original Bubba OS. The old Horde webmail app was replaced by Roundcube and I selected SQLite as the database backend, which saves a lot of memory on the box. For the same reason I did not add bubba-album to this overlay but I did put in a replacement that use csv files and may optionally also use SQLite: Singapore Gallery.
 
-Unlike the original interface you may select what you want or don't want on the box. This speeds up updates because you don't need to build packages you don't use. Most of them at least. Some packages also contain USE flags that allow you even more control over what gets installed. If you want to have the full Bubba OS experience, simply run `emerge @bubba`
+Unlike the original interface you may select what you want or don't want on the box. This speeds up updates because you don't need to build packages you don't use. Most of them at least. Some packages also contain USE flags that allow you even more control over what gets installed. If you want to have the full Bubba OS experience, simply run `emerge @bubba3`
 
-
+Note: on Bubba|2 you should run `emerge @bubba2`. This set excludes forked-daapd and contains a source build for LogitechMediaServer while the B3 set references a prebuilt binary.
 
 #### Prerequisits for running the Bubba web admin
 An Excito B2 or B3 running Gentoo of course!
 
 The web admin interface requires a web server to operate. Supported web servers are apache2 and nginx, but it must be noted that if you want to use file uploads you should choose apache or find the maximum file size to be very restricted (with apache it will be essentially unlimited). The packages default to using apache2 and if you're okay with that there's no need for changing anything. If however you like to use nginx you must at the same time disable apache2 USE flag on the bubba packages. This may seem like a lot of fuzz, but it prevents building (and needing to maintain) a lot of packages you don't actually need.
 
-
 <p><br>Current optional packages are:</p>
 
 #### Singapore 0.10.1
 This is a web image gallery I'm offering as a replacement for bubba album. Quite fond of this app myself and a pre is that it does not require bulky, memory consuming, MySQL to run.
 (Apache configured systems only - should work with nginx configured systems as well but will require manual configuration of the web server)
-
 
 #### 'Bubba-ized' Roundcube 1.0.6
 The original portage ebuild for this app uses an install scheme that appears to be intended for much larger schemes than we're going for with this personal device. We also like to obfuscate web content that should be readily available (i.e. can not be deleted through the samba share) and this install matches the vhost definition we created for the bubba web admin interface.
@@ -36,14 +34,13 @@ Currently contains kernel versions 4.0.1, 4.1.6 and 4.3.0, matching the kernels 
 #### Sysvinit-2.88-r100 (masked)
 The high revision number is to keep out of the way of the main gentoo development and to keep this version on top as long as version 2.88 stays in use. The package contains a patched shutdown command that handles the hardware specific routine required for the Excito B3, meaning you can simply type 'halt' while in console, rather than running the prescribed flash writing tool 'write-magic' and then reboot as done by the Bubba web frontend. Also eliminates the regular TTY terminals which are useless on the B3 and sets the correct speed for the serial console. A sanity check is included by verifying that the system runs on a Kirkwood Feroceon SoC.
 
-#### Bubba Easyfind 2.6 (deprecated - replaced by Easyfind Client)
+#### Bubba Easyfind 2.6 (deprecated - replaced by Forked Easyfind Client)
 Originally this is part of the bubba-backend package, but I've decided to make this a separate package. Contains the various methods that allow you to use the myownb3.com dynamic DNS service. Only works with registered Excito brand B3's. By default all methods are installed, but you may control this by disabling the USE flags for non required methods (dhcp hook script | service to verify public address if behind a remote router).
 
 Update: as of 27-07-2015 Rodeus, who now owns Excito, has taken control over the old Excito infrastructure that was temporarily and very gracefully hosted on the mybubba.org domain. New B3's should now also be able to use this service.
 
-#### Easyfind Client 0.3
-This is a new easyfind client written in C by Charles Leclerc (MouettE). Its functionality has been extended to allow seemless integration with the existing Bubba UI and the Gentoo package makes it a plug-in replacement for the original Perl and Python based Bubba Easyfind scripts.
-
+#### Forked Easyfind Client 0.3
+This is a fork of a new easyfind client written in C by Charles Leclerc (MouettE). Its functionality has been extended to allow seemless integration with the existing Bubba UI and the Gentoo package makes it a plug-in replacement for the original Perl and Python based Bubba Easyfind scripts.
 
 #### Logitech Media Server 7.8.0
 Although being meant a binary distribution, they stopped shipping the platform dependant libraries for ARMv5 a long time ago. This is therefore a source build and it's perl dependencies may pull in up to ~100 additional packages.
