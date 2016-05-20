@@ -42,6 +42,7 @@ RDEPEND="${DEPEND}
 	dev-perl/XML-Simple
 	dev-php/libbubba-info-php
 	dev-python/pycups
+	dev-python/pyyaml
 	dev-python/twisted-core
 	>=sys-libs/timezone-data-2015e
 "
