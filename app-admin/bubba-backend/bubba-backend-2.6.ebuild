@@ -90,6 +90,8 @@ src_install() {
         insinto /etc/cron.d
 	newins ${FILESDIR}/excito-backup.crond excito-backup
 	newins ${FILESDIR}/bubba-notify.crond bubba-notify
+
+	insinto /var/lib/bubba-notify
 }
 
 
