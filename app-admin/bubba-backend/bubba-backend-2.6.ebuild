@@ -91,7 +91,7 @@ src_install() {
 	newins ${FILESDIR}/excito-backup.crond excito-backup
 	newins ${FILESDIR}/bubba-notify.crond bubba-notify
 
-	insinto /var/lib/bubba-notify
+	insinto /var/spool/bubba-notify
 }
 
 
