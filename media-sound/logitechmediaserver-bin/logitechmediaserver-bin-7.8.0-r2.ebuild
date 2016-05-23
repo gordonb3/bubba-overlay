@@ -13,7 +13,7 @@ EAPI="5"
 
 inherit eutils user systemd
 
-PERL_VER="5.20"
+PERL_VER="5.22"
 
 MY_PN="${PN/-bin}"
 MY_SHORT_PV="${PV/.0}"
