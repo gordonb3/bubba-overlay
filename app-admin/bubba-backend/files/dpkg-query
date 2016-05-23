@@ -29,7 +29,7 @@ case $key in
 	    if [ "$Package" = "bubba3-kernel" ]; then
 		Version=$(uname -r)
 	    else 
-		Version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d -name ${Package}-[0-9]* | awk -F/ '{print $NF}' | eval "sed \"s/^${Package}-//\"")
+		Version=$(find /var/db/pkg/ -mindepth 2 -maxdepth 2 -type d \( -name ${Package}-[0-9]* -o -name ${Package}-bin-[0-9]* \) | awk -F/ '{print $NF}' | eval "sed \"s/^${Package}-\(bin-\)\?//\"")
 	    fi
 	    if [ "$Version" = "" ]; then
 		Status="unknown ok not-installed"
