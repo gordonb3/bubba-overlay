@@ -49,7 +49,7 @@ RDEPEND="
 	!prefix? ( >=sys-apps/baselayout-2.0.0 )
 	!prefix? ( virtual/logger )
 	dev-db/sqlite
-	=dev-lang/perl-${PERL_VER}[ithreads]
+	=dev-lang/perl:0/${PERL_VER}[ithreads]
 	"
 
 # This is a binary package and contains prebuilt executable and library
