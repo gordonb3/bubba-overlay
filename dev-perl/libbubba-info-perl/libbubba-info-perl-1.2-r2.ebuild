@@ -19,6 +19,7 @@ IUSE=""
 DEPEND=""
 
 RDEPEND="${DEPEND}
+	dev-lang/perl:=
 	dev-libs/libbubba-info
 "
 

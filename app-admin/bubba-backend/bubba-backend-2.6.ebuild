@@ -25,6 +25,7 @@ RDEPEND="${DEPEND}
 	app-admin/bubba-diskmanager
 	app-admin/bubba-networkmanager
 	app-arch/zip
+	dev-lang/perl:=
 	dev-perl/Config-Simple
 	dev-perl/Config-Tiny
 	dev-perl/Crypt-PasswdMD5
