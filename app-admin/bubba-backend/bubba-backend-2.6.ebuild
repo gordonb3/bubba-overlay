@@ -92,6 +92,10 @@ src_install() {
 	newins ${FILESDIR}/bubba-notify.crond bubba-notify
 
 	insinto /var/spool/bubba-notify
+	insinto /etc/bubba-notify/
+	doins bubba-notify.conf
+	insinto /etc/bubba-notify/available
+	insinto /etc/bubba-notify/enabled
 }
 
 
