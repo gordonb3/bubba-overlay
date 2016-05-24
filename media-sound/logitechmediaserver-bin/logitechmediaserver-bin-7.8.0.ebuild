@@ -138,6 +138,11 @@ src_install() {
 	fi
 
 
+	# Initialize server var directory
+	dodir "${VARDIR}"
+	fowners ${RUN_UID}:${RUN_GID} "${VARDIR}"
+	fperms 770 "${VARDIR}"
+
 	# Preferences directory
 	dodir "${PREFSDIR}"
 	fowners ${RUN_UID}:${RUN_GID} "${PREFSDIR}"

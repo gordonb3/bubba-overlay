@@ -155,6 +155,11 @@ src_install() {
 	newconfd "gentoo/logitechmediaserver.conf.d" "${MY_PN}"
 
 
+	# Initialize server var directory
+	dodir "${VARDIR}"
+	fowners ${RUN_UID}:${RUN_GID} "${VARDIR}"
+	fperms 770 "${VARDIR}"
+
 	# Initialize server cache directory
 	dodir "${CACHEDIR}"
 	fowners ${RUN_UID}:${RUN_GID} "${CACHEDIR}"
@@ -186,6 +191,14 @@ src_install() {
 	newins "gentoo/logitechmediaserver.logrotate.d" "${MY_PN}"
 
 	cd -
+
+	# Remove obsolete Perl modules
+	ls -1 "${ED}${OPTDIR}"/CPAN/arch | while read arch; do
+		if [ "${arch}" != "${PERL_VER}" ]; then
+			rm -r "${ED}${OPTDIR}"/CPAN/arch/"${arch}"
+		fi
+	done
+	rm -r "${ED}${OPTDIR}"/CPAN/Compress
 }
 
 lms_starting_instr() {
