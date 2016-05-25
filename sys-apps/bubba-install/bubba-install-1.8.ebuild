@@ -23,7 +23,7 @@ src_install() {
 	exeinto "/usr/local/sbin"
 	doexe "${FILESDIR}/install_on_sda.sh"
 	insinto "/root"
-	doins "${FILESDIR}/fstab-on-sda3"
+	doins "${FILESDIR}/fstab-on-b3"
 
 }
 
