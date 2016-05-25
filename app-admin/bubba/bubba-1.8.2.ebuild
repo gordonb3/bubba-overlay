@@ -18,9 +18,11 @@ RESTRICT="mirror"
 # Conflicts/replaces Sakaki's b3-init-scripts
 DEPEND="
 	!sys-apps/b3-init-scripts
+	>=virtual/udev-215
+	>=sys-apps/ethtool-3.12.1
 "
 
-RDEPEND="
+RDEPEND="${DEPEND}
 	app-admin/bubba-frontend
 	app-admin/bubba-manual
 	sys-power/bubba-buttond
@@ -44,7 +46,7 @@ src_install() {
 	echo ${PV} > ${ED}/etc/bubba/bubba.version
 
 	echo "Create bubba-default-config archive"
-	tar -czvf bubba-default-config.tgz etc
+	tar -czf bubba-default-config.tgz etc
 	insinto /var/lib/bubba
 	doins bubba-default-config.tgz
 

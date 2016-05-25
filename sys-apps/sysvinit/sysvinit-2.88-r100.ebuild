@@ -1,5 +1,10 @@
 # Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
+#
+# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
+# inject special shutdown routines required for the Excito B3 mainboard
+#
+#
 # $Header: /var/cvsroot/gentoo-x86/sys-apps/sysvinit/sysvinit-2.88-r7.ebuild,v 1.13 2014/11/02 10:03:50 swift Exp $
 
 EAPI="4"
