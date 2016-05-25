@@ -1,0 +1,4 @@
+# Disable Marvell TCP segmentation offload due to bugs
+# See e.g. http://archlinuxarm.org/forum/viewtopic.php?f=9&t=7692&start=20
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="eth[0-1]", RUN+="/usr/sbin/ethtool -K %k tso off"
+

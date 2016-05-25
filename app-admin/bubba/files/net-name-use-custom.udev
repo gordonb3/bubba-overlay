@@ -1,0 +1,3 @@
+# rename wifi interface (if adaptor present) to wlan0
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="ath9k", NAME="wlan0"
+
