@@ -19,7 +19,7 @@ IUSE=""
 DEPEND="
 	dev-libs/glib
 	dev-libs/libeutils
-	dev-libs/libsigc++
+	<dev-libs/libsigc++-2.6
 	sys-block/parted
 	sys-fs/lvm2
 "

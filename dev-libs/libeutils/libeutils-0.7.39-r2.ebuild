@@ -18,7 +18,7 @@ IUSE=""
 
 DEPEND="
 	dev-libs/glib
-	dev-libs/libsigc++
+	<dev-libs/libsigc++-2.6
 	dev-libs/popt
 	dev-tcltk/expect
 	dev-util/cppunit
