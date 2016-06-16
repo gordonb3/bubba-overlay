@@ -46,7 +46,7 @@ fi
 echo "Installing: check '$LOG' in case of errors"
 
 ptable=$(fdisk -l /dev/sda | grep "Disklabel type" | awk '{print $NF}')
-if [ ${ptable} != "dos" && ${ptable} != "gpt" ]; then
+if [ ${ptable} != "dos" ] && [ ${ptable} != "gpt" ]; then
     echo "Unknown partition table or disk not initialized"
     ptable=dos
 fi
