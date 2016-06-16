@@ -136,7 +136,7 @@ Patch by Gordon Bos
  	my %services = map {
 -		$_ => (defined bsd_glob "/etc/rc2.d/S??$_");
 -	} qw(proftpd forked-daapd ntp filetransferdaemon cups postfix dovecot fetchmail minidlna dnsmasq logitechmediaserver hostapd netatalk ifup-br0 samba);
-+		$_ => (defined bsd_glob "/etc/runlevels/default");
++		$_ => (defined -e "/etc/runlevels/default/$_");
 +	} qw(proftpd forked-daapd ntpd filetransferdaemon cupsd postfix dovecot fetchmail minidlna dnsmasq logitechmediaserver hostapd netatalk net.br0 samba);
  
  	my $meta = {

@@ -1,3 +1,10 @@
+The original scripts were written to run with Debian Squeeze. File paths
+for several system functions are different in Gentoo and possibly with newer
+Debian systems as well.
+
+
+Patch by Gordon Bos
+
 --- Makefile
 +++ Makefile
 @@ -120,7 +120,7 @@
@@ -422,6 +429,24 @@
  
 --- admin/controllers/users.php
 +++ admin/controllers/users.php
+@@ -117,7 +117,7 @@
+ 				) {
+ 					$shell = '/bin/bash';
+ 				} else {
+-					$shell = '/usr/sbin/nologin'; 
++					$shell = '/sbin/nologin'; 
+ 				}
+ 				$group = 'users'; // Static group for em all
+ 	
+@@ -247,7 +247,7 @@
+ 					$this->update_cfg("default_sideboard", $sideboard ? "yes" : "no","admin" );
+ 				}
+ 				*/
+-				if( !$error && update_user($realname,$shell?'/bin/bash':'/usr/sbin/nologin',$username)){
++				if( !$error && update_user($realname,$shell?'/bin/bash':'/sbin/nologin',$username)){
+ 					$error = sprintf(_("Failed to edit account for %s (%3$s) shell: %2$s"), $realname, $shell, $username);
+ 				}		
+ 			} else {
 @@ -296,13 +296,15 @@
  					if($userdata){
  						if(rm("/home/$username","root")==0){
@@ -441,6 +466,15 @@
  					$error = sprintf(_('Fatal error when trying to remove the user %s'), $username);
 --- admin/controllers/wizard.php
 +++ admin/controllers/wizard.php
+@@ -116,7 +116,7 @@
+ 
+         try {
+             if( $username && $password1 && $password1 == $password2 ) {
+-                $shell = '/usr/sbin/nologin';
++                $shell = '/sbin/nologin';
+                 $group = 'users'; // Static group for em all
+ 
+                 if (
 @@ -150,8 +150,7 @@
                  $valid = $this->networkmanager->easyfind_validate($easyfind_name);
                  if($valid) {
@@ -505,7 +539,14 @@
  			),
  			'/tmp/bubba-networkmanager.sock' 
  		);
-@@ -155,7 +155,7 @@
+@@ -149,13 +149,13 @@
+ 
+ class BubbaAlbumSocket extends BubbaSocket {
+ 	function __construct() {
+-		parent::__construct( '/usr/sbin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-album.socket' );
++		parent::__construct( '/opt/bubba/bin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-album.socket' );
+ 	}
+ }
  
  class BubbaDiskSocket extends BubbaSocket {
  	function __construct() {

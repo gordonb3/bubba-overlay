@@ -1,3 +1,8 @@
+2016-06-16
+
+Allow building for systemd platform 
+
+-------------------------------------------------------------------
 2016-05-09
 
 Fix backup routines and	missing	cron entries

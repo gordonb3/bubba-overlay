@@ -4,7 +4,7 @@
 
 EAPI="5"
 
-inherit eutils perl-module
+inherit eutils perl-module systemd
 
 MY_PV=${PV/_*/}
 DESCRIPTION="Excito B3 administrative scripts"
@@ -15,7 +15,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache2 nginx"
+IUSE="+apache2 nginx systemd"
 
 REQUIRED_USE="^^ ( apache2 nginx )"
 
@@ -46,6 +46,7 @@ RDEPEND="${DEPEND}
 	dev-python/pyyaml
 	dev-python/twisted-core
 	>=sys-libs/timezone-data-2015e
+	systemd? ( net-misc/networkmanager[-dhclient,dhcpcd] )
 "
 
 S=${WORKDIR}/${PN}
@@ -56,6 +57,10 @@ src_prepare() {
         epatch ${FILESDIR}/${PN}-${MY_PV}.firewall.patch
         epatch ${FILESDIR}/${PN}-${MY_PV}.networking.patch
         epatch ${FILESDIR}/${PN}-${MY_PV}.backend.patch
+	if use systemd; then
+		cp ${FILESDIR}/bubba-firewall.initd ${S}/bubba-firewall.sh
+	        epatch ${FILESDIR}/${PN}-${MY_PV}.systemd.patch
+	fi
 }
 
 
@@ -78,7 +83,13 @@ src_install() {
         insinto /var/lib/bubba
 	doins iptables.xslt hosts.in personal-setting-files.txt
 
-	newinitd ${FILESDIR}/bubba-firewall.initd  bubba-firewall
+	if use systemd; then
+		systemd_dounit "${FILESDIR}/bubba-firewall.service"
+		exeinto /opt/bubba/sbin
+		doexe bubba-firewall.sh
+	else
+		newinitd ${FILESDIR}/bubba-firewall.initd  bubba-firewall
+	fi
 	newconfd ${FILESDIR}/bubba-firewall.confd  bubba-firewall
 
 	dodoc "${S}/debian/copyright" ${FILESDIR}/Changelog

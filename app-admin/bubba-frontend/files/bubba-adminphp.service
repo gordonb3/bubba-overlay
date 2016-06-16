@@ -1,0 +1,14 @@
+[Unit]
+Description=The PHP FastCGI Process Manager
+After=network.target
+
+[Service]
+Type=notify
+PIDFile=/run/bubba-adminphp.pid
+ExecStart=/usr/bin/php-fpm -y /etc/bubba/adminphp.conf -g /run/bubba-adminphp.pid -R
+ExecReload=/bin/kill -USR2 $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+

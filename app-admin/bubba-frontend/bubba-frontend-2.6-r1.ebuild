@@ -9,7 +9,7 @@
 
 EAPI="5"
 
-inherit eutils perl-module
+inherit eutils perl-module systemd
 
 MY_PV=${PV/_*/}
 JQ_PV="1.4.2"
@@ -24,7 +24,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache2 nginx debug"
+IUSE="+apache2 nginx systemd debug"
 
 REQUIRED_USE="^^ ( apache2 nginx )"
 
@@ -70,7 +70,8 @@ src_prepare() {
 	# Fix patch errors due to DOS line endings in some files
 	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
 
-	epatch ${FILESDIR}/${PN}-${MY_PV}.patch
+	epatch ${FILESDIR}/${PN}-${MY_PV}-gentoo.patch
+	use systemd && epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
 
 	if use debug; then
 		sed  -i "s/^\(define('ENVIRONMENT', '\).*\(');\)$/\1development\2/"  ${S}/admin/index.php
@@ -133,7 +134,12 @@ src_install() {
 
 	dodir /var/log/web-admin 
 
-	newinitd ${FILESDIR}/bubba-adminphp.initd bubba-adminphp
+	if use systemd; then
+		systemd_dounit ${FILESDIR}/bubba-adminphp.service
+	else
+		newinitd ${FILESDIR}/bubba-adminphp.initd bubba-adminphp
+	fi
+
 	insinto /etc/bubba
 	newins ${FILESDIR}/bubba-adminphp.conf adminphp.conf
 	use nginx && sed "s/apache/nginx/" -i ${ED}/etc/bubba/adminphp.conf
@@ -147,15 +153,23 @@ src_install() {
 
 
 pkg_postinst() {
-	rc-status default | grep -q bubba-adminphp || {
-		elog "add bubba-adminphp service to default runlevel"
-		rc-config add bubba-adminphp default >/dev/null
-	}
-	rc-service bubba-adminphp status &>/dev/null || {
+	if use systemd; then
+		systemctl is-enabled bubba-adminphp >/dev/null || {
+			elog "enable bubba-adminphp service"
+			systemctl enable bubba-adminphp >/dev/null
+		}
+		systemctl is-active bubba-adminphp >/dev/null && systemctl stop bubba-adminphp >/dev/null
+		elog "auto starting bubba-adminphp service"
+		systemctl start bubba-adminphp
+	else
+		rc-status default | grep -q bubba-adminphp || {
+			elog "add bubba-adminphp service to default runlevel"
+			rc-config add bubba-adminphp default >/dev/null
+		}
+		rc-service bubba-adminphp status >/dev/null && rc-service bubba-adminphp stop >/dev/null
 		elog "auto starting bubba-adminphp service"
 		rc-service bubba-adminphp start
-	}
-
+	fi
 	if use nginx; then
 		elog "Although this package was configured for nginx, you may still use it"
 		elog "also with apache, provided it was configured with the right use flags."

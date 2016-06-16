@@ -1,3 +1,8 @@
+2016-06-16
+
+Allow building for systemd platform
+
+-------------------------------------------------------------------
 2016-05-09
 
 Let bubba-adminphp initd script verify existence of the php session dir

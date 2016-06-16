@@ -1,0 +1,56 @@
+diff -ru a/admin/helpers/exec_helper.php b/admin/helpers/exec_helper.php
+--- a/admin/helpers/exec_helper.php	2016-06-16 10:54:47.452723319 +0200
++++ b/admin/helpers/exec_helper.php	2016-06-16 11:15:11.366178723 +0200
+@@ -32,41 +32,22 @@
+ 
+ function invoke_rc_d( $name, $action ) {
+     $cmd = array(
+-        "/sbin/rc-service", 
+-        "-q", 
+-        $name, 
+-        $action
++        "/usr/bin/systemctl",
++        "-q",
++        $action,
++        $name
+     );
+     exec( escapeshellargs( $cmd ), $output, $retval );
+     return $retval == 0;
+ }
+ 
+-function update_rc_d( $name, $action="defaults", $priority=0, $runlevel=0) {
+-	if($action == "enable") {
+-		$cmd = array(
+-			"/sbin/rc-update",
+-			"-q",
+-			"add",
+-			$name,
+-			"default"
+-		);
+-	} elseif($action == "disable") {
+-		$cmd = array(
+-			"/sbin/rc-update",
+-			"-q",
+-			"del",
+-			$name,
+-			"default"
+-		);
+-	} else {
+-		$cmd = array(
+-			"/sbin/rc-update",
+-			"-q",
+-			$action,
+-			$name,
+-			"default"
+-		);
+-	}
++function update_rc_d( $name, $action="enable", $priority=0, $runlevel=0) {
++	$cmd = array(
++		"/usr/bin/systemctl",
++		"-q",
++		$action,
++		$name
++	);
+ 	exec( escapeshellargs( $cmd ), $output, $retval );
+ 	return $retval == 0;
+ }
