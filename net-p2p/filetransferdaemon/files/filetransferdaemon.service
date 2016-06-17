@@ -1,0 +1,14 @@
+[Unit]
+Description=File Transfer Daemon
+After=network.target local-fs.target
+Wants=local-fs.target
+
+[Service]
+Type=forking
+PIDFile=/run/ftd.pid
+ExecStart=/opt/bubba/sbin/ftd
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+

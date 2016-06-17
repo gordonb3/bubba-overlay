@@ -4,7 +4,7 @@
 
 EAPI="5"
 
-inherit eutils
+inherit eutils systemd
 
 DESCRIPTION="Excito library utils"
 HOMEPAGE="http://www.excito.com/"
@@ -14,7 +14,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache2 +upload +libtorrent"
+IUSE="+apache2 +upload +libtorrent systemd"
 
 DEPEND="
 	dev-libs/libeutils
@@ -75,7 +75,11 @@ src_install() {
 	dodoc debian/changelog debian/copyright
 	newdoc ftdconfig.ini ftdconfig.default
 
-	newinitd "${FILESDIR}"/${PN}.initd ${PN}
+	if use systemd; then
+		systemd_dounit "${FILESDIR}"/${PN}.service
+	else
+		newinitd "${FILESDIR}"/${PN}.initd ${PN}
+	fi
 
 	exeopts -m700
 	exeinto /opt/bubba/sbin
