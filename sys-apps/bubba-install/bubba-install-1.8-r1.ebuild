@@ -11,7 +11,7 @@ HOMEPAGE="https://github.com/sakaki-/gentoo-on-b3"
 SRC_URI=""
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="liveusb sysinit installed"
+IUSE="liveusb sysinit minimal"
 
 # required by Portage, as we have no SRC_URI...
 S="${WORKDIR}"
@@ -43,7 +43,7 @@ pkg_postinst() {
 
 	local OPTS="FORCEINSTALL"
 
-	if use installed; then
+	if use minimal; then
 		OPTS="${OPTS} onlyexist"
 	fi
 
