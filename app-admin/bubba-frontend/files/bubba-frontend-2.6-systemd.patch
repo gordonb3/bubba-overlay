@@ -1,6 +1,9 @@
-diff -ru a/admin/helpers/exec_helper.php b/admin/helpers/exec_helper.php
---- a/admin/helpers/exec_helper.php	2016-06-16 10:54:47.452723319 +0200
-+++ b/admin/helpers/exec_helper.php	2016-06-16 11:15:11.366178723 +0200
+Replace openrc commands by their systemd equivalents
+
+Patch by Gordon Bos
+
+--- admin/helpers/exec_helper.php
++++ admin/helpers/exec_helper.php
 @@ -32,41 +32,22 @@
  
  function invoke_rc_d( $name, $action ) {

@@ -53,13 +53,14 @@ S=${WORKDIR}/${PN}
 
 
 src_prepare() {
-        epatch ${FILESDIR}/${PN}-${MY_PV}.paths.patch
-        epatch ${FILESDIR}/${PN}-${MY_PV}.firewall.patch
-        epatch ${FILESDIR}/${PN}-${MY_PV}.networking.patch
-        epatch ${FILESDIR}/${PN}-${MY_PV}.backend.patch
+        epatch ${FILESDIR}/${PN}-${MY_PV}-paths.patch
+        epatch ${FILESDIR}/${PN}-${MY_PV}-firewall.patch
+        epatch ${FILESDIR}/${PN}-${MY_PV}-networking.patch
+        epatch ${FILESDIR}/${PN}-${MY_PV}-backend.patch
 	if use systemd; then
 		cp ${FILESDIR}/bubba-firewall.initd ${S}/bubba-firewall.sh
-	        epatch ${FILESDIR}/${PN}-${MY_PV}.systemd.patch
+	        epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
+	        epatch ${FILESDIR}/${PN}-${MY_PV}-samba4.patch
 	fi
 }
 

@@ -71,7 +71,10 @@ src_prepare() {
 	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
 
 	epatch ${FILESDIR}/${PN}-${MY_PV}-gentoo.patch
-	use systemd && epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
+	if use systemd; then
+		epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
+		epatch ${FILESDIR}/${PN}-${MY_PV}-samba4.patch
+	fi
 
 	if use debug; then
 		sed  -i "s/^\(define('ENVIRONMENT', '\).*\(');\)$/\1development\2/"  ${S}/admin/index.php
