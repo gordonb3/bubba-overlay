@@ -167,6 +167,7 @@ src_install() {
 
 pkg_postinst() {
 	if use systemd; then
+		systemctl daemon-reload
 		systemctl is-enabled bubba-adminphp >/dev/null || {
 			elog "enable bubba-adminphp service"
 			systemctl enable bubba-adminphp >/dev/null
