@@ -62,6 +62,16 @@ src_prepare() {
 	        epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
 	        epatch ${FILESDIR}/${PN}-${MY_PV}-samba4.patch
 	fi
+
+	# inconsistent service names
+	if use systemd; then
+		sed -i "s/cupsd/cups/" web-admin/lib/Bubba.pm
+		sed -i "s/cups\.conf/cupsd.conf/" web-admin/lib/Bubba.pm
+	else
+		sed -i "s/forked-daapd/daapd/" web-admin/lib/Bubba.pm
+		sed -i "s/forked-daapd/daapd/" web-admin/bin/diskdaemon.pl
+		sed -i "s/forked-daapd/daapd/" web-admin/bin/adminfunctions.php
+	fi
 }
 
 
@@ -217,5 +227,13 @@ pkg_postinst() {
 		cp /usr/share/doc/${PF}/examples/firewall.conf /etc/bubba/firewall.conf
 	fi
 
-}
+	# At present, the forked-daapd install does not provide a systemd service file, so
+	# we cannot control the service. If /etc/forked-daapd.conf exists, either through
+	# forked-daapd installer or our bubba-install we provide our own service file.
+	if use systemd; then
+		if [ -e /etc/forked-daapd.conf ] && [ ! -e /usr/lib/systemd/system/forked-daapd.service ]; then
+			cp ${FILESDIR}/forked-daapd.service /usr/lib/systemd/system/
+		fi
+	fi
 
+}

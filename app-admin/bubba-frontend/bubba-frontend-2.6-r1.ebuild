@@ -70,14 +70,24 @@ src_prepare() {
 	# Fix patch errors due to DOS line endings in some files
 	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
 
+	# Patch source files
 	epatch ${FILESDIR}/${PN}-${MY_PV}-gentoo.patch
 	if use systemd; then
 		epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
 		epatch ${FILESDIR}/${PN}-${MY_PV}-samba4.patch
 	fi
 
+	# debug USE flag enables extra logging in web UI
 	if use debug; then
 		sed  -i "s/^\(define('ENVIRONMENT', '\).*\(');\)$/\1development\2/"  ${S}/admin/index.php
+	fi
+
+	# inconsistent service names
+	if use systemd; then
+		sed -i "s/cupsd/cups/" admin/controllers/services.php
+	else
+		sed -i "s/forked-daapd/daapd/" admin/controllers/services.php
+		sed -i "s/forked-daapd/daapd/" admin/models/networkmanager.php
 	fi
 }
 
