@@ -76,6 +76,8 @@ src_prepare() {
 		epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
 		epatch ${FILESDIR}/${PN}-${MY_PV}-samba4.patch
 	fi
+	epatch ${FILESDIR}/${PN}-${MY_PV}-minidlna.patch
+
 
 	# debug USE flag enables extra logging in web UI
 	if use debug; then
