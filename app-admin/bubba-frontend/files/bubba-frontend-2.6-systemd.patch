@@ -57,3 +57,15 @@ Patch by Gordon Bos
  	exec( escapeshellargs( $cmd ), $output, $retval );
  	return $retval == 0;
  }
+--- admin/models/networkmanager.php
++++ admin/models/networkmanager.php
+@@ -164,8 +164,7 @@
+     if (!$newdomain) {
+         $newdomain = $olddomain? $olddomain:"localdomain";
+     }
+-    file_put_contents('/etc/conf.d/hostname', "hostname=\"$newname\"");
+-    _system('rc-config', 'restart', 'hostname');
++    _system('hostnamectl', 'set-hostname', $newname);
+ 
+     $lanip = $this->_get_ip($this->get_lan_interface());
+     $oldhosts = _system("grep -m 1 \"^".str_replace('.','\.',$lanip)."\s\" /etc/hosts");
