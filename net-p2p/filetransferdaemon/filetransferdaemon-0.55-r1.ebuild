@@ -92,3 +92,8 @@ src_install() {
 	}
 }
 
+pkg_postinst() {
+	if [ ! -r /etc/bubba/ftdconfig.ini ];then
+		cp /usr/share/doc/${PF}/ftdconfig.default /etc/bubba/ftdconfig.ini
+	fi
+}
