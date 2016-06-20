@@ -95,7 +95,7 @@ pkg_prerm()
 {
 	which systemctl &>/dev/null && {
 		systemctl is-active bubba-buttond >/dev/null && systemctl stop bubba-buttond >/dev/null
-		systemctl is-enabled bubba-buttond >/dev/null systemctl disable bubba-buttond >/dev/null
+		systemctl is-enabled bubba-buttond >/dev/null && systemctl disable bubba-buttond >/dev/null
 
 		sed -i "/^HandlePowerKey=ignore/d" /etc/systemd/logind.conf
 		systemctl restart systemd-logind
