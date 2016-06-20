@@ -1,0 +1,19 @@
+#!/sbin/runscript
+
+NAME=bubba-buttond
+APPROOT=/opt/bubba/sbin
+DAEMON=buttond
+PIDFILE=/var/run/\${NAME}.pid
+
+
+start() {
+        ebegin "Starting \${NAME}"
+		start-stop-daemon --start --quiet --make-pidfile --pidfile \${PIDFILE} --background --exec \${APPROOT}/\${DAEMON}
+        eend \$?
+}
+
+stop() {
+        ebegin "Stopping \${NAME}"
+	        start-stop-daemon --stop --quiet --pidfile \${PIDFILE}
+        eend \$?
+}

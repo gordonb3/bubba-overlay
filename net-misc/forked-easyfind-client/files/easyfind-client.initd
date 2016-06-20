@@ -2,7 +2,7 @@
 
 NAME=easyfind-client
 DAEMON=/opt/bubba/sbin/efd
-PIDFILE=/run/easyfind.pid
+PIDFILE=/run/bubba-easyfind.pid
 
 start() {
         ebegin "Starting ${NAME}"

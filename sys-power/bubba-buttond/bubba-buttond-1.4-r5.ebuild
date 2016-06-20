@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
 EAPI="5"
 
-inherit eutils
+inherit eutils systemd
 
 DESCRIPTION="Excito B3 power control"
 HOMEPAGE="http://www.excito.com/"
@@ -14,7 +14,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm"
-IUSE=""
+IUSE="systemd"
 
 DEPEND=""
 
@@ -41,32 +41,6 @@ src_compile() {
 }
 
 
-create_runscript() {
-	dodir /etc/init.d
-	cat > ${ED}/etc/init.d/bubba-buttond <<EOF
-#!/sbin/runscript
-
-NAME=bubba-buttond
-APPROOT=/opt/bubba/sbin
-DAEMON=buttond
-PIDFILE=/var/run/\${NAME}.pid
-
-
-start() {
-        ebegin "Starting \${NAME}"
-		start-stop-daemon --start --quiet --make-pidfile --pidfile \${PIDFILE} --background --exec \${APPROOT}/\${DAEMON}
-        eend \$?
-}
-
-stop() {
-        ebegin "Stopping \${NAME}"
-	        start-stop-daemon --stop --quiet --pidfile \${PIDFILE}
-        eend \$?
-}
-EOF
-	chmod +x ${ED}/etc/init.d/bubba-buttond
-}
-
 src_install() {
 	exeinto /opt/bubba/sbin
 	doexe buttond
@@ -78,17 +52,33 @@ src_install() {
 		dosym /opt/bubba/bin/write-magic /sbin/write-magic
 	fi
 
-	create_runscript
+	if use systemd; then
+		systemd_dounit ${FILESDIR}/bubba-buttond.service
+	else
+		newinitd ${FILESDIR}/bubba-buttond.initd bubba-buttond
+	fi
 	dodoc "${S}/debian/copyright"
 }
 
 pkg_postinst() {
-	rc-status default | grep -q bubba-buttond || rc-config add bubba-buttond default
-	if $(rc-service bubba-buttond status &>/dev/null); then
-		rc-service bubba-buttond restart
+	if use systemd; then
+		systemctl daemon-reload
+		systemctl is-enabled bubba-buttond >/dev/null || {
+			elog "enable bubba-buttond service"
+			systemctl enable bubba-buttond >/dev/null
+		}
+		systemctl is-active bubba-buttond >/dev/null && systemctl stop bubba-buttond >/dev/null
+		elog "auto starting bubba-buttond service"
+		systemctl start bubba-buttond
 	else
-		rc-service bubba-buttond start
+		rc-status default | grep -q bubba-buttond || rc-config add bubba-buttond default
+		if $(rc-service bubba-buttond status &>/dev/null); then
+			rc-service bubba-buttond restart
+		else
+			rc-service bubba-buttond start
+		fi
 	fi
+
 	if [ ${ENABLE_COMPAT} == "yes" ];then
 		elog "To manually shutdown the B3 manually use this command:"
 		elog ""
@@ -100,6 +90,10 @@ pkg_postinst() {
 
 pkg_prerm()
 {
+	which systemctl &>/dev/null && {
+		systemctl is-active bubba-buttond >/dev/null && systemctl stop bubba-buttond >/dev/null
+		systemctl is-enabled bubba-buttond >/dev/null systemctl disable bubba-buttond >/dev/null
+	}
 	rc-service bubba-buttond status &>/dev/null && rc-service bubba-buttond stop
 	rc-status default | grep -q bubba-buttond && rc-config delete bubba-buttond default
 }

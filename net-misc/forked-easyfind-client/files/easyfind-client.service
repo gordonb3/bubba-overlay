@@ -5,7 +5,7 @@ ConditionPathExists=/etc/bubba/easyfind.conf
 
 [Service]
 Type=forking
-PIDFile=/run/easyfind.pid
+PIDFile=/run/bubba-easyfind.pid
 ExecStart=/opt/bubba/sbin/efd
 
 [Install]

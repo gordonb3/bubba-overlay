@@ -1,0 +1,10 @@
+[Unit]
+Description=Bubba buttond daemon
+
+[Service]
+PIDFile=/run/bubba-buttond.pid
+ExecStart=/opt/bubba/sbin/buttond
+
+[Install]
+WantedBy=sysinit.target
+
