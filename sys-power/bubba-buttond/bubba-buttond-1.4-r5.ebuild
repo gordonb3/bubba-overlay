@@ -94,6 +94,7 @@ pkg_postinst() {
 pkg_prerm()
 {
 	which systemctl &>/dev/null && {
+		systemctl daemon-reload
 		systemctl is-active bubba-buttond >/dev/null && systemctl stop bubba-buttond >/dev/null
 		systemctl is-enabled bubba-buttond >/dev/null && systemctl disable bubba-buttond >/dev/null
 
