@@ -70,6 +70,9 @@ pkg_postinst() {
 		systemctl is-active bubba-buttond >/dev/null && systemctl stop bubba-buttond >/dev/null
 		elog "auto starting bubba-buttond service"
 		systemctl start bubba-buttond
+		sed -i -e '$a\' /etc/systemd/logind.conf
+		echo "HandlePowerKey=ignore" >> /etc/systemd/logind.conf
+		systemctl restart systemd-logind
 	else
 		rc-status default | grep -q bubba-buttond || rc-config add bubba-buttond default
 		if $(rc-service bubba-buttond status &>/dev/null); then
@@ -93,6 +96,9 @@ pkg_prerm()
 	which systemctl &>/dev/null && {
 		systemctl is-active bubba-buttond >/dev/null && systemctl stop bubba-buttond >/dev/null
 		systemctl is-enabled bubba-buttond >/dev/null systemctl disable bubba-buttond >/dev/null
+
+		sed -i "/^HandlePowerKey=ignore/d" /etc/systemd/logind.conf
+		systemctl restart systemd-logind
 	}
 	rc-service bubba-buttond status &>/dev/null && rc-service bubba-buttond stop
 	rc-status default | grep -q bubba-buttond && rc-config delete bubba-buttond default
