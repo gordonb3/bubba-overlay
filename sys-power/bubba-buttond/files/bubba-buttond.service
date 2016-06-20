@@ -6,4 +6,4 @@ PIDFile=/run/bubba-buttond.pid
 ExecStart=/opt/bubba/sbin/buttond
 
 [Install]
-WantedBy=multiuser.target
+WantedBy=multi-user.target
