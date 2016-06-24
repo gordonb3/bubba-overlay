@@ -189,7 +189,42 @@ Patch by Gordon Bos
     return $ret;
  }
  
-@@ -856,7 +854,7 @@
+@@ -818,31 +816,11 @@
+ # Return :
+ sub service_running{
+ 	my ($service)=@_;
+-	my $pid;
+-	my $pidfile;
+ 	
+-	if ($service eq "fetchmail"){
+-		$pidfile="/var/run/fetchmail/fetchmail.pid";
+-	} elsif ($service eq "avahi-daemon"){
+-		$pidfile="/var/run/avahi-daemon/pid";
+-	} elsif ($service eq "tor"){
+-		$pidfile="/var/run/tor/tor.pid";
+-	} elsif ($service eq "filetransferdaemon"){
+-		$pidfile="/var/run/ftd.pid";
+-	} else {
+-		$pidfile = "/var/run/$service.pid";
+-	}
++	system("systemctl is-active $service >/dev/null");
+ 
+-	if(-e $pidfile){
+-		$pid=`cat $pidfile`;
+-		my @ln=split(/ /,$pid);
+-		chomp(@ln);
+-		$pid=@ln[0];
+-		if(-e "/proc/$pid"){
+-			return 1;
+-		}else{
+-			return 0;
+-		}
++	if($? == 0){
++		return 1;
+ 	}else{
+ 		return 0;
+ 	}
+@@ -856,7 +834,7 @@
  sub start_service{
     my ($service)=@_;
     
@@ -198,7 +233,7 @@ Patch by Gordon Bos
  }
  
  sub package_is_installed{
-@@ -873,7 +871,7 @@
+@@ -873,7 +851,7 @@
  sub stop_service{
     my ($service)=@_;
     
@@ -207,7 +242,7 @@ Patch by Gordon Bos
  }
  
  # Restart service
-@@ -884,7 +882,7 @@
+@@ -884,7 +862,7 @@
  sub restart_service{
     my ($service)=@_;
     
@@ -216,7 +251,7 @@ Patch by Gordon Bos
  }
  
  # Reload service
-@@ -895,7 +893,7 @@
+@@ -895,7 +873,7 @@
  sub reload_service{
     my ($service)=@_;
     
@@ -225,7 +260,7 @@ Patch by Gordon Bos
  }
  
  # Add service
-@@ -906,7 +904,7 @@
+@@ -906,7 +884,7 @@
  sub add_service{
     my ($service)=@_;
     
@@ -234,7 +269,7 @@ Patch by Gordon Bos
  }
  
  # Add service att specific init "level"
-@@ -918,7 +916,7 @@
+@@ -918,7 +896,7 @@
  sub add_service_at_level{
     my ($service, $level)=@_;
  
@@ -243,7 +278,7 @@ Patch by Gordon Bos
  }
  
  # Remove service
-@@ -929,7 +927,7 @@
+@@ -929,7 +907,7 @@
  sub remove_service{
     my ($service)=@_;
     
@@ -252,7 +287,7 @@ Patch by Gordon Bos
  }
  
  # Query service
-@@ -940,7 +938,7 @@
+@@ -940,7 +918,7 @@
  sub query_service{
     my ($service)=@_;
  
@@ -261,7 +296,7 @@ Patch by Gordon Bos
  
  }
  
-@@ -1443,7 +1441,7 @@
+@@ -1443,7 +1421,7 @@
  
  	# services, boolean such if service enabled or not
  	my %services = map {
@@ -270,7 +305,7 @@ Patch by Gordon Bos
  	} qw(proftpd forked-daapd ntpd filetransferdaemon cupsd postfix dovecot fetchmail minidlna dnsmasq logitechmediaserver hostapd netatalk net.br0 samba);
  
  	my $meta = {
-@@ -1560,8 +1558,9 @@
+@@ -1560,8 +1538,9 @@
  		if( scalar keys %removed_users > 0 ) {
  			# Stop ftd so any delete of users doesn't fnuck stuff upp
  			system(
@@ -282,7 +317,7 @@ Patch by Gordon Bos
  			);
  		}
  
-@@ -1661,7 +1660,7 @@
+@@ -1661,7 +1640,7 @@
  		);
  
  		system("/sbin/iptables-restore","/etc/bubba/firewall.conf");
@@ -291,7 +326,7 @@ Patch by Gordon Bos
  
  		restart_network("eth0");
  		# hostapd needs to be started prior to restarting LANIF
-@@ -1785,7 +1784,7 @@
+@@ -1785,7 +1764,7 @@
  
  			system("/sbin/iptables-restore < /etc/bubba/firewall.conf");
  

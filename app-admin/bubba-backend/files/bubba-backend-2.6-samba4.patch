@@ -34,7 +34,7 @@ Patch by Gordon Bos
  
     return $?;
  }
-@@ -1442,7 +1442,7 @@
+@@ -1422,7 +1422,7 @@
  	# services, boolean such if service enabled or not
  	my %services = map {
  		$_ => (system("systemctl is-enabled $_")==0);
@@ -43,7 +43,7 @@ Patch by Gordon Bos
  
  	my $meta = {
  		version => $revision,
-@@ -1678,7 +1678,7 @@
+@@ -1658,7 +1658,7 @@
  		}
  		$lan = _get_lanif;
  		restart_network($lan);
@@ -52,7 +52,7 @@ Patch by Gordon Bos
  		# Dont reload apache for now, it breaks connection with fcgi
  		# Resulting in an internal server error.
  		#reload_service("apache2");
-@@ -1860,7 +1860,7 @@
+@@ -1840,7 +1840,7 @@
  				remove_service("logitechmediaserver");
  			}
  
@@ -61,3 +61,4 @@ Patch by Gordon Bos
  
  			# Dont reload apache for now, it breaks connection with fcgi
  			# Resulting in an internal server error.
+Only in b/web-admin/lib: Bubba.pm.orig
