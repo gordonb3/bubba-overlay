@@ -124,3 +124,18 @@ Patch by Gordon Bos
  
  # Is service running?
 
+@@ -1847,11 +1847,11 @@
+ 	close(FILE);
+ 	my $file=join("\n",@data);
+ 
+-	$lan = $ifs;
+ 	if($dhcpd) { # enable dhcpd on LANINTERFACE.
+-		$file =~ s/no-dhcp-interface=$lan\n*/ /g;
++		$file =~ s/no-dhcp-interface=$ifs\n*/ /g;
+ 	} else { # disable dhcpd on LANINTERFACE.
+-		$file .= "\nno-dhcp-interface=$lan\n";
++		$file =~ s/no-dhcp-interface=$ifs\n*/ /g;
++		$file .= "\nno-dhcp-interface=$ifs\n";
+ 	}
+ 	$file =~ s/(interface\s*=\s*)(\w+)/$1$ifs/g;
+ 	$file =~ s/(dhcp-range\s*=\s*)[\d\.]+,[\d\.]+/$1$range_start,$range_end/g;

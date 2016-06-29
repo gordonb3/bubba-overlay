@@ -15,7 +15,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="+wifi"
+IUSE="+wifi systemd"
 
 DEPEND="
 	dev-libs/glib
@@ -23,14 +23,15 @@ DEPEND="
 	dev-libs/libnl
 	dev-libs/libsigc++
 	dev-libs/popt
+	systemd? ( net-misc/networkmanager[-dhclient,dhcpcd] )
 "
 
 RDEPEND="${DEPEND}
 	net-misc/dhcpcd
-	wifi? ( net-misc/bridge-utils )
-	wifi? ( net-wireless/hostapd )
-	wifi? ( net-wireless/iw )
-	wifi? ( net-wireless/wireless-tools )
+	wifi? ( net-misc/bridge-utils
+		net-wireless/hostapd
+		net-wireless/iw
+		net-wireless/wireless-tools )
 "
 
 S=${WORKDIR}/${PN}-${MY_PV}
@@ -38,10 +39,14 @@ S=${WORKDIR}/${PN}-${MY_PV}
 src_prepare() {
 	epatch ${FILESDIR}/${PN}-${MY_PV}-paths.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-nl3.patch
-	epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-ifcommands.patch
         epatch ${FILESDIR}/${PN}-${MY_PV}-ifpolicies.patch
         epatch ${FILESDIR}/${PN}-${MY_PV}-fqdn.patch
+	if use systemd; then
+		epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
+	else
+		epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
+	fi
 }
 
 src_compile() {
@@ -73,6 +78,12 @@ src_install() {
 	                        ewarn "wifi settings unless you rename it to wlan0"
         	        }
 		fi
+
+		if use systemd; then
+			exeinto /etc/NetworkManager/dispatcher.d/
+			newexe ${FILESDIR}/lan-bridge-dispatcher.sh 30-lan-bridge
+			fperms 0755 /etc/NetworkManager/dispatcher.d/30-lan-bridge
+		fi
         fi
 
 	insinto /etc/dnsmasq.d
@@ -83,3 +94,18 @@ src_install() {
 }
 
 
+pkg_postinst() {
+	if use systemd; then
+		systemctl is-enabled NetworkManager &>/dev/null || systemctl enable NetworkManager
+		systemctl is-active NetworkManager &>/dev/null || systemctl start NetworkManager
+		# Networkmanager conflicts with dhcpcd service
+		systemctl is-enabled dhcpcd &>/dev/null && systemctl disable dhcpcd
+		systemctl is-active dhcpcd &>/dev/null && systemctl stop dhcpcd
+		systemctl is-enabled dhcpcd@ &>/dev/null && systemctl disable dhcpcd@
+		systemctl is-active dhcpcd@ &>/dev/null && systemctl stop dhcpcd@
+		if use wifi; then
+			systemctl is-enabled NetworkManager-dispatcher &>/dev/null || systemctl enable NetworkManager-dispatcher
+			systemctl is-active NetworkManager-dispatcher &>/dev/null || systemctl start NetworkManager-dispatcher
+		fi
+	fi
+}

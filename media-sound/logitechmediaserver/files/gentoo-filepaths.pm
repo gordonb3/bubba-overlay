@@ -61,6 +61,14 @@ sub dirsFor {
 		# Server and plugin preferences are in a different place.
 		push @dirs, $::prefsdir || '/etc/logitechmediaserver';
 
+	} elsif ($dir eq 'log') {
+
+		push @dirs, $::logdir || "/var/log/logitechmediaserver";
+
+	} elsif ($dir eq 'cache') {
+
+		push @dirs, $::cachedir || "/var/lib/logitechmediaserver/cache";
+
 	} else {
 
 		# Use the default behaviour to locate the directory.

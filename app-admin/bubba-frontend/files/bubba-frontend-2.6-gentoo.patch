@@ -509,7 +509,7 @@ Patch by Gordon Bos
  
 --- admin/helpers/bubba_socket_helper.php
 +++ admin/helpers/bubba_socket_helper.php
-@@ -118,7 +118,7 @@
+@@ -118,44 +118,44 @@
  class OldBubbaAptSocket extends BubbaSocket {
  	function __construct() {
  		parent::__construct( 
@@ -518,12 +518,17 @@ Patch by Gordon Bos
  			array( 
  				'--mode=ithreads', 
  				'--daemonize' 
-@@ -130,17 +130,17 @@
+ 			), 
+-			'/tmp/bubba-apt.socket'
++			'/run/bubba-apt.socket'
+ 		);
+ 	}
+ }
  
  class OldBubbaHotfixSocket extends BubbaSocket {
  	function __construct() {
 -		parent::__construct( '/usr/lib/web-admin/hotfix.pl', array( '--mode=ithreads', '--daemonize' ), '/tmp/bubba-hotfix.socket' );
-+		parent::__construct( '/opt/bubba/bin/hotfix.pl', array( '--mode=ithreads', '--daemonize' ), '/tmp/bubba-hotfix.socket' );
++		parent::__construct( '/opt/bubba/bin/hotfix.pl', array( '--mode=ithreads', '--daemonize' ), '/run/bubba-hotfix.socket' );
  	}
  }
  
@@ -533,25 +538,28 @@ Patch by Gordon Bos
 -			'/usr/sbin/bubba-networkmanager', 
 +			'/opt/bubba/sbin/bubba-networkmanager', 
  			array(
- 				'--socket', '/tmp/bubba-networkmanager.sock',
+-				'--socket', '/tmp/bubba-networkmanager.sock',
 -				'--config', '/etc/bubba-networkmanager.conf'
++				'--socket', '/run/bubba-networkmanager.sock',
 +				'--config', '/etc/bubba/networkmanager.conf'
  			),
- 			'/tmp/bubba-networkmanager.sock' 
+-			'/tmp/bubba-networkmanager.sock' 
++			'/run/bubba-networkmanager.sock' 
  		);
-@@ -149,13 +149,13 @@
+ 	}
+ }
  
  class BubbaAlbumSocket extends BubbaSocket {
  	function __construct() {
 -		parent::__construct( '/usr/sbin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-album.socket' );
-+		parent::__construct( '/opt/bubba/bin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-album.socket' );
++		parent::__construct( '/opt/bubba/bin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/run/bubba-album.socket' );
  	}
  }
  
  class BubbaDiskSocket extends BubbaSocket {
  	function __construct() {
 -		parent::__construct( '/usr/lib/web-admin/diskdaemon.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-disk.socket' );
-+		parent::__construct( '/opt/bubba/bin/diskdaemon.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-disk.socket' );
++		parent::__construct( '/opt/bubba/bin/diskdaemon.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/run/bubba-disk.socket' );
  	}
  }
  function apt_query_progress() {
@@ -739,6 +747,17 @@ Patch by Gordon Bos
  	function __construct() {
  		parent::__construct();
  		$this->load->helper('bubba_socket');		
+@@ -527,8 +527,8 @@
+ 	}
+ 
+ 	function diskdaemon_is_running() {
+-		if( file_exists('/tmp/bubba-disk.socket') ) {
+-			exec( 'fuser -s /tmp/bubba-disk.socket', $ret, $err );
++		if( file_exists('/run/bubba-disk.socket') ) {
++			exec( 'fuser -s /run/bubba-disk.socket', $ret, $err );
+ 			if( $err == 0 ) {
+ 				return true;
+ 			}
 @@ -617,5 +617,16 @@
  		return trim($this->_raw_system( "hddtemp", "-n", $dev ));
  	}

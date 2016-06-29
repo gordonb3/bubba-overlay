@@ -1,0 +1,548 @@
+Change network settings directly in systemd NetworkManager
+
+Patch by Gordon Bos
+
+--- Dispatcher.cpp
++++ Dispatcher.cpp
+@@ -335,6 +335,7 @@
+ 				// Pick up new if
+ 				InterfaceController::Up(newif);
+ 
++/*
+ 				// If this was a move from two wlan (bridge) update rc.d
+ 				if(newiftype=="bridge"){
+ 					list<int> start,stop;
+@@ -343,7 +344,7 @@
+ 				}else{
+ 					Services::Disable("ifup-br0");
+ 				}
+-
++*/
+ 			}
+ 		}catch(runtime_error& err){
+ 			res["status"]=false;
+@@ -475,8 +476,8 @@
+ 
+ 	if(v.isMember("ifname") && v["ifname"].isString()){
+ 
+-		if(InterfaceController::Down(v["ifname"].asString())
+-				&& InterfaceController::Up(v["ifname"].asString())){
++		InterfaceController::Down(v["ifname"].asString());
++		if(InterfaceController::Up(v["ifname"].asString())){
+ 
+ 			res["status"]=true;
+ 		}else{
+--- Makefile
++++ Makefile
+@@ -40,8 +40,8 @@
+ SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
+ OBJS = $(SOURCES:%.cpp=%.o)
+ 
+-CXXFLAGS += -g -Wall $(shell pkg-config --cflags libeutils libnl-3.0 libnl-genl-3.0) -DPACKAGE_VERSION="\"$(APP_VERSION)\""
+-LDFLAGS = $(shell pkg-config --libs libeutils libnl-3.0 libnl-genl-3.0)
++CXXFLAGS += -g -Wall $(shell pkg-config --cflags libeutils libnl-3.0 libnl-genl-3.0 glib-2.0 libnm) -DPACKAGE_VERSION="\"$(APP_VERSION)\""
++LDFLAGS = $(shell pkg-config --libs libeutils libnl-3.0 libnl-genl-3.0 glib-2.0 libnm)
+ 
+ APP_OBJS=$(APP_SRC:%.cpp=%.o)
+ DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
+--- controllers/InterfaceController.cpp
++++ controllers/InterfaceController.cpp
+@@ -628,13 +628,16 @@
+ }
+ 
+ bool InterfaceController::Up(const string& ifname){
+-	return do_call("initd=$(/sbin/rc-service -ir net."+ifname+") && ${initd} start")==0;
++	if (ifname != "br0") {
++		return do_call("/usr/bin/nmcli con up $(/usr/bin/nmcli dev | grep \"^"+ifname+" \" | awk '{print $4}')")==0;
++	}else{
++		return do_call("/usr/bin/nmcli con up $(grep -rl \"br0$\" /etc/NetworkManager/system-connections/ | awk -F/ '{print $NF}')")==0;
++	}
+ }
+ 
+ bool InterfaceController::Down(const string& ifname){
+-	return do_call("initd=$(/sbin/rc-service -ir net."+ifname+") && ${initd} -D stop")==0;
++	return do_call("/usr/bin/nmcli con down $(/usr/bin/nmcli dev | grep \"^"+ifname+" \" | awk '{print $4}')")==0;
+ }
+ 
+-
+ InterfaceController::~InterfaceController(){
+ }
+--- utils/InterfacesCfg.cpp
++++ utils/InterfacesCfg.cpp
+@@ -26,7 +26,15 @@
+ #include <sstream>
+ using namespace std;
+ 
++#include <glib.h>
++#include <string.h>
++#include <arpa/inet.h>
++#include <bitset>
++#include <NetworkManager.h>
++
+ #include "InterfacesCfg.h"
++#include "Sockios.h"
++#include "../utils/SysConfig.h"
+ 
+ #include <libeutils/FileUtils.h>
+ #include <libeutils/StringTools.h>
+@@ -45,33 +53,79 @@
+ }
+ 
+ void InterfacesCfg::parse_cfg(){
+-	list<string> fil=FileUtils::GetContent(IFSFILE);
++	NMClient *client;
++	GError *error = NULL;
++	const GPtrArray *connections;
++
++#if !GLIB_CHECK_VERSION (2, 35, 0)
++	/* Initialize GType system */
++	g_type_init ();
++#endif
++
++	NMConnection *connection;
++	NMSettingConnection *s_con;
++	NMSettingIPConfig *ip_con;
++	NMIPAddress *a_con;
++	const char *if_name;
++	const char *gateway;
++	string con_name;
+ 	string curif;
+-	for(list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++){
+-		string line=StringTools::Trimmed(*fIt," \t");
+-		if(line=="" or line[0]=='#'){
+-			continue;
+-		}
+-		list<string> words=StringTools::Split(*fIt,"[ \t]");
+-		if(words.size()>1){
+-			if(words.front()=="auto"){
+-				curif=words.back();
+-				this->cfg[curif]["auto"]=true;
+-			}else if(words.front()=="iface"){
+-				words.pop_front();
+-				curif=words.front();
+-				this->cfg[curif]["addressing"]=words.back();
+-			}else{
+-				string key=words.front();
+-				words.pop_front();
+-				for(list<string>::iterator sIt=words.begin();sIt!=words.end();sIt++){
+-					this->cfg[curif]["options"][key].append(*sIt);
++	string method;
++	stringstream ss;
++	struct in_addr addr;
++
++	client = nm_client_new (NULL, &error);
++	if (!client) {
++		cerr << "Error: Could not connect to NetworkManager:" << error->message << endl;
++		g_error_free (error);
++	} else if (nm_client_get_nm_running (client)) {
++		connections = nm_client_get_connections (client);
++		for (uint32_t i = 0; i < connections->len; i++) {
++			connection = (NMConnection*)connections->pdata[i];
++			s_con = nm_connection_get_setting_connection (connection);
++			if (s_con && (if_name = nm_connection_get_interface_name (connection))) {
++				curif = std::string(if_name);
++				if ( (curif == "eth0") || (curif == "eth1") || (curif == "wlan0") || (curif == "br0") ) {
++					ip_con = nm_connection_get_setting_ip4_config (connection);
++					if (ip_con) {
++						this->cfg[curif]["UUID"] = nm_setting_connection_get_uuid (s_con);
++						this->cfg[curif]["con_name"] = nm_setting_connection_get_id (s_con);
++						con_name = this->cfg[curif]["con_name"].asString();
++						method = nm_setting_ip_config_get_method (ip_con);
++						if ( (con_name != "LAN-bridge") && (con_name != "WAN") && (con_name != "LAN") ) {
++							this->cfg.removeMember(curif);
++						} else if (method == "manual") {
++							this->cfg[curif]["auto"]=true;
++							this->cfg[curif]["addressing"]="static";
++							if (nm_setting_ip_config_get_num_addresses (ip_con)>0) {
++								a_con = nm_setting_ip_config_get_address (ip_con,0);
++								this->cfg[curif]["options"]["address"].append(nm_ip_address_get_address (a_con));
++								ss.str("");
++								ss << "0x" << std::hex << (0xffffffff << (32 - nm_ip_address_get_prefix (a_con)));
++								inet_aton(ss.str().c_str(), &addr);
++								this->cfg[curif]["options"]["netmask"].append(inet_ntoa(addr));
++							}
++							gateway = nm_setting_ip_config_get_gateway (ip_con);
++							if (gateway) this->cfg[curif]["options"]["gateway"].append(gateway);
++						} else if (method == "disabled") {
++							this->cfg[curif]["addressing"]="static";
++							this->cfg[curif]["options"]["address"].append("0.0.0.0");
++							this->cfg[curif]["options"]["netmask"].append("0.0.0.0");
++						} else if (method == "auto") {
++							this->cfg[curif]["auto"]=true;
++							this->cfg[curif]["addressing"]="dhcp";
++						}
++					}
+ 				}
+ 			}
+ 		}
++	} else {
++		cerr << "Error: NetworkManager is not running" << endl;
+ 	}
++	if (client) g_object_unref (client);
+ }
+ 
++
+ Json::Value InterfacesCfg::GetCFG(){
+ 	return this->cfg;
+ }
+@@ -81,34 +135,319 @@
+ 	return true;
+ }
+ 
++
++static void added_cb (GObject *client, GAsyncResult *result, gpointer user_data){
++	GMainLoop *loop = (GMainLoop*)user_data;
++	NMRemoteConnection *remote;
++	GError *error = NULL;
++
++	remote = nm_client_add_connection_finish (NM_CLIENT (client), result, &error);
++
++	if (error) {
++		cerr << "NM responds: error occurred creating connection: " << error->message << endl;
++		g_error_free (error);
++	} else {
++		g_object_unref (remote);
++	}
++	g_main_loop_quit (loop);
++}
++
++
+ bool InterfacesCfg::Commit(){
++	NMClient *client;
++	NMConnection *connection;
++	NMSettingConnection *s_con;
++	NMSettingIP4Config *s_ip4;
++	NMSettingIP6Config *s_ip6;
++	GError *error = NULL;
++	const GPtrArray *connections;
++	const char *if_name;
++	string curif;
++	string con_name;
++	string uuid;
++	const char* c_uuid;
++
++#if !GLIB_CHECK_VERSION (2, 35, 0)
++	/* Initialize GType system */
++	g_type_init ();
++#endif
+ 
+-	Json::Value::Members mem=this->cfg.getMemberNames();
++	Json::Value devs=this->cfg;
++	Json::Value::Members mem;
+ 	stringstream ss;
+-	list<string> res;
+-	for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
+-		Json::Value val=this->cfg[*mIt];
+-		if(val.isMember("auto")){
+-			res.push_back("auto "+*mIt+"\n");
+-		}
+-		res.push_back("iface "+*mIt+" inet "+val["addressing"].asString()+"\n");
+-
+-		Json::Value::Members opts=val["options"].getMemberNames();
+-		for(Json::Value::Members::iterator oIt=opts.begin();oIt!=opts.end();oIt++){
+-
+-			ss << "\t"<<*oIt;
+-			Json::Value opval=val["options"][*oIt];
+-			for(size_t i=0; i<val["options"][*oIt].size();i++){
+-				ss << " "<< val["options"][*oIt][i].asString();
+-			}
+-			ss<<endl;
+-			res.push_back(ss.str());
+-			ss.str("");
+-;		}
++	int prefix;
+ 
+-		res.push_back("\n");
++	if ( (devs.isMember("br0")) && (!devs.isMember("eth1")) )
++		devs["eth1"]["type"]="bridge-slave";
++
++	client = nm_client_new (NULL, &error);
++	if (!client) {
++		cerr << "Error: Could not connect to NetworkManager:" << error->message << endl;
++		g_error_free (error);
++	} else if (nm_client_get_nm_running (client)) {
++		connections = nm_client_get_connections (client);
++		for (uint32_t i = 0; i < connections->len; i++) {
++			connection = (NMConnection*)connections->pdata[i];
++			s_con = nm_connection_get_setting_connection (connection);
++			if (s_con && (if_name = nm_connection_get_interface_name (connection))) {
++				curif = std::string(if_name);
++				ss.str("");
++				ss << nm_setting_connection_get_uuid (s_con);
++				uuid = ss.str();
++				ss.str("");
++				ss << nm_setting_connection_get_id (s_con);
++				con_name = ss.str();
++				if (devs.isMember(curif) && devs[curif].isMember("UUID") && (devs[curif]["UUID"].asString() != uuid)) {
++					nm_remote_connection_delete ((NMRemoteConnection*) connection, NULL, NULL);
++				} else if ( (devs.isMember(curif)) &&  (nm_setting_connection_get_slave_type(s_con)) ) {
++					devs[curif]["master"] = nm_setting_connection_get_master (s_con);
++					devs[curif]["UUID"] = uuid;
++					devs[curif]["con_name"] = con_name;
++				} else if (devs.isMember(curif)) {
++					if ( (con_name != "LAN-bridge") && (con_name != "WAN") && (con_name != "LAN") && (con_name != "LAN-slave-eth1")) {
++						if (curif == "br0") {
++							// fubar
++							nm_remote_connection_delete (nm_client_get_connection_by_id(client, "LAN-bridge"), NULL, NULL);
++							if (devs[curif].isMember("UUID")) devs[curif].removeMember("UUID");
++						}
++						nm_remote_connection_delete ((NMRemoteConnection*) connection, NULL, NULL);
++					} else {
++						devs[curif]["UUID"] = uuid;
++						devs[curif]["con_name"] = con_name;
++					}
++				} else if ( (curif == "eth0") || (curif == "eth1") || (curif == "br0") ) {
++					nm_remote_connection_delete ((NMRemoteConnection*) connection, NULL, NULL);
++				} else if ( (curif == "wlan0") ) {
++					devs[curif]["UUID"] = uuid;
++				}
++			}
++		}
++
++		// WiFi is handled by hostapd and NetworkManager should not intervene
++		if ( (devs.isMember("br0")) && (devs.isMember("wlan0")) && (devs["wlan0"].isMember("UUID")) ){
++			c_uuid = devs["wlan0"]["UUID"].asString().c_str();
++			nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++ 			const char* wlmac = nm_device_get_hw_address(nm_client_get_device_by_iface (client, "wlan0"));
++			if (wlmac) {
++				list<string> fil=FileUtils::GetContent(NMCFILE);
++				list<string> res;
++				string section="";
++				string delim="";
++				bool inserted=false;
++				for (list<string>::iterator fIt=fil.begin();fIt!=fil.end();fIt++) {
++					string line=StringTools::Trimmed(*fIt," \t");
++					if( (line=="") || (line[0]=='#') ){
++						res.push_back(line+"\n");
++						continue;
++					}
++					if (line[0]=='['){
++						if (line.substr(1,7)=="keyfile"){
++							section="keyfile";
++						} else if (section=="keyfile") {
++							res.push_back("unmanaged-devices=mac:"+std::string(wlmac)+"\n\n");
++							inserted=true;
++						}
++						res.push_back(line+"\n");
++						continue;
++					}
++					list<string> words=StringTools::Split(*fIt,"[=; \t]");
++					if ( (words.size()>1) && (section=="keyfile") && (words.front()=="unmanaged-devices") ){
++						ss.str("");
++						ss << "unmanaged-devices" << '=';
++						words.pop_front();
++						for(list<string>::iterator sIt=words.begin();sIt!=words.end();sIt++){
++							if (std::string(*sIt) == "mac:"+std::string(wlmac)) {
++								inserted=true;
++							}
++							ss << delim << *sIt;
++							delim=";";
++						}
++						if (!inserted) {
++							ss << delim << "mac:" << wlmac << endl;
++							inserted=true;
++						}
++						res.push_back(ss.str());
++						ss.str("");
++					} else {
++						res.push_back(line);
++					}
++				}
++				if (!inserted) {
++					if (section!="keyfile")
++						res.push_back("[keyfile]\n");
++					res.push_back("unmanaged-devices=mac:"+std::string(wlmac)+"\n");
++				}
++				FileUtils::Write(NMCFILE,res,0644);
++			}
++		}
++
++
++		// Don't try to handle WiFi NIC configured outside our environment
++		if (devs.isMember("wlan0")) {
++			devs.removeMember("wlan0");
++		}
++
++
++		// remove br0 connection when switching from br0 to eth1
++		if ( (devs.isMember("br0")) && (devs.isMember("eth1")) && (devs["eth1"].isMember("addressing")) ){
++			if (devs["br0"].isMember("UUID")) {
++				c_uuid = devs["br0"]["UUID"].asString().c_str();
++				nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++			}
++			devs.removeMember("br0");
++		}
++
++		// remove eth1 connection whem switching from eth1 to br0
++		if ( (devs.isMember("br0")) && (devs.isMember("eth1")) && (devs["eth1"]["type"]=="bridge-slave") && (devs["eth1"]["con_name"]=="LAN") ){
++			c_uuid = devs["eth1"]["UUID"].asString().c_str();
++			nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++			devs["eth1"].removeMember("UUID");
++		}
++
++		// verify slave connection, delete if invalid
++		if ( (devs.isMember("eth1")) && (devs["eth1"].isMember("master")) ){
++			if ( (!devs.isMember("br0")) || devs["eth1"]["master"].asString() != devs["br0"]["UUID"].asString() ){
++				c_uuid = devs["eth1"]["UUID"].asString().c_str();
++				nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++				devs["eth1"].removeMember("UUID");
++			}
++		}
++
++		/* Create connections if needed */
++		mem=devs.getMemberNames();
++		for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
++			Json::Value val=devs[*mIt];
++			if (!val.isMember("UUID") && val.isMember("addressing")){
++				string con_type = "802-3-ethernet";
++				GMainLoop *loop = g_main_loop_new (NULL, FALSE);
++				connection = nm_simple_connection_new ();
++				s_con = (NMSettingConnection *) nm_setting_connection_new ();
++				devs[*mIt]["UUID"] = nm_utils_uuid_generate ();
++				if (*mIt == "br0") {
++					devs[*mIt]["con-name"] = "LAN-bridge";
++					con_type = "bridge";
++					curif = "br0";
++				} else if (*mIt == "eth0") {
++					devs[*mIt]["con-name"] = "WAN";
++					curif = "eth0";
++				} else if (*mIt == "eth1") {
++					devs[*mIt]["con-name"] = "LAN";
++					curif = "eth1";
++				}
++				g_object_set (G_OBJECT (s_con), NM_SETTING_CONNECTION_UUID, devs[*mIt]["UUID"].asString().c_str(), 
++					NM_SETTING_CONNECTION_ID, devs[*mIt]["con-name"].asString().c_str(), 
++					NM_SETTING_CONNECTION_TYPE, con_type.c_str(), NM_SETTING_CONNECTION_INTERFACE_NAME, curif.c_str(), NULL);
++				nm_connection_add_setting (connection, NM_SETTING (s_con));
++				if (*mIt == "br0") {
++					NMSettingBridge *s_bridge;
++					s_bridge = (NMSettingBridge *) nm_setting_bridge_new ();
++					g_object_set (G_OBJECT (s_bridge), NM_SETTING_BRIDGE_STP, TRUE, NM_SETTING_BRIDGE_HELLO_TIME, 10, 
++						NM_SETTING_BRIDGE_FORWARD_DELAY, 2, NULL);
++					nm_connection_add_setting (connection, NM_SETTING (s_bridge));
++				} else {
++					NMSettingWired *s_wired;
++					s_wired = (NMSettingWired *) nm_setting_wired_new ();
++					nm_connection_add_setting (connection, NM_SETTING (s_wired));
++				}
++				s_ip4 = (NMSettingIP4Config *) nm_setting_ip4_config_new ();
++				g_object_set (G_OBJECT (s_ip4), NM_SETTING_IP_CONFIG_METHOD, NM_SETTING_IP4_CONFIG_METHOD_AUTO, NULL);
++				nm_connection_add_setting (connection, NM_SETTING (s_ip4));
++				nm_client_add_connection_async (client, connection, TRUE, NULL, added_cb, loop);
++				g_object_unref (connection);
++				g_main_loop_run (loop);
++			}
++		}
++
++		/* Create bridge member if needed */
++		if ((devs.isMember("eth1")) && (devs["eth1"]["type"]=="bridge-slave") && (!devs["eth1"].isMember("UUID"))){
++			GMainLoop *loop = g_main_loop_new (NULL, FALSE);
++			connection = nm_simple_connection_new ();
++			s_con = (NMSettingConnection *) nm_setting_connection_new ();
++			g_object_set (G_OBJECT (s_con), NM_SETTING_CONNECTION_UUID, nm_utils_uuid_generate (), 
++				NM_SETTING_CONNECTION_ID, "LAN-slave-eth1", 
++				NM_SETTING_CONNECTION_TYPE, "802-3-ethernet",
++				NM_SETTING_CONNECTION_SLAVE_TYPE, "bridge",
++				NM_SETTING_CONNECTION_MASTER, devs["br0"]["UUID"].asString().c_str(),
++				NM_SETTING_CONNECTION_INTERFACE_NAME, "eth1", 
++				NULL);
++			nm_connection_add_setting (connection, NM_SETTING (s_con));
++			NMSettingBridgePort *s_bridge_port;
++			s_bridge_port = (NMSettingBridgePort *) nm_setting_bridge_port_new ();
++			nm_connection_add_setting (connection, NM_SETTING (s_bridge_port));
++			nm_client_add_connection_async (client, connection, TRUE, NULL, added_cb, loop);
++			g_object_unref (connection);
++			g_main_loop_run (loop);
++		}
++
++		// Bridge slave does not have ip property
++		if ( (devs.isMember("br0")) && (devs.isMember("eth1")) ) {
++			devs.removeMember("eth1");
++		}
++
++		mem=devs.getMemberNames();
++		for(Json::Value::Members::iterator mIt=mem.begin();mIt!=mem.end();mIt++){
++			s_ip6 = (NMSettingIP6Config *) nm_setting_ip6_config_new ();
++			g_object_set (G_OBJECT (s_ip6), NM_SETTING_IP_CONFIG_METHOD, NM_SETTING_IP6_CONFIG_METHOD_IGNORE, NULL);
++			s_ip4 = (NMSettingIP4Config *) nm_setting_ip4_config_new ();
++
++			if (devs[*mIt]["addressing"] == "dhcp") {
++				g_object_set (G_OBJECT (s_ip4), NM_SETTING_IP_CONFIG_METHOD, NM_SETTING_IP4_CONFIG_METHOD_AUTO, NULL);
++			} else if (devs[*mIt]["addressing"] == "static") {
++				size_t j=0;
++				if ( (devs[*mIt]["options"].isMember("address")) && (devs[*mIt]["options"]["address"][j] != "0.0.0.0") ) {
++					g_object_set (G_OBJECT (s_ip4), NM_SETTING_IP_CONFIG_METHOD, NM_SETTING_IP4_CONFIG_METHOD_MANUAL, NULL);
++					NMIPAddress *a_con;
++
++					prefix = 0xffffffff;
++					if (devs[*mIt]["options"].isMember("netmask")) {
++						inet_pton(AF_INET, devs[*mIt]["options"]["netmask"][j].asString().c_str(), &prefix);
++						ss.str("");
++						ss << std::bitset<32>(__builtin_bswap32(prefix)) << '0';
++						if (!(a_con = nm_ip_address_new(AF_INET, devs[*mIt]["options"]["address"][j].asString().c_str(), ss.str().find('0'), &error))) {
++							cerr << "Error adding address " << devs[*mIt]["options"]["address"][j].asString() << "/" << ss.str().find('0') << " => " << error->message << endl;
++							g_error_free (error);
++						}
++						ss.str("");
++					} else {
++						if(!(a_con = nm_ip_address_new(AF_INET, devs[*mIt]["options"]["address"][j].asString().c_str(),32, &error))){
++							cerr << "Error adding address " << devs[*mIt]["options"]["address"][j].asString() << "/32"  << " => " << error->message << endl;
++							g_error_free (error);
++						}
++					}
++					nm_setting_ip_config_add_address((NMSettingIPConfig*)s_ip4, a_con);
++					if (devs[*mIt]["options"].isMember("gateway")) {
++						int addr_bin;
++						int gw_bin;
++						inet_pton(AF_INET, devs[*mIt]["options"]["address"][j].asString().c_str(), &addr_bin);
++						inet_pton(AF_INET, devs[*mIt]["options"]["gateway"][j].asString().c_str(), &gw_bin);
++						if ( (addr_bin & prefix) == (gw_bin & prefix) ) {
++							g_object_set (G_OBJECT (s_ip4), NM_SETTING_IP_CONFIG_GATEWAY, devs[*mIt]["options"]["gateway"][j].asString().c_str(), NULL);
++						}
++					}
++				} else {
++					g_object_set (G_OBJECT (s_ip4), NM_SETTING_IP_CONFIG_METHOD, NM_SETTING_IP4_CONFIG_METHOD_DISABLED, NULL);
++				}
++			}
++
++			c_uuid = devs[*mIt]["UUID"].asString().c_str();
++			connection = (NMConnection*)nm_client_get_connection_by_uuid(client, c_uuid);
++			if ( connection && (s_con = nm_connection_get_setting_connection (connection)) ) {
++				g_object_freeze_notify (G_OBJECT (connection));
++				nm_connection_remove_setting(connection, NM_TYPE_SETTING_IP4_CONFIG);
++				nm_connection_remove_setting(connection, NM_TYPE_SETTING_IP6_CONFIG);
++				nm_connection_add_setting(connection, (NMSetting*) s_ip4);
++				nm_connection_add_setting(connection, (NMSetting*) s_ip6);
++				g_object_thaw_notify (G_OBJECT (connection));
++				if (!nm_remote_connection_commit_changes ((NMRemoteConnection*) connection, TRUE, NULL, &error)) {
++					cerr << "Error updating connection " << c_uuid << " => " << error->message << endl;
++					g_error_free (error);
++				}
++			}
++		}
++	} else {
++		cerr << "Error: NetworkManager is not running" << endl;
+ 	}
+-	FileUtils::Write(IFSFILE,res,0644);
++	if (client) g_object_unref (client);
+ 	return true;
+ }
+ 
+@@ -118,5 +457,3 @@
+ }
+ 
+ }
+-
+-
+--- utils/InterfacesCfg.h
++++ utils/InterfacesCfg.h
+@@ -26,7 +26,8 @@
+ #define INTERFACESCFG_H_
+ 
+ //#define IFSFILE "interfaces"
+-#define IFSFILE "/etc/network/interfaces"
++#define NMCFILE "/etc/NetworkManager/NetworkManager.conf"
++
+ 
+ #include <libeutils/json/json.h>
+ 
