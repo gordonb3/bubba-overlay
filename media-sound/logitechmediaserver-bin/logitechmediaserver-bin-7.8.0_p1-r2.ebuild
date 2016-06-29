@@ -18,13 +18,14 @@ PERL_VER="5.22"
 MY_PN="${PN/-bin}"
 MY_SHORT_PV="${PV/.0}"
 MY_PV="${PV/_*}"
+MY_PP="_${PV/*_}"
 MY_P_BUILD_NUM="${MY_PN}-${MY_PV}-${BUILD_NUM}"
 MY_P="${MY_PN}-${MY_PV}"
-S="${WORKDIR}/${MY_PN}-${PV}-noCPAN"
+S="${WORKDIR}/${MY_PN}-${MY_PV}-noCPAN"
 
 SRC_DIR="LogitechMediaServer_v${MY_PV}"
 SRC_URI="http://downloads.slimdevices.com/${SRC_DIR}/${MY_PN}-${MY_PV}-noCPAN.tgz
-	https://github.com/gordonb3/${MY_PN}-cpan-armel/archive/${PERL_VER}.tar.gz -> ${MY_PN}-CPAN-${PERL_VER}-armel.tgz
+	https://github.com/gordonb3/${MY_PN}-cpan-armel/archive/${PERL_VER}${MY_PP}.tar.gz -> ${MY_PN}-CPAN-${PERL_VER}${MY_PP}-armel.tgz
 "
 HOMEPAGE="http://www.mysqueezebox.com/download"
 BUILD_NUM="1375965195"
