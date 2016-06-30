@@ -23,7 +23,7 @@ DEPEND="
 	dev-libs/libnl
 	dev-libs/libsigc++
 	dev-libs/popt
-	systemd? ( net-misc/networkmanager[-dhclient,dhcpcd] )
+	systemd? ( net-misc/networkmanager )
 "
 
 RDEPEND="${DEPEND}
@@ -81,7 +81,7 @@ src_install() {
 
 		if use systemd; then
 			exeinto /etc/NetworkManager/dispatcher.d/
-			newexe ${FILESDIR}/lan-bridge-dispatcher.sh 30-lan-bridge
+			newexe ${FILESDIR}/lan-bridge.nm-dispatcher 30-lan-bridge
 			fperms 0755 /etc/NetworkManager/dispatcher.d/30-lan-bridge
 		fi
         fi

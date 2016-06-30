@@ -1,0 +1,28 @@
+#!/bin/sh
+
+function check_ef() {
+	if [ -e /etc/bubba/easyfind.conf ];then
+		IP=$(echo ${IP4_ADDRESS_0} | cut -d/ -f1)
+
+		if [ "${IP}" != "" ] && $(grep -q "^\s*enable\s*=\s*yes\s*$" /etc/bubba/easyfind.conf); then
+			oldip=$(grep "^\s*ip\s*=" /etc/bubba/easyfind.conf | sed "s/[=#;]/ /g" | awk '{print $2}')
+			if [ "${oldip}" != "${IP}" ];then
+				echo "update easyfind with new address ${IP}"
+				/opt/bubba/bin/ef -j
+			fi
+		fi
+	fi
+}
+
+
+if [ "$1" == $(/opt/bubba/bin/bubba-networkmanager-cli getwanif) ];then
+
+	if [ "$2" == "up" ];then
+		check_ef
+	fi
+
+	if [ "$2" == "dhcp4-change" ];then
+		check_ef
+	fi
+
+fi

@@ -46,7 +46,6 @@ RDEPEND="${DEPEND}
 	dev-python/pyyaml
 	dev-python/twisted-core
 	>=sys-libs/timezone-data-2015e
-	systemd? ( net-misc/networkmanager[-dhclient,dhcpcd] )
 "
 
 S=${WORKDIR}/${PN}
