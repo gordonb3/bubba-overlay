@@ -27,7 +27,7 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	net-misc/dhcpcd
+	!systemd? ( net-misc/dhcpcd )
 	wifi? ( net-misc/bridge-utils
 		net-wireless/hostapd
 		net-wireless/iw

@@ -9,7 +9,6 @@ net-fs/netatalk
 net-fs/samba
 net-ftp/proftpd
 net-mail/fetchmail
-net-misc/dhcpcd
 net-misc/forked-easyfind-client
 net-mail/dovecot
 net-misc/mediatomb
