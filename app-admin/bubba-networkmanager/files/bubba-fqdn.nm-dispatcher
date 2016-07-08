@@ -1,0 +1,75 @@
+#!/bin/sh
+
+function update_hosts() {
+    if [ "${DHCP4_HOST_NAME}" != "" ];then
+        hostname=${DHCP4_HOST_NAME}
+    else
+        hostname=$(hostname)
+    fi
+
+    if [ "${DHCP4_DOMAIN_NAME}" != "" ];then
+        newfqdn=${hostname}.${DHCP4_DOMAIN_NAME}
+    else
+        newfqdn=${hostname}.localdomain
+    fi
+
+    # Did bubba-networkmanager move us from static to DHCP?
+    hostentry=$(grep -m 1 "^256.0.0.1\s" /etc/hosts)
+
+    # Try to find my host entry by name
+    if [ "${hostentry}" = "" ];then
+        hosts=$(grep -c -P "^\d+\..*\s${hostname}\." /etc/hosts)
+        if [ $hosts -eq 1 ];then
+            hostentry=$(grep -P "^\d+\..*\s${hostname}\." /etc/hosts)
+        else
+            hosts=$(grep -c -P "^\d+\..*\s${hostname}(\s|$)" /etc/hosts)
+            if [ $hosts -eq 1 ];then
+                hostentry=$(grep -P "^\d+\..*\s${hostname}(\s|$)" /etc/hosts)
+            fi
+        fi
+    fi
+
+    # Otherwise fill it with any existing entry for the newly given IP
+    if [ "${hostentry}" = "" ];then
+        hostentry=$(grep -m 1 "^${DHCP4_IP_ADDRESS}\s" /etc/hosts)
+    fi
+
+    # Construct a new host entry
+    if [ "${hostentry}" != "" ];then
+        oldip=$(echo ${hostentry} | awk '{print $1}')
+        netnames=$(echo ${hostentry} | awk '$1="";1')
+        oldname=$(echo ${netnames} | awk '{print $1}' | cut -d. -f1)
+        if [ "${oldname}" = "${hostname}" ]; then
+            netnames=$(echo ${netnames} | awk '$1="";1')
+        fi
+        oldname=$(echo ${netnames} | awk '{print $1}')
+        if [ "${oldname}" = "${hostname}" ];then
+            netnames=$(echo ${netnames} | awk '$1="";1')
+        fi
+        numaltnames=$(echo $netnames | awk '{print NF}')
+        if [ ${numaltnames} -eq 0 ]; then
+            newentry=$(echo -e "${DHCP4_IP_ADDRESS}\t${newfqdn}\t${hostname}")
+        else
+            newentry=$(echo -e "${DHCP4_IP_ADDRESS}\t${newfqdn}\t${hostname}\t")$(echo $netnames | sed "s/\s\s*/\t/g")
+        fi
+        if [ "${newentry}" != "${hostentry}" ];then
+            sed -i "/^${oldip}/c\\${newentry}" /etc/hosts
+        fi
+    else
+        sed -i "s/$//" /etc/hosts
+        echo -e "${DHCP4_IP_ADDRESS}\t${newfqdn}\t${hostname}" >> /etc/hosts
+    fi
+}
+
+
+if [ "$2" = "up" ] && [ "${DHCP4_IP_ADDRESS}" != "" ] && [ "${CONNECTION_ID/-*}" = "LAN" ];then
+    if [ -e /run/NetworkManager/${CONNECTION_ID/-*}.iplast ];then
+        DHCP4_IP_OLDADDRESS=$(cat /run/NetworkManager/${CONNECTION_ID/-*}.iplast)
+        if [ "${DHCP4_IP_ADDRESS}" != "${DHCP4_IP_OLDADDRESS}" ] && [ "${DHCP4_IP_OLDADDRESS}" != "" ];then
+            sed -i "s/^${DHCP4_IP_OLDADDRESS}\s/256.0.0.1  /" /etc/hosts
+        fi
+    fi
+    update_hosts
+    echo -n ${DHCP4_IP_ADDRESS} > /run/NetworkManager/${CONNECTION_ID/-*}.iplast
+fi
+

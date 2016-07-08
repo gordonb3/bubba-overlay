@@ -23,11 +23,11 @@ DEPEND="
 	dev-libs/libnl
 	dev-libs/libsigc++
 	dev-libs/popt
-	systemd? ( net-misc/networkmanager )
+	systemd? ( net-misc/networkmanager[dhcpcd,-dhclient] )
 "
 
 RDEPEND="${DEPEND}
-	!systemd? ( net-misc/dhcpcd )
+	net-misc/dhcpcd
 	wifi? ( net-misc/bridge-utils
 		net-wireless/hostapd
 		net-wireless/iw
@@ -89,8 +89,14 @@ src_install() {
 	insinto /etc/dnsmasq.d
 	newins ${FILESDIR}/dnsmasq.conf bubba.conf
 
-	insinto /lib/dhcpcd/dhcpcd-hooks
-	doins ${FILESDIR}/bubba-fqdn.hook
+	if use systemd; then
+		exeinto /etc/NetworkManager/dispatcher.d/
+		newexe ${FILESDIR}/bubba-fqdn.nm-dispatcher 50-bubba-fqdn
+		fperms 0755 /etc/NetworkManager/dispatcher.d/50-bubba-fqdn
+	else
+		insinto /lib/dhcpcd/dhcpcd-hooks
+		doins ${FILESDIR}/bubba-fqdn.hook
+	fi
 }
 
 
