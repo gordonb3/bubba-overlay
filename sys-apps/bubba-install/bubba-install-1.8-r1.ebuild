@@ -44,7 +44,7 @@ pkg_postinst() {
 	local OPTS="FORCEINSTALL"
 
 	if use minimal; then
-		OPTS="${OPTS} onlyexist"
+		OPTS="${OPTS} minimal"
 	fi
 
 	if use liveusb; then
