@@ -4,7 +4,7 @@
 
 EAPI="4"
 
-inherit eutils user systemd
+inherit eutils user
 
 KEYWORDS="~arm ~ppc"
 
