@@ -20,11 +20,9 @@ HOMEPAGE="http://www.sgal.org"
 SLOT="0"
 LICENSE="GPL-3"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache +bubba"
+IUSE="+apache"
 
-DEPEND="
-	bubba? ( app-admin/bubba ) 
-"
+DEPEND=""
 
 RDEPEND="${DEPEND}"
 
