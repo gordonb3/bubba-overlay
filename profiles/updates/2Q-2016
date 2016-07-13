@@ -1,0 +1,2 @@
+move app-admin/bubba virtual/bubba
+move net-misc/bubba-easyfind  net-misc/forked-easyfind-client
