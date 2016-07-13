@@ -26,6 +26,9 @@ case $key in
     *)
 	if [ ${doshow} -eq 1 ]; then
 	    Package=$1
+	    if [ "$Package" = "bubba" ]; then
+		Package=bubbagen
+	    fi
 	    if [ "$Package" = "bubba3-kernel" ]; then
 		Version=$(uname -r)
 	    else 
@@ -37,6 +40,7 @@ case $key in
 		Status="install ok installed"
 	    fi
 
+	    Package=$1
 	    eval "echo -e -n ${showformat}"
 	fi
             # unknown option
