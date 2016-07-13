@@ -33,7 +33,7 @@ S=${WORKDIR}/${PN}
 
 pkg_setup() {
 	if [ ! -e /usr/lib/libexpect.so ]; then
-		ln -s $(ls /usr/lib/expect*/libexpect*.so) /usr/lib/libexpect.so
+		ln -sf $(ls /usr/lib/expect*/libexpect*.so) /usr/lib/libexpect.so
 	fi
 }
 
