@@ -18,7 +18,7 @@ IUSE="systemd"
 
 DEPEND=""
 
-RDEPEND="${DEPEND}"
+RDEPEND="systemd? ( sys-apps/systemd )"
 
 
 S=${WORKDIR}/buttond
