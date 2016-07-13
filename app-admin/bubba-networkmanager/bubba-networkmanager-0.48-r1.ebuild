@@ -32,6 +32,7 @@ RDEPEND="${DEPEND}
 		net-wireless/hostapd
 		net-wireless/iw
 		net-wireless/wireless-tools )
+	systemd? ( sys-apps/systemd )
 "
 
 S=${WORKDIR}/${PN}-${MY_PV}

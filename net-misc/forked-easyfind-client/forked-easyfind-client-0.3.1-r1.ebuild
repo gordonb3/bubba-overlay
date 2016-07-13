@@ -26,6 +26,7 @@ IUSE="+dhcp +remote-router systemd"
 RDEPEND="net-misc/curl
 	dev-libs/json-c
 	!<net-misc/bubba-easyfind-3
+	systemd? ( sys-apps/systemd ) 
 "
 
 DEPEND="${RDEPEND}"

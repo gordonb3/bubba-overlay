@@ -45,6 +45,7 @@ RDEPEND="${DEPEND}
 	www-apps/codeigniter-bin
 	dev-php/libbubba-info-php
 	dev-php/PEAR-HTTP_Request2
+	systemd? ( sys-apps/systemd )
 "
 
 S=${WORKDIR}/${PN}
