@@ -10,6 +10,7 @@ EnvironmentFile=/etc/conf.d/bubba-firewall
 ExecStart=/opt/bubba/sbin/bubba-firewall.sh start
 ExecReload=/opt/bubba/sbin/bubba-firewall.sh reload
 ExecStop=/opt/bubba/sbin/bubba-firewall.sh stop
+RemainAfterExit=yes
 
 [Install]
 WantedBy=basic.target
