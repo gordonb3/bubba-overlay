@@ -1,3 +1,9 @@
+2016-12-14
+
+Remove twisted-core from dependency list
+  this was a left behind requirement for the old easyfind scripts
+
+-------------------------------------------------------------------
 2016-06-16
 
 Allow building for systemd platform 
