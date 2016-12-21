@@ -7,8 +7,8 @@ EAPI="5"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-COMMIT="9817a5e"
-CTIME="2016-10-24 08:44:40 +0200"
+COMMIT="7affb87"
+CTIME="2016-12-13 08:44:57 +0100"
 
 SRC_URI="https://github.com/domoticz/domoticz/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
@@ -17,7 +17,7 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="systemd telldus openzwave"
+IUSE="systemd telldus openzwave python"
 
 
 RDEPEND="net-misc/curl
@@ -29,6 +29,7 @@ RDEPEND="net-misc/curl
 	sys-libs/zlib
 	telldus? ( app-misc/telldus-core )
 	openzwave? ( dev-libs/openzwave )
+	python? ( dev-lang/python )
 "
 
 DEPEND="${RDEPEND}
@@ -65,6 +66,11 @@ src_prepare() {
 		-e "s:\${USE_STATIC_BOOST}:OFF:" \
 		-i CMakeLists.txt
 
+	use python || {
+		sed \
+		-e "/option(USE_PYTHON_PLUGINS/c option(USE_PYTHON_PLUGINS NO)" \
+		-i CMakeLists.txt
+	}
 
 }
 
@@ -74,6 +80,7 @@ src_configure() {
 		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
 		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
 		-DBoost_INCLUDE_DIR="OFF"
+		-DUSE_STATIC_BOOST="OFF"
 	)
 
 	cmake-utils_src_configure
@@ -99,3 +106,4 @@ src_install() {
 	touch ${ED}/var/lib/${PN}/.keep_db_folder
 
 }
+

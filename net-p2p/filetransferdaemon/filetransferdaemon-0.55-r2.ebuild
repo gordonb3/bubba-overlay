@@ -21,7 +21,7 @@ DEPEND="
 	dev-libs/libsigc++
 	dev-libs/popt
 	dev-libs/boost
-	libtorrent? ( net-libs/rb_libtorrent )
+	libtorrent? ( <net-libs/rb_libtorrent-1 )
 "
 
 RDEPEND="${DEPEND}
