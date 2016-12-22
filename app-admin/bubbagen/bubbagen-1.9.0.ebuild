@@ -30,11 +30,11 @@ RDEPEND="${DEPEND}
 	sys-power/bubba-buttond
 "
 
-#src_unpack() {
-#	default
-#
-#	mv ${WORKDIR}/${PN}* ${S}
-#}
+src_unpack() {
+	default
+
+	mv ${WORKDIR}/${PN}* ${S}
+}
 
 src_prepare() {
 	# Git does not support empty folders
