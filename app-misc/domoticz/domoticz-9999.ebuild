@@ -14,7 +14,7 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="systemd telldus openzwave"
+IUSE="systemd telldus openzwave python"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -25,6 +25,7 @@ RDEPEND="net-misc/curl
 	sys-libs/zlib
 	telldus? ( app-misc/telldus-core )
 	openzwave? ( dev-libs/openzwave )
+	python? ( dev-lang/python )
 "
 
 DEPEND="${RDEPEND}
@@ -38,6 +39,12 @@ src_prepare() {
 	sed \
 		-e "s:\${USE_STATIC_BOOST}:OFF:" \
 		-i CMakeLists.txt
+
+	use python || {
+		sed \
+		-e "/option(USE_PYTHON_PLUGINS/c option(USE_PYTHON_PLUGINS NO)" \
+		-i CMakeLists.txt
+	}
 }
 
 src_configure() {
@@ -45,6 +52,8 @@ src_configure() {
 		-DCMAKE_BUILD_TYPE="Release"
 		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
 		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
+		-DBoost_INCLUDE_DIR="OFF"
+		-DUSE_STATIC_BOOST="OFF"
 	)
 
 	cmake-utils_src_configure
