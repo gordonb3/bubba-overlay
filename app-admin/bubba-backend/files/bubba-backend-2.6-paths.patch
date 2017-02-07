@@ -93,6 +93,22 @@ Patch by Gordon Bos
  	}
  	return rtrim($lanif);
  }
+@@ -430,12 +430,12 @@
+ 
+ function get_interface_info($iface){
+ 	$res=array();
+-	exec("/sbin/ifconfig $iface",$out,$ret);
++	exec("/bin/ifconfig $iface",$out,$ret);
+ 	foreach($out as $line){
+-		if(preg_match("/inet addr:([\d.]+)/",$line,$match)){
++		if(preg_match("/inet ([\d.]+)/",$line,$match)){
+ 			$res[0]=$match[1];
+ 		}
+-		if(preg_match("/Mask:([\d.]+)/",$line,$match)){
++		if(preg_match("/netmask ([\d.]+)/",$line,$match)){
+ 			$res[1]=$match[1];
+ 		}
+ 	}
 @@ -472,12 +472,12 @@
  		$iface=_getlanif();
  	}
