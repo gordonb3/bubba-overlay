@@ -18,7 +18,7 @@ IUSE=""
 
 DEPEND="
 	dev-libs/glib
-	<dev-libs/libsigc++-2.6
+	<dev-libs/libsigc++-2.6:2
 	dev-libs/popt
 	dev-tcltk/expect
 	dev-util/cppunit
@@ -32,8 +32,9 @@ S=${WORKDIR}/${PN}
 
 
 pkg_setup() {
-	if [ ! -e /usr/lib/libexpect.so ]; then
-		ln -sf $(ls /usr/lib/expect*/libexpect*.so) /usr/lib/libexpect.so
+	if [ ! -e ${ROOT}/usr/lib/libexpect.so ]; then
+		rm -f ${ROOT}/usr/lib/libexpect.so
+		ln -s $(ls ${ROOT}/usr/lib/expect*/libexpect*.so) ${ROOT}/usr/lib/libexpect.so
 	fi
 }
 
