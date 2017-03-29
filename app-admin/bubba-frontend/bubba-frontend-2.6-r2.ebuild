@@ -70,6 +70,7 @@ src_unpack() {
 src_prepare() {
 	# Fix patch errors due to DOS line endings in some files
 	sed -i "s/\r$//" ${S}/admin/controllers/ajax_settings.php
+	sed -i "s/\r$//" ${S}/admin/libraries/Session.php
 
 	# Patch source files
 	epatch ${FILESDIR}/${PN}-${MY_PV}-gentoo.patch
@@ -78,7 +79,7 @@ src_prepare() {
 		epatch ${FILESDIR}/${PN}-${MY_PV}-samba4.patch
 	fi
 	epatch ${FILESDIR}/${PN}-${MY_PV}-minidlna.patch
-
+	epatch ${FILESDIR}/${PN}-${MY_PV}-php7.patch
 
 	# debug USE flag enables extra logging in web UI
 	if use debug; then
