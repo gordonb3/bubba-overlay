@@ -18,10 +18,10 @@ IUSE="+apache2 +upload +libtorrent systemd"
 
 DEPEND="
 	dev-libs/libeutils
-	dev-libs/libsigc++
+	<dev-libs/libsigc++-2.6:2
 	dev-libs/popt
 	dev-libs/boost
-	libtorrent? ( <net-libs/rb_libtorrent-1 )
+	libtorrent? ( net-libs/libtorrent-rasterbar )
 "
 
 RDEPEND="${DEPEND}
@@ -32,7 +32,7 @@ S=${WORKDIR}/${PN}
 
 
 src_prepare() {
-	epatch ${FILESDIR}/${P}.patch
+	epatch ${FILESDIR}/${PF}.patch
 
 	if ! use libtorrent; then 
 		sed \

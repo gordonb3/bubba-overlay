@@ -1,0 +1,67 @@
+Fix compatibility issues with upgraded libtorrent-rasterbar
+
+Patch by Gordon Bos
+
+--- src/Downloader.h
++++ src/Downloader.h
+@@ -30,6 +30,7 @@
+ #include <config.h>
+ #endif
+ 
++#include <unistd.h>
+ #include <string>
+ #include <map>
+ #include <list>
+--- src/TorrentDownloader.cpp
++++ src/TorrentDownloader.cpp
+@@ -309,7 +309,7 @@
+ 		atp.ti=ti;
+ 		atp.save_path=this->destinationpath;
+ 		atp.duplicate_is_error=true;
+-		atp.resume_data=resume_data;
++		std::copy (resume_data->begin(), resume_data->end(), std::back_inserter(atp.resume_data));
+ 		atp.paused=false;
+ 		this->handle=this->mgr->GetSession().add_torrent(atp);
+ #endif
+@@ -331,11 +331,7 @@
+ 		// TODO: Maybe read this from config
+ 		this->handle.set_max_connections(40);
+ 		this->handle.set_max_uploads(-1);
+-#if LIBTORRENT_VERSION_MINOR > 13
+ 		this->handle.set_sequential_download(false);
+-#else
+-		this->handle.set_sequenced_download_threshold(15);
+-#endif
+ 	}catch(libtorrent::invalid_torrent_file& itf){
+ 		syslog(LOG_ERR,"Invalid torrent file");
+ 		result=false;
+@@ -446,7 +446,7 @@
+ 
+ 		torrent_info ti=this->handle.get_torrent_info();
+ 		for(torrent_info::file_iterator fIt=ti.begin_files();fIt!=ti.end_files();fIt++){
+-			string filename=(*fIt).path.native_file_string();
++			string filename=ti.files().file_path(*fIt);
+ 
+             boost::filesystem::path p(filename);
+             if(boost::filesystem::exists(p)) {
+@@ -1026,7 +1026,8 @@
+ 
+ 	this->s.set_settings(settings);
+ 
+-	if(!this->s.listen_on(make_pair(startport,endport))){
++	this->s.listen_on(make_pair(startport,endport));
++	if(!this->s.is_listening()){
+ 		syslog(LOG_CRIT,"Could not open a listening port.");
+ 		throw std::runtime_error("Could not open a listening port.");
+ 	}
+--- src/filetransferdaemon.cpp
++++ src/filetransferdaemon.cpp
+@@ -134,7 +134,7 @@
+ int main(int argc,char** argv){
+ 	int daemonize=0;
+ 	int version=0;
+-	const char* group="www-data";
++	const char* group="apache";
+ 
+ 	try {
+ 		openlog("ftd",LOG_PERROR,LOG_DAEMON);
