@@ -1,4 +1,4 @@
-#!/sbin/runscript
+#!/sbin/openrc-run
 
 set_phpvars() {
 	PHP_FPM_PID="/run/bubba-adminphp.pid"
