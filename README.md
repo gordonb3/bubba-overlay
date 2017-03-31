@@ -17,15 +17,15 @@ The web admin interface requires a web server to operate. Supported web servers 
 
 <p><br>Current optional packages are:</p>
 
-#### Singapore 0.10.1
+#### Singapore 0.10.1 (unmaintained)
 This is a web image gallery I'm offering as a replacement for bubba album. Quite fond of this app myself and a pre is that it does not require bulky, memory consuming, MySQL to run.
 (Apache configured systems only - should work with nginx configured systems as well but will require manual configuration of the web server)
 
-#### 'Bubba-ized' Roundcube 1.0.6
+#### 'Bubba-ized' Roundcube
 The original portage ebuild for this app uses an install scheme that appears to be intended for much larger schemes than we're going for with this personal device. We also like to obfuscate web content that should be readily available (i.e. can not be deleted through the samba share) and this install matches the vhost definition we created for the bubba web admin interface.
 (Apache configured systems only - should work with nginx configured systems as well but will require manual configuration of the web server)
 
-#### File Transfer Daemon 0.55
+#### File Transfer Daemon
 This package adds download and upload capabilities to the bubba web admin. Uploading files requires the use of apache web server running the web admin. Downloading of torrents has been made an optional component (but is currently enabled by default) in this Excito original code that was written against rb_libtorrent &lt; 0.16. The torrent module has no magnet support and rb_libtorrent functions that currently only generate warnings about being deprecated may fail in the future. Torrent support may at some time default to not being enabled and eventually be removed all together.
 
 #### Gentoo sources
@@ -39,10 +39,10 @@ Originally this is part of the bubba-backend package, but I've decided to make t
 
 Update: as of 27-07-2015 Rodeus, who now owns Excito, has taken control over the old Excito infrastructure that was temporarily and very gracefully hosted on the mybubba.org domain. New B3's should now also be able to use this service.
 
-#### Forked Easyfind Client 0.3
+#### Forked Easyfind Client
 This is a fork of a new easyfind client written in C by Charles Leclerc (MouettE). Its functionality has been extended to allow seemless integration with the existing Bubba UI and the Gentoo package makes it a plug-in replacement for the original Perl and Python based Bubba Easyfind scripts.
 
-#### Logitech Media Server 7.8.0
+#### Logitech Media Server
 Although being meant a binary distribution, they stopped shipping the platform dependant libraries for ARMv5 a long time ago. This is therefore a source build and it's perl dependencies may pull in up to ~100 additional packages.
 
 #### Domoticz
