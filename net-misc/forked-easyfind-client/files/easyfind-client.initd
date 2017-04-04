@@ -1,4 +1,4 @@
-#!/sbin/runscript
+#!/sbin/openrc-run
 
 NAME=easyfind-client
 DAEMON=/opt/bubba/sbin/efd

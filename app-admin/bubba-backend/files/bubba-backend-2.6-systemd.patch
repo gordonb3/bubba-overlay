@@ -5,7 +5,7 @@ Patch by Gordon Bos
 --- bubba-firewall.sh
 +++ bubba-firewall.sh
 @@ -1,4 +1,4 @@
--#!/sbin/runscript
+-#!/sbin/openrc-run
 +#!/bin/sh
  # Converted from Gentoo iptables initd script
  # Copyright 1999-2013 Gentoo Foundation

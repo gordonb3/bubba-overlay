@@ -1,4 +1,4 @@
-#!/sbin/runscript
+#!/sbin/openrc-run
 
 DESC="File Transfer Daemon"
 NAME=ftd
