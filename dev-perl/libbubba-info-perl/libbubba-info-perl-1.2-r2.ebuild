@@ -16,11 +16,12 @@ SLOT="0"
 KEYWORDS="~arm ~ppc"
 IUSE=""
 
-DEPEND=""
-
-RDEPEND="${DEPEND}
+DEPEND="
 	dev-lang/perl:=
 	dev-libs/libbubba-info
+"
+
+RDEPEND="${DEPEND}
 "
 
 src_prepare() {
