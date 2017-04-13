@@ -19,13 +19,14 @@ IUSE="+apache2 nginx systemd"
 
 REQUIRED_USE="^^ ( apache2 nginx )"
 
-DEPEND=""
+DEPEND="
+	dev-lang/perl:=
+"
 
 RDEPEND="${DEPEND}
 	app-admin/bubba-diskmanager
 	app-admin/bubba-networkmanager
 	app-arch/zip
-	dev-lang/perl:=
 	dev-perl/Config-Simple
 	dev-perl/Config-Tiny
 	dev-perl/Crypt-PasswdMD5
