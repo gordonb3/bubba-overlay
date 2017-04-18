@@ -199,7 +199,9 @@ src_install() {
 			rm -r "${ED}${OPTDIR}"/CPAN/arch/"${arch}"
 		fi
 	done
-	rm -r "${ED}${OPTDIR}"/CPAN/Compress
+	if [ "${PERL_VER}" != "5.20" ]; then
+		rm -r "${ED}${OPTDIR}"/CPAN/Compress
+	fi
 }
 
 lms_starting_instr() {
