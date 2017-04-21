@@ -23,7 +23,7 @@ MY_PV="$(get_version_component_range 2)${MY_PV_EXT}"
 AT_arm="ejdk-${MY_PV}-linux-arm-sflt.tar.gz"
 
 DEB_DIST="http://security.debian.org/debian-security/pool/updates/main/o/"
-DEB_VERSION="7u95-2.6.4-1~deb8u1"
+DEB_VERSION="7u121-2.6.8-2~deb8u1"
 DEB_PKGS=( jre-headless jre jdk )
 DEB_ARCH="armel" 
 
