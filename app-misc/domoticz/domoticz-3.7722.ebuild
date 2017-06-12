@@ -68,7 +68,7 @@ src_prepare() {
 
 	use telldus || {
 		sed \
-		-e "s/libtelldus-core.so/libtelldus-core.so.invalid" \
+		-e "s/libtelldus-core.so/libtelldus-core.so.invalid/" \
 		-e "/Found telldus/d" \
 		-i CMakeLists.txt
 	}
