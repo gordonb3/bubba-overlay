@@ -7,8 +7,8 @@ components.
 
 Patch by Gordon Bos
 
---- Makefile.PL
-+++ Makefile.PL
+--- a/Makefile.PL
++++ b/Makefile.PL
 @@ -2,5 +2,5 @@
  use ExtUtils::MakeMaker;
  
@@ -17,8 +17,8 @@ Patch by Gordon Bos
 -	INSTALLSITESCRIPT => '$(PREFIX)/lib/web-admin');
 +	INSTALLVENDORSCRIPT => '/opt/bubba/bin',
 +	INSTALLSITESCRIPT => '/opt/bubba/bin');
---- bubba-aptd.tac
-+++ bubba-aptd.tac
+--- a/bubba-aptd.tac
++++ b/bubba-aptd.tac
 @@ -414,13 +414,13 @@
  
      # Current LAN interface
@@ -44,8 +44,8 @@ Patch by Gordon Bos
              stdout=subprocess.PIPE
          ).communicate()[0].strip()
      )
---- bubba-easyfind.hook
-+++ bubba-easyfind.hook
+--- a/bubba-easyfind.hook
++++ b/bubba-easyfind.hook
 @@ -9,5 +9,5 @@
  else
          # Update easyfind db
@@ -53,8 +53,8 @@ Patch by Gordon Bos
 -        /usr/lib/web-admin/easyfind.pl
 +        /opt/bubba/bin/easyfind.pl
  fi
---- bubba-easyfind.tac
-+++ bubba-easyfind.tac
+--- a/bubba-easyfind.tac
++++ b/bubba-easyfind.tac
 @@ -88,7 +88,7 @@
  """
  
@@ -73,8 +73,8 @@ Patch by Gordon Bos
          stdout=subprocess.PIPE
      ).communicate()[0].strip()
  
---- web-admin/bin/adminfunctions.php
-+++ web-admin/bin/adminfunctions.php
+--- a/web-admin/bin/adminfunctions.php
++++ b/web-admin/bin/adminfunctions.php
 @@ -2,7 +2,7 @@
  # Setting the ctype locale to en_US.UTF-8, mostly to enamble escapeshellargs to function properly
  setlocale( LC_CTYPE, 'en_US.UTF-8' );
@@ -163,8 +163,8 @@ Patch by Gordon Bos
  	}
  
  	if( count($versions) == 1 ) {
---- web-admin/bin/backup.pl
-+++ web-admin/bin/backup.pl
+--- a/web-admin/bin/backup.pl
++++ b/web-admin/bin/backup.pl
 @@ -30,7 +30,7 @@
  use constant NCFTPLS          => "/usr/bin/ncftpls";
  use constant MSGFILE          => "/tmp/backup.README";
@@ -187,8 +187,8 @@ Patch by Gordon Bos
  
  use constant DEBUG => 0;
  
---- web-admin/bin/diskdaemon.pl
-+++ web-admin/bin/diskdaemon.pl
+--- a/web-admin/bin/diskdaemon.pl
++++ b/web-admin/bin/diskdaemon.pl
 @@ -25,9 +25,9 @@
  use POSIX ":sys_wait_h";
  use IPC::SysV qw(IPC_CREAT IPC_RMID S_IRUSR ftok);
@@ -202,8 +202,8 @@ Patch by Gordon Bos
  use constant DELAY          => 20;
  
  my $daemon = Proc::Daemon->new(
---- web-admin/bin/easyfind.pl
-+++ web-admin/bin/easyfind.pl
+--- a/web-admin/bin/easyfind.pl
++++ b/web-admin/bin/easyfind.pl
 @@ -8,7 +8,7 @@
  
  use strict;
@@ -213,8 +213,8 @@ Patch by Gordon Bos
  use constant KEY => "/etc/network/bubbakey";
  use constant BOOTARGS => "/proc/cmdline";
  
---- web-admin/lib/Bubba.pm
-+++ web-admin/lib/Bubba.pm
+--- a/web-admin/lib/Bubba.pm
++++ b/web-admin/lib/Bubba.pm
 @@ -589,7 +589,7 @@
  sub power_off{
  	use Bubba::Info;

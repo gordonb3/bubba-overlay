@@ -3,8 +3,8 @@ For this project we need smbd instead
 
 Patch by Gordon Bos
 
---- web-admin/bin/adminfunctions.php
-+++ web-admin/bin/adminfunctions.php
+--- a/web-admin/bin/adminfunctions.php
++++ b/web-admin/bin/adminfunctions.php
 @@ -416,7 +416,7 @@
  		if(query_service("avahi-daemon")){
  			restart_service("avahi-daemon");
@@ -14,8 +14,8 @@ Patch by Gordon Bos
  			restart_samba();
  		}
  		if(query_service("forked-daapd")){
---- web-admin/lib/Bubba.pm
-+++ web-admin/lib/Bubba.pm
+--- a/web-admin/lib/Bubba.pm
++++ b/web-admin/lib/Bubba.pm
 @@ -498,7 +498,7 @@
  # Return : Status of operation.
  

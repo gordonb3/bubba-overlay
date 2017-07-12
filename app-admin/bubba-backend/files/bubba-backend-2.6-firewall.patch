@@ -9,8 +9,8 @@ This patch causes the firewall functions to use these user defined tables instea
 
 Patch by Gordon Bos
 
---- web-admin/bin/adminfunctions.php
-+++ web-admin/bin/adminfunctions.php
+--- a/web-admin/bin/adminfunctions.php
++++ b/web-admin/bin/adminfunctions.php
 @@ -925,53 +925,53 @@
  	$retval["allowIMAP"]=false;
  	$retval["allowTorrent"]=false;
@@ -162,8 +162,8 @@ Patch by Gordon Bos
  				exec($cmd,$out,$ret);
  			}
  			unset($out); // exec seems to append to $out.
---- web-admin/bin/firewall.pl
-+++ web-admin/bin/firewall.pl
+--- a/web-admin/bin/firewall.pl
++++ b/web-admin/bin/firewall.pl
 @@ -1,11 +1,12 @@
 -#! /usr/bin/perl 
 +#!/usr/bin/perl 

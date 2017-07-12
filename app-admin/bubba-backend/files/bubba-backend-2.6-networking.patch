@@ -2,8 +2,8 @@ Fix various issues with networking
 
 Patch by Gordon Bos
 
---- web-admin/bin/adminfunctions.php
-+++ web-admin/bin/adminfunctions.php
+--- a/web-admin/bin/adminfunctions.php
++++ b/web-admin/bin/adminfunctions.php
 @@ -467,6 +467,8 @@
  	return $res;
  }
@@ -21,8 +21,8 @@ Patch by Gordon Bos
  
  function set_static_netcfg($iface, $ip,$nm,$gw){
     
---- web-admin/lib/Bubba.pm
-+++ web-admin/lib/Bubba.pm
+--- a/web-admin/lib/Bubba.pm
++++ b/web-admin/lib/Bubba.pm
 @@ -532,6 +532,28 @@
  
  }

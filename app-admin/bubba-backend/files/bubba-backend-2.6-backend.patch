@@ -2,8 +2,8 @@ Fix various build issues and system incompatibilities
 
 Patch by Gordon Bos
 
---- personal-setting-files.txt
-+++ personal-setting-files.txt
+--- a/personal-setting-files.txt
++++ b/personal-setting-files.txt
 @@ -1,22 +1,23 @@
  # network related
 -/etc/network/interfaces
@@ -46,8 +46,8 @@ Patch by Gordon Bos
  
  # Bubba diverted configs
  /etc/bubba/*
---- web-admin/MANIFEST
-+++ web-admin/MANIFEST
+--- a/web-admin/MANIFEST
++++ b/web-admin/MANIFEST
 @@ -2,14 +2,11 @@
  MANIFEST
  lib/Bubba.pm
@@ -63,8 +63,8 @@ Patch by Gordon Bos
  bin/backup.pl
  bin/diskdaemon.pl
  bin/notify-dispatcher.pl
---- web-admin/Makefile.PL
-+++ web-admin/Makefile.PL
+--- a/web-admin/Makefile.PL
++++ b/web-admin/Makefile.PL
 @@ -8,7 +8,6 @@
  	'bin/backend.pl',
  	'bin/disk.pl',
@@ -73,8 +73,8 @@ Patch by Gordon Bos
  	'bin/backup.pl',
  	'bin/diskdaemon.pl',
  	'bin/notify-dispatcher.pl',
---- web-admin/bin/adminfunctions.php
-+++ web-admin/bin/adminfunctions.php
+--- a/web-admin/bin/adminfunctions.php
++++ b/web-admin/bin/adminfunctions.php
 @@ -1302,7 +1302,7 @@
  
  function get_timezone_info() {
@@ -84,8 +84,8 @@ Patch by Gordon Bos
  	if ($h_zonebase = opendir($zoneinfo)) {
  		
  		$zones = array();
---- web-admin/lib/Bubba.pm
-+++ web-admin/lib/Bubba.pm
+--- a/web-admin/lib/Bubba.pm
++++ b/web-admin/lib/Bubba.pm
 @@ -416,13 +416,9 @@
     my ($name)=@_;
     my $ret=0;
