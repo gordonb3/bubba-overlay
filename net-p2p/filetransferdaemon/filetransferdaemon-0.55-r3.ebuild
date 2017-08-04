@@ -8,7 +8,7 @@ inherit eutils systemd
 
 DESCRIPTION="Excito library utils"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.excito.org/pool/main/f/${PN}/${PN}_${PV}.tar.gz"
+SRC_URI="http://b3.update.excito.org/pool/main/f/${PN}/${PN}_${PV}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"

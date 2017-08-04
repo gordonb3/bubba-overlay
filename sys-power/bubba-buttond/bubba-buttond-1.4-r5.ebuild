@@ -8,7 +8,7 @@ inherit eutils systemd
 
 DESCRIPTION="Excito B3 power control"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
+SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"

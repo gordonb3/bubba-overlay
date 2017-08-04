@@ -10,10 +10,10 @@ DESCRIPTION="Excito B2 manual"
 HOMEPAGE="http://www.excito.com/"
 
 if [[ ${PR} == "r0" ]] ; then
-	SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.xz"
+	SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.xz"
 else
 	REV=${PR/r/rc}
-	SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${PV}~${REV}.tar.xz"
+	SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}~${REV}.tar.xz"
 fi
 
 

@@ -9,7 +9,7 @@ inherit eutils perl-module systemd
 MY_PV=${PV/_*/}
 DESCRIPTION="Excito B3 administrative scripts"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz"
+SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"

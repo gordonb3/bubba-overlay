@@ -8,7 +8,7 @@ inherit eutils
 
 DESCRIPTION="Bubba disk manager handles disk functions for the Bubba web frontend"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
+SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"

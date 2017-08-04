@@ -16,7 +16,7 @@ JQ_PV="1.4.2"
 JQUI_PV="1.8.12"
 DESCRIPTION="Excito B3 administrative scripts"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz
+SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${MY_PV}.tar.gz
 	http://code.jquery.com/jquery-${JQ_PV}.js
 	http://code.jquery.com/ui/${JQUI_PV}/jquery-ui.js -> jquery-ui-${JQUI_PV}.js"
 
