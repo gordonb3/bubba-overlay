@@ -10,7 +10,6 @@ net-ftp/proftpd
 net-mail/fetchmail
 net-misc/forked-easyfind-client
 net-mail/dovecot
-net-misc/mediatomb
 net-misc/minidlna
 net-misc/ntp
 net-p2p/filetransferdaemon
