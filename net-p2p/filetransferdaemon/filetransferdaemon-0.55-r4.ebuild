@@ -21,7 +21,7 @@ DEPEND="
 	<dev-libs/libsigc++-2.6:2
 	dev-libs/popt
 	dev-libs/boost
-	libtorrent? ( net-libs/libtorrent-rasterbar )
+	libtorrent? ( <net-libs/libtorrent-rasterbar-1.1 )
 "
 
 RDEPEND="${DEPEND}
@@ -32,7 +32,8 @@ S=${WORKDIR}/${PN}
 
 
 src_prepare() {
-	epatch ${FILESDIR}/${PF}.patch
+	epatch ${FILESDIR}/libtorrent-rasterbar.patch
+	epatch ${FILESDIR}/gcc5.patch
 
 	if ! use libtorrent; then 
 		sed \

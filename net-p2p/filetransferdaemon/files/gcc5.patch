@@ -1,0 +1,149 @@
+Fix compiler issues due to stricter behaviour of GCC 5.x
+
+Patch by Gordon Bos
+
+--- a/src/TorrentDownloader.cpp
++++ b/src/TorrentDownloader.cpp
+@@ -163,8 +163,8 @@
+ 	}
+ 
+ 	// Find directory to write to
+-	string wp="/home/"+User::UIDToUser(this->user);
+-	string suf="/"+FtdConfig::Instance().GetStringOrDefault("torrent","resumepath","torrents/.resumedata");
++	std::string wp="/home/"+User::UIDToUser(this->user);
++	std::string suf="/"+FtdConfig::Instance().GetStringOrDefault("torrent","resumepath","torrents/.resumedata");
+ 
+ 	if(!Stat::DirExists(wp+suf)){
+ 		syslog(LOG_INFO,"Creating resume data directory");
+@@ -199,14 +199,14 @@
+ 
+ 	// Do some sanity checks
+ 	// TODO: evaluate if this is the right thing to do
+-	if(!this->status==FAILED){
++	if(!(this->status==FAILED)){
+ 		syslog(LOG_NOTICE,"Torrent had failures, not writing torrent data");
+ 		return;
+ 	}
+ 
+ 	// Find directory to write to
+-	string wp="/home/"+User::UIDToUser(this->user);
+-	string suf="/torrents/";
++	std::string wp="/home/"+User::UIDToUser(this->user);
++	std::string suf="/torrents/";
+ 	try{
+ 		FtdConfig& cfg=FtdConfig::Instance();
+ 		suf="/"+cfg.GetString("torrent","torrentdir")+"/";
+@@ -220,7 +220,7 @@
+ 		DirWatcher::Instance().AddWatch(wp+suf);
+ 	}
+ 
+-	string fn=wp+suf+".ftdtrXXXXXX";
++	std::string fn=wp+suf+".ftdtrXXXXXX";
+ 
+ 	int fd;
+ 	char *pt=(char*)malloc(fn.length()+1);
+@@ -258,7 +258,7 @@
+ 	close(fd);
+ }
+ 
+-bool TorrentDownloader::StartFromFile(const string& path){
++bool TorrentDownloader::StartFromFile(const std::string& path){
+ 	syslog(LOG_INFO,"Adding download from file %s",path.c_str());
+ 	this->torrentfilename=path;
+ 	filebuf fb;
+@@ -306,7 +306,7 @@
+ #if 1
+ 		//TODO: use when porting to non deprecated API
+ 		add_torrent_params atp;
+-		atp.ti=ti;
++		atp.ti=(boost::intrusive_ptr<libtorrent::torrent_info>)ti;
+ 		atp.save_path=this->destinationpath;
+ 		atp.duplicate_is_error=true;
+ 		std::copy (resume_data->begin(), resume_data->end(), std::back_inserter(atp.resume_data));
+@@ -385,7 +385,7 @@
+ 	syslog(LOG_DEBUG,"Done deferred torrent cleanup");
+ }
+ 
+-void TorrentDownloader::HttpFailed(const string &msg){
++void TorrentDownloader::HttpFailed(const std::string &msg){
+ 
+ 	syslog(LOG_ERR,"Torrent download failed: %s",msg.c_str());
+ 
+@@ -412,7 +412,7 @@
+ 				// Cancel download?
+ 			}
+ 		}
+-	}catch(invalid_handle& ih){
++	}catch(libtorrent::invalid_handle& ih){
+ 
+ 	}
+ }
+@@ -442,7 +442,7 @@
+ 
+ 		torrent_info ti=this->handle.get_torrent_info();
+ 		for(torrent_info::file_iterator fIt=ti.begin_files();fIt!=ti.end_files();fIt++){
+-			string filename=ti.files().file_path(*fIt);
++			std::string filename=ti.files().file_path(*fIt);
+ 
+             boost::filesystem::path p(filename);
+             if(boost::filesystem::exists(p)) {
+@@ -542,7 +542,7 @@
+ 	this->CancelDownload();
+ }
+ 
+-void TorrentDownloader::SetInfo(string info){
++void TorrentDownloader::SetInfo(std::string info){
+ }
+ 
+ /*
+@@ -660,7 +660,7 @@
+ 			ret["state"]="unknown";
+ 			break;
+ 		}
+-	}catch(invalid_handle& ih){
++	}catch(libtorrent::invalid_handle& ih){
+ 		if(this->status==FAILED){
+ 			ret["state"]="failed";
+ 			ret["errmsg"]=this->errmsg;
+@@ -991,7 +991,7 @@
+ 
+ 		entry e;
+ 
+-		string stpath=cfg.GetStringOrDefault("general","statedir","/etc/ftd")+"/dhtstate";
++		std::string stpath=cfg.GetStringOrDefault("general","statedir","/etc/ftd")+"/dhtstate";
+ 		if(Stat::FileExists(stpath)){
+ 			try{
+ 				filebuf fb;
+@@ -1112,7 +1112,7 @@
+ 	return dl;
+ }
+ 
+-Downloader* TorrentDownloadManager::Filter(const URL& url,map<string,string>& hints){
++Downloader* TorrentDownloadManager::Filter(const URL& url,map<std::string,std::string>& hints){
+ 	Downloader* dl=NULL;
+ 	if (url.Scheme()=="http"||url.Scheme()=="https"||url.Scheme()=="ftp") {
+ 		//cerr << "HInt:"<<hints["content-type"]<<endl;
+@@ -1198,7 +1198,7 @@
+ 
+ 
+ 
+-bool TorrentDownloadManager::ProvidesService(const string& service){
++bool TorrentDownloadManager::ProvidesService(const std::string& service){
+ 	return service=="torrent";
+ }
+ 
+@@ -1208,12 +1208,12 @@
+ 	FtdConfig& cfg=FtdConfig::Instance();
+ 
+ 	if(cfg.GetBoolOrDefault("torrent","dhtsupport",false)){
+-		string stpath=cfg.GetStringOrDefault("general","statedir","/etc/ftd");
++		std::string stpath=cfg.GetStringOrDefault("general","statedir","/etc/ftd");
+ 		if(Stat::DirExists(stpath)){
+ 			entry e=this->s.dht_state();
+ 			vector<char> buffer;
+ 			bencode(std::back_inserter(buffer),e);
+-			fstream of(string(stpath+"/dhtstate").c_str(),fstream::out|fstream::binary);
++			fstream of(std::string(stpath+"/dhtstate").c_str(),fstream::out|fstream::binary);
+ 			ostream_iterator<char> oI(of);
+ 			copy(buffer.begin(),buffer.end(),oI);
+ 			of.close();
