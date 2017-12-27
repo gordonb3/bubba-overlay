@@ -23,7 +23,7 @@ MY_PV="$(get_version_component_range 2)${MY_PV_EXT}"
 AT_arm="ejdk-${MY_PV}-linux-arm-sflt.tar.gz"
 
 DEB_DIST="http://ftp.nl.debian.org/debian/pool/main/o"
-DEB_VERSION="8u121-b13-1~bpo8+1"
+DEB_VERSION="8u151-b12-1~deb9u1"
 DEB_PKGS=( jre-headless jre jdk )
 DEB_ARCH="armel" 
 
