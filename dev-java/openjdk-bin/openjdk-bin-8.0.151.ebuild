@@ -120,7 +120,7 @@ src_prepare() {
 	fi
 
 	if use headless-awt; then
-		rm -vr jre/lib/$(get_system_arch)/{xawt,libsplashscreen.*} \
+		rm -vr jre/lib/$(get_system_arch)/libsplashscreen.* \
 		   {,jre/}bin/policytool bin/appletviewer || die
 	fi
 
