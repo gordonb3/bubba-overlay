@@ -124,10 +124,6 @@ src_prepare() {
 		   {,jre/}bin/policytool bin/appletviewer || die
 	fi
 
-	if ! use gtk; then
-		rm -v jre/lib/$(get_system_arch)/libjavagtk.* || die
-	fi
-
 	if [ -d ../java-${SLOT}-openjdk-common ]; then
 		echo "dereference links to ${MY_PN}-${SLOT}-jre-lib_${DEB_VERSION}_all"
 		find -type l | while read link; do
