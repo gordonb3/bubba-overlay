@@ -38,8 +38,8 @@ done
 
 LICENSE="GPL-2-with-linking-exception"
 KEYWORDS="~arm"
-IUSE="+alsa cjk +cups +gtk headless-awt nsplugin nss pulseaudio selinux +webstart"
-REQUIRED_USE="gtk? ( !headless-awt ) nsplugin? ( !headless-awt )"
+IUSE="alsa cups cjk +headless-awt nss selinux"
+REQUIRED_USE=""
 
 RESTRICT="preserve-libs strip mirror"
 QA_PREBUILT="opt/.*"
@@ -83,20 +83,11 @@ RDEPEND=">=dev-libs/glib-2.42:2
 		media-fonts/sazanami
 	)
 	cups? ( >=net-print/cups-2.0 )
-	gtk? (
-		>=dev-libs/atk-2.16.0
-		>=x11-libs/cairo-1.14.2
-		x11-libs/gdk-pixbuf:2
-		>=x11-libs/gtk+-2.24:2
-		>=x11-libs/pango-1.36
-	)
 	selinux? ( sec-policy/selinux-java )"
 
 DEPEND="!arm? ( dev-util/patchelf )"
 
-PDEPEND="webstart? ( dev-java/icedtea-web:0[icedtea7(+)] )
-	nsplugin? ( dev-java/icedtea-web:0[icedtea7(+),nsplugin] )
-	pulseaudio? ( dev-java/icedtea-sound )"
+PDEPEND=""
 
 
 S="${WORKDIR}/openjdk"
