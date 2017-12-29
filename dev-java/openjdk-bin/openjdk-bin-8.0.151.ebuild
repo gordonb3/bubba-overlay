@@ -177,15 +177,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	if use nsplugin; then
-		if [[ -n ${REPLACING_VERSIONS} ]] && ! version_is_at_least 7.2.4.3 ${REPLACING_VERSIONS} ]]; then
-			elog "The nsplugin for icedtea-bin is now provided by the icedtea-web package"
-			elog "If you had icedtea-bin-7 nsplugin selected, you may see a related error below"
-			elog "The switch should complete properly during the subsequent installation of icedtea-web"
-			elog "Afterwards you may verify the output of 'eselect java-nsplugin list' and adjust accordingly'"
-		fi
-	fi
-
 	# Set as default VM if none exists
 	java-vm-2_pkg_postinst
 }
