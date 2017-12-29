@@ -165,15 +165,6 @@ src_install() {
 
 	dodoc ${S}/usr/share/doc/openjdk-${SLOT}-jdk/*
 
-	if use webstart || use nsplugin; then
-		dosym /usr/libexec/icedtea-web/itweb-settings "${dest}/bin/itweb-settings"
-		dosym /usr/libexec/icedtea-web/itweb-settings "${dest}/jre/bin/itweb-settings"
-	fi
-	if use webstart; then
-		dosym /usr/libexec/icedtea-web/javaws "${dest}/bin/javaws"
-		dosym /usr/libexec/icedtea-web/javaws "${dest}/jre/bin/javaws"
-	fi
-
 	# Both icedtea itself and the icedtea ebuild set PAX markings but we
 	# disable them for the icedtea-bin build because the line below will
 	# respect end-user settings when icedtea-bin is actually installed.
