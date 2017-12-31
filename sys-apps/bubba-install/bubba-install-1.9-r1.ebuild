@@ -6,8 +6,8 @@ API=5
 
 KEYWORDS="~arm"
 
-DESCRIPTION="Misc init scripts for the Excito B3 miniserver"
-HOMEPAGE="https://github.com/sakaki-/gentoo-on-b3"
+DESCRIPTION="Installer for Bubbagen on the Excito B3 miniserver"
+HOMEPAGE="https://github.com/gordonb3/bubbagen"
 SRC_URI=""
 LICENSE="GPL-3+"
 SLOT="0"
