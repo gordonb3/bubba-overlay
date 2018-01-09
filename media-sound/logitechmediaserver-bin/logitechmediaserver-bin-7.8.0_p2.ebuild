@@ -33,7 +33,7 @@ DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${MY_PN}"
 RESTRICT="bindist mirror strip"
 SLOT="0"
-IUSE="linguas_he systemd"
+IUSE="systemd"
 
 # Installation dependencies.
 DEPEND="
@@ -131,7 +131,9 @@ src_install() {
 	dodoc "Gentoo-plugins-README.txt"
 
 
-	if ! use linguas_he; then
+	if has he ${LINGUAS} || has he ${L10N}; then
+		einfo "Keeping Hebrew lang files"
+	else
 		rm "${ED}${OPTDIR}"/CPAN/Locale/Hebrew.pm
 		rmdir --ignore-fail-on-non-empty "${ED}${OPTDIR}"/CPAN/Locale
 		rm -r "${ED}${OPTDIR}"/CPAN/arch/*/*/auto/Locale/Hebrew

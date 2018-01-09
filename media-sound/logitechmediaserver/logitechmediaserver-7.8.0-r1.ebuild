@@ -31,7 +31,7 @@ DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${PN}"
 RESTRICT="bindist mirror"
 SLOT="0"
-IUSE="linguas_he systemd"
+IUSE="systemd"
 
 # Installation dependencies.
 DEPEND="
@@ -177,7 +177,8 @@ src_prepare() {
 		-i ../CPAN.upstream/buildme.sh
 
 	# Hebrew language component will cause a QA notice - skip it if not required
-	if has he ${LINGUAS} ; then
+        if has he ${LINGUAS} || has he ${L10N}; then
+                einfo "Enable building of Hebrew lang files"
 		sed -e "/function build_all/c function build_all {\n    build Locale::Hebrew" \
 		-i ../CPAN.upstream/buildme.sh
 	fi
