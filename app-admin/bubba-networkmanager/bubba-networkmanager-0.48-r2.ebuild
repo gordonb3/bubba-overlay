@@ -47,6 +47,7 @@ src_prepare() {
 		epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
 	else
 		epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
+		epatch ${FILESDIR}/${PN}-${MY_PV}-sysfs.patch
 	fi
 }
 
