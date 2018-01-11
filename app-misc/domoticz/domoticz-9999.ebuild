@@ -60,6 +60,7 @@ src_configure() {
 		-DINCLUDE_LINUX_I2C=$(usex i2c)
 		-DINCLUDE_SPI=$(usex spi)
 		-DUSE_STATIC_OPENZWAVE=$(usex openzwave)
+		-DUSE_OPENSSL_STATIC="NO"
 	)
 
 	cmake-utils_src_configure
