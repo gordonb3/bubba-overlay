@@ -83,6 +83,7 @@ src_prepare() {
 	epatch ${FILESDIR}/${PN}-${MY_PV}-minidlna.patch
 	epatch ${FILESDIR}/${PN}-${MY_PV}-php7.patch
 	epatch ${FILESDIR}/gentoo-logo.patch
+        epatch ${FILESDIR}/wifi-no-dhcp.patch
 
 	# debug USE flag enables extra logging in web UI
 	if use debug; then

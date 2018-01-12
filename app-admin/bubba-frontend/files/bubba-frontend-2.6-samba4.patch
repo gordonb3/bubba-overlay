@@ -3,8 +3,8 @@ For this project we need smbd instead
 
 Patch by Gordon Bos
 
---- admin/controllers/services.php
-+++ admin/controllers/services.php
+--- a/admin/controllers/services.php
++++ b/admin/controllers/services.php
 @@ -54,7 +54,7 @@
  		$fetchmail_status=query_service("fetchmail");
  		$fetchmail_enabled=$this->input->post('fetchmail_enabled');
@@ -31,17 +31,8 @@ Patch by Gordon Bos
  				$samba_status=1;        
  			} 		
  		}
---- admin/controllers/settings.php
-+++ admin/controllers/settings.php
-@@ -519,7 +519,7 @@
- 			case "cups":
- 				$dirname = "Cups printserver";
- 				break;
--			case "samba":
-+			case ("samba"):
- 				$dirname = "Samba fileserver";
- 				break;
- 			default:
+--- a/admin/controllers/settings.php
++++ b/admin/controllers/settings.php
 @@ -628,7 +628,7 @@
          }
  

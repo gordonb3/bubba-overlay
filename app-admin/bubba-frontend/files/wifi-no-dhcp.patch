@@ -1,0 +1,35 @@
+Prohibit enabling the WiFi AP when LAN is set to receive a DHCP address
+
+Patch by Gordon Bos
+
+--- a/admin/controllers/network.php
++++ b/admin/controllers/network.php
+@@ -684,9 +684,12 @@
+ 
+ 	function wlan($strip="",$msg=""){
+ 		$conf=parse_ini_file("/home/admin/.bubbacfg");
++		$lifc=$this->networkmanager->get_networkconfig($this->networkmanager->get_lan_interface());
++		$data['dhcp'] = $lifc['dhcp'];
+ 		$data['wlan_configurable'] = $this->networkmanager->exists_wlan_card() 
+ 					&& $this->session->userdata("network_profile") != "custom"
+-					&& $this->system->get_timezone() != "UTC";
++					&& $this->system->get_timezone() != "UTC"
++					&& !$lifc['dhcp'];
+ 		
+ 		if($msg == "update") {
+ 			$data['update'] = 1; // indicate that the user has pressed update with green status bar.
+--- a/admin/views/default/network/network_wlan_view.php
++++ b/admin/views/default/network/network_wlan_view.php
+@@ -1,7 +1,11 @@
+ <? if(!$wlan_configurable): ?>
+ 	<div class="ui-network-information-panel">
+ 		<?=_("These settings are locked")?>&nbsp;.&nbsp;<br />
+-		<?=_("Either no wireless network card is available or no valid timezone is set")?>
++		<? if($dhcp): ?>
++			<?=_("No valid LAN address is set")?>
++		<? else: ?>
++			<?=_("Either no wireless network card is available or no valid timezone is set")?>
++		<? endif ?>
+ 	</div>
+ <? endif ?>
+ <form 
