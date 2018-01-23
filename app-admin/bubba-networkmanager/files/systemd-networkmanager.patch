@@ -2,8 +2,8 @@ Change network settings directly in systemd NetworkManager
 
 Patch by Gordon Bos
 
---- Dispatcher.cpp
-+++ Dispatcher.cpp
+--- a/Dispatcher.cpp
++++ b/Dispatcher.cpp
 @@ -335,6 +335,7 @@
  				// Pick up new if
  				InterfaceController::Up(newif);
@@ -32,8 +32,8 @@ Patch by Gordon Bos
  
  			res["status"]=true;
  		}else{
---- Makefile
-+++ Makefile
+--- a/Makefile
++++ b/Makefile
 @@ -40,8 +40,8 @@
  SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
  OBJS = $(SOURCES:%.cpp=%.o)
@@ -45,8 +45,8 @@ Patch by Gordon Bos
  
  APP_OBJS=$(APP_SRC:%.cpp=%.o)
  DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
---- controllers/InterfaceController.cpp
-+++ controllers/InterfaceController.cpp
+--- a/controllers/InterfaceController.cpp
++++ b/controllers/InterfaceController.cpp
 @@ -628,13 +628,16 @@
  }
  
@@ -67,8 +67,8 @@ Patch by Gordon Bos
 -
  InterfaceController::~InterfaceController(){
  }
---- utils/InterfacesCfg.cpp
-+++ utils/InterfacesCfg.cpp
+--- a/utils/InterfacesCfg.cpp
++++ b/utils/InterfacesCfg.cpp
 @@ -26,7 +26,15 @@
  #include <sstream>
  using namespace std;
@@ -534,8 +534,8 @@ Patch by Gordon Bos
  }
 -
 -
---- utils/InterfacesCfg.h
-+++ utils/InterfacesCfg.h
+--- a/utils/InterfacesCfg.h
++++ b/utils/InterfacesCfg.h
 @@ -26,7 +26,8 @@
  #define INTERFACESCFG_H_
  

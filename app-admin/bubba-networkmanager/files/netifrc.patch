@@ -4,8 +4,8 @@ networking definitions that the Bubba web UI does not handle.
 
 Patch by Gordon Bos
 
---- Dispatcher.cpp
-+++ Dispatcher.cpp
+--- a/Dispatcher.cpp
++++ b/Dispatcher.cpp
 @@ -241,6 +241,7 @@
  		}
  
@@ -56,8 +56,8 @@ Patch by Gordon Bos
  	res["gateway"]=Route::Instance().Default()["gateway"];
  	this->send_jsonvalue(con,res);
  
---- utils/InterfacesCfg.cpp
-+++ utils/InterfacesCfg.cpp
+--- a/utils/InterfacesCfg.cpp
++++ b/utils/InterfacesCfg.cpp
 @@ -22,6 +22,8 @@
      $Id$
  */
@@ -421,8 +421,8 @@ Patch by Gordon Bos
 -
  
 +}
---- utils/InterfacesCfg.h
-+++ utils/InterfacesCfg.h
+--- a/utils/InterfacesCfg.h
++++ b/utils/InterfacesCfg.h
 @@ -26,7 +26,7 @@
  #define INTERFACESCFG_H_
  

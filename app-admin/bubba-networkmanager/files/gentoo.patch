@@ -2,8 +2,8 @@ Gentoo specific file locations and commands
 
 Patch by Gordon Bos
 
---- client.cpp
-+++ client.cpp
+--- a/client.cpp
++++ b/client.cpp
 @@ -20,6 +20,8 @@
  #include <string>
  #include <iostream>
@@ -24,8 +24,8 @@ Patch by Gordon Bos
  	EUtils::NetClient client( command, socket );
  	Json::Reader reader;
  	Json::FastWriter writer;
---- controllers/InterfaceController.cpp
-+++ controllers/InterfaceController.cpp
+--- a/controllers/InterfaceController.cpp
++++ b/controllers/InterfaceController.cpp
 @@ -632,11 +632,11 @@
  }
  
@@ -40,8 +40,8 @@ Patch by Gordon Bos
  }
 
  
---- examplecfg/nmconfig
-+++ examplecfg/nmconfig
+--- a/examplecfg/nmconfig
++++ b/examplecfg/nmconfig
 @@ -1,5 +1,5 @@
  # Internal config file for bubba-network manager. DO not edit
  wanif=eth0
@@ -49,8 +49,8 @@ Patch by Gordon Bos
 -tz_map_file=/usr/share/bubba-networkmanager/tz-lc.txt
 +tz_map_file=/var/lib/bubba/tz-lc.txt
  tz_file=/etc/timezone
---- main.cpp
-+++ main.cpp
+--- a/main.cpp
++++ b/main.cpp
 @@ -56,9 +56,9 @@
      p.AddOption( Option( "debug",'d',Option::Int,"Set debug level","value 0-7 (default is 5 and 7 is max)","5" ) );
      p.AddOption( Option( "version",'v',Option::None,"Show version","","false" ) );
@@ -64,8 +64,8 @@ Patch by Gordon Bos
  
      if ( !p.Parse( argc,argv ) ) {
          syslog( LOG_ERR,"Failed to parse arguments use %s -? for info",argv[0] );
---- scripts/client.py
-+++ scripts/client.py
+--- a/scripts/client.py
++++ b/scripts/client.py
 @@ -9,7 +9,7 @@
  
  def request(req):
@@ -75,8 +75,8 @@ Patch by Gordon Bos
  	client.send(json.dumps(req))
  	d=client.recv(16384);
  	#print "%s"%d
---- utils/WlanCfg.cpp
-+++ utils/WlanCfg.cpp
+--- a/utils/WlanCfg.cpp
++++ b/utils/WlanCfg.cpp
 @@ -46,7 +46,7 @@
  using namespace EUtils;
  using namespace std;

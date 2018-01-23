@@ -2,8 +2,8 @@ Fix compatibility issues with upgraded libtorrent-rasterbar
 
 Patch by Gordon Bos
 
---- src/Downloader.h
-+++ src/Downloader.h
+--- a/src/Downloader.h
++++ b/src/Downloader.h
 @@ -30,6 +30,7 @@
  #include <config.h>
  #endif
@@ -12,8 +12,8 @@ Patch by Gordon Bos
  #include <string>
  #include <map>
  #include <list>
---- src/TorrentDownloader.cpp
-+++ src/TorrentDownloader.cpp
+--- a/src/TorrentDownloader.cpp
++++ b/src/TorrentDownloader.cpp
 @@ -309,7 +309,7 @@
  		atp.ti=ti;
  		atp.save_path=this->destinationpath;
@@ -54,8 +54,8 @@ Patch by Gordon Bos
  		syslog(LOG_CRIT,"Could not open a listening port.");
  		throw std::runtime_error("Could not open a listening port.");
  	}
---- src/filetransferdaemon.cpp
-+++ src/filetransferdaemon.cpp
+--- a/src/filetransferdaemon.cpp
++++ b/src/filetransferdaemon.cpp
 @@ -134,7 +134,7 @@
  int main(int argc,char** argv){
  	int daemonize=0;

@@ -5,8 +5,8 @@ a special entry in /etc/hosts that the hook script will set to the right address
 
 Patch by Gordon Bos
 
---- controllers/InterfaceController.cpp
-+++ controllers/InterfaceController.cpp
+--- a/controllers/InterfaceController.cpp
++++ b/controllers/InterfaceController.cpp
 @@ -520,7 +520,7 @@
  		string hostname=FileUtils::GetContentAsString("/proc/sys/kernel/hostname");
  
@@ -16,8 +16,8 @@ Patch by Gordon Bos
  		Hosts::Entries e=h.Find(hostname);
  		Hosts::UpdateIP(e,ip,hostname);
  
---- utils/Hosts.cpp
-+++ utils/Hosts.cpp
+--- a/utils/Hosts.cpp
++++ b/utils/Hosts.cpp
 @@ -67,8 +67,8 @@
  	if(ip!=""){
  		Hosts::Entry ent(3);

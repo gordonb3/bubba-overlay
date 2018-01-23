@@ -3,8 +3,8 @@ to work with current netlink 3
 
 Patch by Gordon Bos
 
---- Makefile
-+++ Makefile
+--- a/Makefile
++++ b/Makefile
 @@ -40,8 +40,8 @@
  SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
  OBJS = $(SOURCES:%.cpp=%.o)
@@ -16,8 +16,8 @@ Patch by Gordon Bos
  
  APP_OBJS=$(APP_SRC:%.cpp=%.o)
  DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
---- utils/Nl80211.cpp
-+++ utils/Nl80211.cpp
+--- a/utils/Nl80211.cpp
++++ b/utils/Nl80211.cpp
 @@ -25,6 +25,7 @@
  #include <cerrno>
  

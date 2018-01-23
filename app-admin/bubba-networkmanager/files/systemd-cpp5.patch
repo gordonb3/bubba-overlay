@@ -1,6 +1,9 @@
-diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController.cpp
---- a/controllers/InterfaceController.cpp	2018-01-15 20:30:37.665466357 +0100
-+++ b/controllers/InterfaceController.cpp	2018-01-15 20:32:06.095483878 +0100
+Fix changed behavior in c++11 ABI
+
+Patch by Gordon Bos
+
+--- a/controllers/InterfaceController.cpp
++++ b/controllers/InterfaceController.cpp
 @@ -628,11 +628,7 @@
  }
  
@@ -14,9 +17,8 @@ diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController
  }
  
  bool InterfaceController::Down(const string& ifname){
-diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
---- a/utils/InterfacesCfg.cpp	2018-01-15 20:30:37.665466357 +0100
-+++ b/utils/InterfacesCfg.cpp	2018-01-15 20:12:35.135251867 +0100
+--- a/utils/InterfacesCfg.cpp
++++ b/utils/InterfacesCfg.cpp
 @@ -165,7 +165,6 @@
  	string curif;
  	string con_name;

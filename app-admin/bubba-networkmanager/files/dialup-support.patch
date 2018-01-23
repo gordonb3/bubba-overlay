@@ -6,8 +6,8 @@ in /etc/bubba/networkmanager.conf
 
 Patch by Gordon Bos
 
---- controllers/WlanController.cpp
-+++ controllers/WlanController.cpp
+--- a/controllers/WlanController.cpp
++++ b/controllers/WlanController.cpp
 @@ -43,7 +43,7 @@
  	bool haswlan=false;
  	PolicyController& pc=PolicyController::Instance();
@@ -17,8 +17,8 @@ Patch by Gordon Bos
  	for(list<string>::iterator iIt=ifs.begin();iIt!=ifs.end();iIt++){
  		if(pc.Allowed(*iIt,"iswlan")){
  			haswlan=true;
---- controllers/InterfaceController.cpp
-+++ controllers/InterfaceController.cpp
+--- a/controllers/InterfaceController.cpp
++++ b/controllers/InterfaceController.cpp
 @@ -107,19 +107,15 @@
  			continue;
  		}
@@ -43,8 +43,8 @@ Patch by Gordon Bos
  	}
  
  	if(add_virtual_bridge){
---- controllers/PolicyController.cpp
-+++ controllers/PolicyController.cpp
+--- a/controllers/PolicyController.cpp
++++ b/controllers/PolicyController.cpp
 @@ -43,6 +43,9 @@
  	ifprofile["wlan3"]="wlan";
  	ifprofile["wlan4"]="wlan";
