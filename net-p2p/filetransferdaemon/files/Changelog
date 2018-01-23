@@ -1,0 +1,43 @@
+2018-01-19
+
+  * static linking of withheld libsigc++ version 2.4.1
+  * fix build method to support cross-compile
+
+-------------------------------------------------------------------
+2017-12-13
+
+  * code fixes for C++11 ABI
+  * Withhold rb_libtorrent version 1.1
+
+-------------------------------------------------------------------
+2017-03-29
+
+  * Add patch for newer libtorrent-rasterbar
+
+-------------------------------------------------------------------
+2016-12-21
+
+  * Withhold rb_libtorrent version 1.0
+    torrent support does not compile with this version
+
+-------------------------------------------------------------------
+2016-06-17
+
+  * Add systemd service unit
+
+-------------------------------------------------------------------
+2016-05-27
+
+  * change dependencies to withhold libsigc++ version 2.6
+    using the newer library causes compile time errors
+
+-------------------------------------------------------------------
+2015-11-19
+
+  * Allow user to control whether ftd should support uploads and/or
+    torrents
+
+-------------------------------------------------------------------
+2015-11-17
+
+  * first Gentoo release

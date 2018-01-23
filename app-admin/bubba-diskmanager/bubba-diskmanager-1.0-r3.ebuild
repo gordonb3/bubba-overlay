@@ -167,6 +167,7 @@ src_install() {
 	exeinto /opt/bubba/sbin
 	doexe diskmanager
 
-	dodoc debian/changelog debian/copyright
+	dodoc ${FILESDIR}/Changelog debian/copyright
+	newdoc debian/changelog changelog.debian
 }
 

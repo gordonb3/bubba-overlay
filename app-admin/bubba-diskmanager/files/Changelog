@@ -1,0 +1,31 @@
+2018-01-19
+
+  * static linking of withheld libsigc++ version 2.4.1
+  * fix build method to support cross-compile
+
+-------------------------------------------------------------------
+2016-05-27
+
+  * change dependencies to withhold libsigc++ version 2.6
+    using the newer library causes compile time errors
+
+-------------------------------------------------------------------
+2015-11-16
+
+  * Move installation to /opt/bubba tree
+  * Clean up code - remove unneeded symbols
+
+-------------------------------------------------------------------
+2015-08-25
+
+  * Add "~ppc" to keywords to allow install on Bubba|2
+
+-------------------------------------------------------------------
+2015-08-23
+
+  * Correct description field in ebuild file
+
+-------------------------------------------------------------------
+2015-07-07
+
+  * first Gentoo release

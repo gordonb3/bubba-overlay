@@ -193,8 +193,9 @@ src_install() {
 	insinto /opt/bubba/web-admin/ftd
 	doins php/ipc.php
 
-	dodoc debian/changelog debian/copyright
+	dodoc ${FILESDIR}/Changelog debian/copyright
 	newdoc ftdconfig.ini ftdconfig.default
+	newdoc debian/changelog changelog.debian
 
 	if use systemd; then
 		systemd_dounit "${FILESDIR}"/${PN}.service

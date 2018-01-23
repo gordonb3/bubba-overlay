@@ -131,17 +131,16 @@ src_prepare() {
 	sigc_prepare
 	utl_prepare
 
-	epatch ${FILESDIR}/${PN}-${MY_PV}-paths.patch
-	epatch ${FILESDIR}/${PN}-${MY_PV}-nl3.patch
-	epatch ${FILESDIR}/${PN}-${MY_PV}-ifcommands.patch
-	epatch ${FILESDIR}/${PN}-${MY_PV}-ifpolicies.patch
-	epatch ${FILESDIR}/${PN}-${MY_PV}-fqdn.patch
+	epatch ${FILESDIR}/gentoo.patch
+	epatch ${FILESDIR}/netlink3.patch
+	epatch ${FILESDIR}/dialup-support.patch
+	epatch ${FILESDIR}/fqdn-compliancy.patch
 	if use systemd; then
-		epatch ${FILESDIR}/${PN}-${MY_PV}-systemd.patch
+		epatch ${FILESDIR}/systemd-networkmanager.patch
 		epatch ${FILESDIR}/systemd-cpp5.patch
 	else
-		epatch ${FILESDIR}/${PN}-${MY_PV}-netconf.patch
-		epatch ${FILESDIR}/${PN}-${MY_PV}-sysfs.patch
+		epatch ${FILESDIR}/netifrc.patch
+		epatch ${FILESDIR}/netifrc-sysfs.patch
 	fi
 
 	# static linking of libsigc++ and libeutils
@@ -191,7 +190,7 @@ src_install() {
 	insinto /var/lib/bubba
 	doins tz-lc.txt
 
-	dodoc debian/copyright ${FILESDIR}/Changelog
+	dodoc ${FILESDIR}/Changelog debian/copyright
 	newdoc debian/changelog changelog.debian
 
 	# Check whether we have wifi support

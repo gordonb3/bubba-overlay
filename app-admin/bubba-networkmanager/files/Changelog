@@ -1,61 +1,125 @@
+2018-01-19
+
+  * static linking of withheld libsigc++ version 2.4.1
+  * fix build method to support cross-compile
+
+-------------------------------------------------------------------
+2018-01-15
+
+  * code fixes for C++11 ABI
+
+-------------------------------------------------------------------
+2018-01-09
+
+  * Netifrc/Brctl migration to sysfs
+
+-------------------------------------------------------------------
+2016-07-08
+
+  * Revert switch from dhcpcd to dhclient on systemd:
+    dhclient does not properly support a fallback IP, causing an
+    undefined network if the Live-USB is used in a network without
+    an existing DHCP server.
+
+-------------------------------------------------------------------
+2016-07-01
+
+  * Remove dependency on dhcpcd when on systemd
+
+-------------------------------------------------------------------
+2016-06-30
+
+  * Add NetworkManager dispatcher scripts to replace dhcpcd hooks
+
+-------------------------------------------------------------------
+2016-06-29
+
+  * Add support for systemd (gnome NetworkManager)
+
+-------------------------------------------------------------------
+2016-05-27
+
+  * change dependencies to withhold libsigc++ version 2.6
+    using the newer library causes compile time errors
+
+-------------------------------------------------------------------
+2015-12-18
+
+  * Add dependencies for supporting wifi in bubba-networkmanager
+
+-------------------------------------------------------------------
 2015-12-14
-Fix dhcpcd hook script - remove debug lines
-Upgrade package status to release
+
+  * Fix dhcpcd hook script - remove debug lines
+  * Upgrade package status to release
 
 -------------------------------------------------------------------
 2015-11-27
-Fix FQDN compliancy
- - set correct order of full name and short name in /etc/hosts
- - add dhcpcd hook script
+
+  * Fix FQDN compliancy
+     - set correct order of full name and short name in /etc/hosts
+     - add dhcpcd hook script
 
 -------------------------------------------------------------------
 2015-11-16
-Move installation to /opt/bubba tree
-Clean up code - remove unneeded symbols
+
+  * Move installation to /opt/bubba tree
+  * Clean up code - remove unneeded symbols
 
 -------------------------------------------------------------------
 2015-11-09
-Fix hosts file corruption while switching wifi on/off through web admin 
+
+  * Fix hosts file corruption while switching wifi on/off through web admin 
 
 -------------------------------------------------------------------
 2015-11-07
-Procedure for switching the lan interface now working with the
-Gentoo config files
+
+  * Procedure for switching the lan interface now working with the
+    Gentoo config files
 
 -------------------------------------------------------------------
 2015-09-07
-Fix incorrect editing of non-static NICs in bubba-networkmanager 
+
+  * Fix incorrect editing of non-static NICs in bubba-networkmanager 
 
 -------------------------------------------------------------------
 2015-09-02
-Add new policies to allow showing WAN properties when using a
-different device than eth0
+
+  * Add new policies to allow showing WAN properties when using a
+    different device than eth0
 
 -------------------------------------------------------------------
 2015-08-25
-Add "~ppc" to keywords to allow install on Bubba|2
+
+  * Add "~ppc" to keywords to allow install on Bubba|2
 
 -------------------------------------------------------------------
 2015-08-23
-Correct description field in ebuild file
+
+  * Correct description field in ebuild file
 
 -------------------------------------------------------------------
 2015-07-31
-Fix wifi channel listing
+
+  * Fix wifi channel listing
 
 -------------------------------------------------------------------
 2015-07-21
-Change file locations
+
+  * Change file locations
 
 -------------------------------------------------------------------
 2015-07-16
-Now also write the Gentoo 'net' conf file
+
+  * Now also write the Gentoo 'net' conf file
 
 -------------------------------------------------------------------
 2015-07-12
-Fix code to correctly parse Gentoo 'net' conf file
-Adapt old netlink 1 references to work with current netlink 3
+
+  * Fix code to correctly parse Gentoo 'net' conf file
+  * Adapt old netlink 1 references to work with current netlink 3
 
 -------------------------------------------------------------------
 2015-07-07
-Added first release
+
+  * first Gentoo release
