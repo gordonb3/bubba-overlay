@@ -1,0 +1,66 @@
+libbubba-info-php (1.2) vincent hugo; urgency=low
+
+  * Only install ini file in existant directories 
+
+ -- Tor Krill <tor@excito.com>  Wed, 01 Sep 2010 10:24:37 +0200
+
+libbubba-info-php (1.1) unstable; urgency=low
+
+  * fix depends 
+
+ -- Carl Fürstenberg <carl@excito.com>  Fri, 30 Jul 2010 16:38:52 +0200
+
+libbubba-info-perl (1.2) vincent; urgency=low
+
+  * build depends 
+
+ -- Carl Fürstenberg <carl@excito.com>  Fri, 30 Jul 2010 16:21:15 +0200
+
+libbubba-info (1.3) vinvent; urgency=low
+
+  * adding libtool for build-depends 
+
+ -- Carl Fürstenberg <carl@excito.com>  Fri, 30 Jul 2010 14:55:47 +0200
+
+libbubba-info (1.2) vincent; urgency=low
+
+  * read spec wrong, wrong return values 
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 17:47:05 +0200
+
+libbubba-info (1.1) vincent; urgency=low
+
+  * Correct identifier for BubbaServer (B1) to armv4tl
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 17:28:28 +0200
+
+libbubba-info-perl (1.1) vincent; urgency=low
+
+  * wrong PACKAGE 
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 17:03:03 +0200
+
+python-bubba-info (1.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 14:00:47 +0200
+
+libbubba-info-perl (1.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 14:00:47 +0200
+
+libbubba-info-php (1.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 14:00:47 +0200
+
+libbubba-info (1.0) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Carl Fürstenberg <carl@excito.com>  Mon, 26 Jul 2010 14:00:47 +0200
+

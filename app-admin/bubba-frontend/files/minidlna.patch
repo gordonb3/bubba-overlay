@@ -1,0 +1,24 @@
+MiniDLNA apparently requires a huge number of Inotify watches, even though the numbers
+it returns in the warning message don't really confirm this. While the check performed
+by MiniDLNA may be wrong, we still want to get rid of the warning.
+
+This patch adds the logic to the services controller to increase Inotify max_user_watches
+when MiniDLNA is enabled en return to default when the service is disabled.
+
+Patch by Gordon Bos
+
+--- a/admin/controllers/services.php
++++ b/admin/controllers/services.php
+@@ -112,8 +112,12 @@
+ 			if($upnp_status && !$upnp_enabled){
+ 				remove_service("minidlna");
+ 				stop_service("minidlna");
++				unlink('/etc/sysctl.d/minidlna_inotify_watches.conf');
++				file_put_contents('/proc/sys/fs/inotify/max_user_watches', '8192');
+ 				$upnp_status=0;
+ 			}else if(!$upnp_status && $upnp_enabled){
++				file_put_contents('/etc/sysctl.d/minidlna_inotify_watches.conf', 'fs.inotify.max_user_watches = 65538');
++				file_put_contents('/proc/sys/fs/inotify/max_user_watches', '65538');
+ 				add_service("minidlna", 26);
+ 				start_service("minidlna");
+ 				$upnp_status=1;        

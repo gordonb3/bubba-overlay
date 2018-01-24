@@ -1,0 +1,35 @@
+2018-01-22
+
+  * Move away from Debian scattered libs. Combine libbubba-info,
+    libbubba-info-php, libbubba-info-perl and python-bubba-info
+    into a single package
+
+-------------------------------------------------------------------
+2015-12-14
+
+  * libbubba-info-perl: Change install location from 'site' (/usr/local)
+    to 'vendor'
+
+-------------------------------------------------------------------
+2015-07-22
+
+  * libbubba-info-perl: Fix MakeMaker warnings
+
+-------------------------------------------------------------------
+2015-07-22
+
+  * libbubba-info-php: No longer enable the plugin by default on cgi-php 
+    We're moving to fpm-php
+
+-------------------------------------------------------------------
+2015-07-21
+
+  * libbubba-info-php: Fix missing IUSE flag controlling whether to
+    enable the plugin for apache mod_php
+
+-------------------------------------------------------------------
+2015-07-02
+
+  * first Gentoo release
+
+

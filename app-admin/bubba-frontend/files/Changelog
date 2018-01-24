@@ -1,138 +1,146 @@
+2018-01-22
+
+  * Fix "Strict Standards: Only variables should be passed by reference" 
+    message when accessing disk view in developer mode
+  * Dependency move: dev-libs/libbubba-info-php -> sys-apps/bubba-info
+  * Reorganize patches
+
+-------------------------------------------------------------------
+2018-01-12
+
+  * Add Gentoo logo to bubba frontend
+  * Prohibit enabling the WiFi AP when LAN is set to receive a DHCP address
+
+-------------------------------------------------------------------
 2017-03-29
 
-Fix warnings when running with php7
+  * Fix warnings when running with php7
 
 -------------------------------------------------------------------
 2016-06-16
 
-Allow building for systemd platform
+  * Allow building for systemd platform
 
 -------------------------------------------------------------------
 2016-05-09
 
-Let bubba-adminphp initd script verify existence of the php session dir
-and create if needed
-
-Upgrade package status to release
-
--------------------------------------------------------------------
-2015-11-16
-
-Moved bubba-diskmanager to /opt/bubba tree (commands changed)
-
-Changed paths for File Transfer Daemon
-
-Remove reference to Horde in userdel procedure
-
-Let installer add and start bubba-adminphp service
+  * Let bubba-adminphp initd script verify existence of the php session dir
+    and create if needed
+  * Upgrade package status to release
 
 -------------------------------------------------------------------
 2015-11-16
 
-Fixed wlanupdate page always timing out. The only time out that is still
-occurring is when wifi is switched on or off. This is unavoidable and
-will thus remain.
+  * Moved bubba-diskmanager to /opt/bubba tree (commands changed)
+  * Changed paths for File Transfer Daemon
+  * Remove reference to Horde in userdel procedure
+  * Let installer add and start bubba-adminphp service
+
+-------------------------------------------------------------------
+2015-11-16
+
+  * Fixed wlanupdate page always timing out. The only time out that is still
+    occurring is when wifi is switched on or off. This is unavoidable and
+    will thus remain.
 
 -------------------------------------------------------------------
 2015-11-13
 
-Moved bubba-networkmanager to /opt/bubba tree (commands changed)
-
-Fixed an issue with enabling/disabling automatic time updates
-(service renamed)
+  * Moved bubba-networkmanager to /opt/bubba tree (commands changed)
+  * Fixed an issue with enabling/disabling automatic time updates
+    (service renamed)
 
 -------------------------------------------------------------------
 2015-09-12
 
-Sanitized handling of "null" configured NICs (i.e. NICs that do need to
-be initialized because they are part of a bridge or a PPPoE connection
-but should not receive address for themselves). The web UI will now
-display these as having address 0.0.0.0 rather than "automatic" and you
-can also set a NIC to "null" configuration by setting this address in
-the web UI 
+  * Sanitized handling of "null" configured NICs (i.e. NICs that do need to
+    be initialized because they are part of a bridge or a PPPoE connection
+    but should not receive address for themselves). The web UI will now
+    display these as having address 0.0.0.0 rather than "automatic" and you
+    can also set a NIC to "null" configuration by setting this address in
+    the web UI 
 
 -------------------------------------------------------------------
 2015-09-07
 
-Fixed creation of incorrect network conf entries when adapter is set
-to use dhcp or "null"
-
-Fixed race condition during changing of network parameters
-
-Fixed incorrect display of firewall settings due to missing paths
+  * Fixed creation of incorrect network conf entries when adapter is set
+    to use dhcp or "null"
+  * Fixed race condition during changing of network parameters
+  * Fixed incorrect display of firewall settings due to missing paths
 
 -------------------------------------------------------------------
 2015-09-02
 
-Added debug USE flag to bubba-frontend to control whether php errors
-should be shown to the user - as of now the default without this USE
-flag is "not"
-
-Fixed Tor service page
+  * Added debug USE flag to bubba-frontend to control whether php errors
+    should be shown to the user - as of now the default without this USE
+    flag is "not"
+  * Fixed Tor service page
 
 -------------------------------------------------------------------
 2015-08-31
 
-Fixed issue with apache vhost conf file
-
-Added HDD temperature to the stat page, which I only discovered to be
-missing today because it was originally added as an optional element
-and thus did not throw any error or display invalid data.
+  * Fixed issue with apache vhost conf file
+  * Added HDD temperature to the stat page, which I only discovered to be
+    missing today because it was originally added as an optional element
+    and thus did not throw any error or display invalid data.
 
 -------------------------------------------------------------------
 2015-08-25
 
-Fixed issue with latest release of timezone-data (2015e) dropping the
-part of the database that was referenced by bubba-backend.
+  * Fixed issue with latest release of timezone-data (2015e) dropping the
+    part of the database that was referenced by bubba-backend.
 
 -------------------------------------------------------------------
 2015-08-11
 
-Fixed dnsmasq service tracker. Now properly showing service running
-status and display of DHCP leases if applicable.
+  * Fixed dnsmasq service tracker. Now properly showing service running
+    status and display of DHCP leases if applicable.
 
 -------------------------------------------------------------------
 2015-07-31
 
-Fixed the wireless settings being blocked by interfaces not hardcoded in
-bubba-networkmanager. Wireless interface still must be named according
-to the old standards (i.e. wlan0)
+  * Fixed the wireless settings being blocked by interfaces not hardcoded in
+    bubba-networkmanager. Wireless interface still must be named according
+    to the old standards (i.e. wlan0)
 
 -------------------------------------------------------------------
 2015-07-24
 
-Log file listing is now dynamically determined. Added some color scheming to the list as well, so it gets easier to identify what service a log file belongs to.
-
-Fixed an issue with PHP 5.6 and HTTP_RAW_POST_DATA
+  * Log file listing is now dynamically determined. Added some color scheming
+    to the list as well, so it gets easier to identify what service a log file
+    belongs to.
+  * Fixed an issue with PHP 5.6 and HTTP_RAW_POST_DATA
 
 -------------------------------------------------------------------
 2015-07-23
 
-Fixed an issue with the delete user routine - you can't delete a samba
-user if you already deleted the unix user.
-
-Fixed the problem with the obsolete bubba-igd service
-
-Printer service can now also be controlled - it was renamed from 'cups'
-to 'cupsd'
+  * Fixed an issue with the delete user routine - you can't delete a samba
+    user if you already deleted the unix user.
+  * Fixed the problem with the obsolete bubba-igd service
+  * Printer service can now also be controlled - it was renamed from 'cups'
+    to 'cupsd'
 
 -------------------------------------------------------------------
 2015-07-22
-We're moving to fpm because the old cgi method no longer works
-with apache 2.4. Set requirement for apache to >=2.4.9, because we
-want to use a unix socket rather than a tcp port.
+
+  * We're moving to fpm because the old cgi method no longer works
+    with apache 2.4. Set requirement for apache to >=2.4.9, because we
+    want to use a unix socket rather than a tcp port.
 
 -------------------------------------------------------------------
 2015-07-21
-Fix entries in php include ini file
+
+  * Fix entries in php include ini file
 
 -------------------------------------------------------------------
 2015-07-16
-Fixed disk information view. Now properly recognizing system
-partitions rather than rely on hardcoded Excito standards.
+
+  * Fixed disk information view. Now properly recognizing system
+    partitions rather than rely on hardcoded Excito standards.
 
 -------------------------------------------------------------------
 2015-07-07
-Added first release
+
+  * first Gentoo release
 
 

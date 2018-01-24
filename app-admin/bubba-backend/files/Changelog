@@ -1,102 +1,104 @@
+2018-01-22
+
+  * Dependency move: dev-libs/libbubba-info-php -> sys-apps/bubba-info
+  * Reorganize patches
+
+-------------------------------------------------------------------
+2017-04-13
+
+  * Fix dependency: Perl is also required at build time
+
+-------------------------------------------------------------------
 2017-02-07
 
-Fix non working restriction for admin login on WAN interface
+  * Fix non working restriction for admin login on WAN interface
 
 -------------------------------------------------------------------
 2016-12-14
 
-Remove twisted-core from dependency list
-  this was a left behind requirement for the old easyfind scripts
+  * Remove twisted-core from dependency list
+    this was a left behind requirement for the old easyfind scripts
 
 -------------------------------------------------------------------
 2016-06-16
 
-Allow building for systemd platform 
+  * Allow building for systemd platform 
 
 -------------------------------------------------------------------
 2016-05-09
 
-Fix backup routines and	missing	cron entries
-
-Upgrade	package	status to 'release'
+  * Fix backup routines and missing cron entries
+  * Upgrade package status to 'release'
 
 -------------------------------------------------------------------
 2015-12-20
 
-Clean up patch files and add comment section to them
+  * Clean up patch files and add comment section to them
 
 -------------------------------------------------------------------
 2015-12-10
 
-Fixed backup and restore of system settings
-  This procedure is provided as is. Files and/or folders to include
-  as well can be added to /var/lib/bubba/personal-setting-files.txt
+  * Fixed backup and restore of system settings
+    This procedure is provided as is. Files and/or folders to include
+    as well can be added to /var/lib/bubba/personal-setting-files.txt
 
 -------------------------------------------------------------------
 2015-12-06
 
-Fixed incorrect management of fetchmail service:
- - incorrect name for pid file
- - wrong owner and rights on resource file
+  * Fixed incorrect management of fetchmail service:
+     - incorrect name for pid file
+     - wrong owner and rights on resource file
 
 -------------------------------------------------------------------
 2015-11-13
 
-Moved bubba-diskmanager to /opt/bubba tree (commands changed)
-
-Identify pid file for filetransferdaemon (ftd.pid) in code
-
--------------------------------------------------------------------
-2015-11-13
-
-Moved bubba-networkmanager to /opt/bubba tree (commands changed)
+  * Moved bubba-diskmanager to /opt/bubba tree (commands changed)
+  * Moved bubba-networkmanager to /opt/bubba tree (commands changed)
+  * Identify pid file for filetransferdaemon (ftd.pid) in code
 
 -------------------------------------------------------------------
 2015-11-09
 
-Fixed dependency issue with libbubba-info
+  * Fixed dependency issue with libbubba-info
 
 -------------------------------------------------------------------
 2015-09-07
 
-Fixed incorrect display of firewall settings due to missing paths
+  * Fixed incorrect display of firewall settings due to missing paths
 
 -------------------------------------------------------------------
 2015-08-23
 
-Fixed last references towards mybubba.org domain
+  * Fixed last references towards mybubba.org domain
 
 -------------------------------------------------------------------
 2015-07-23
 
-Fixed an issue with the delete user routine - you can't delete a samba
-user if you already deleted the unix user.
-
-Fixed problem with the obsolete bubba-igd service
-
-Fixed printer service name (changed from 'cups' to 'cupsd')
+  * Fixed an issue with the delete user routine - you can't delete a samba
+    user if you already deleted the unix user.
+  * Fixed problem with the obsolete bubba-igd service
+  * Fixed printer service name (changed from 'cups' to 'cupsd')
 
 -------------------------------------------------------------------
 2015-07-21
 
-Fix MakeMaker warnings
+  * Fix MakeMaker warnings
 
 -------------------------------------------------------------------
 2015-07-21
 
-Added identify_box script
-
-Removed easyfind.pl from this install, it conflicts with the
-bubba-easyfind package
+  * Added identify_box script
+  * Removed easyfind.pl from this install, it conflicts with the
+    bubba-easyfind package
 
 
 -------------------------------------------------------------------
 2015-07-16
 
-Fixed editing advanced firewall editing 
+  * Fixed editing advanced firewall editing 
 
 -------------------------------------------------------------------
 2015-07-07
 
-Added first release
+  * first Gentoo release
 

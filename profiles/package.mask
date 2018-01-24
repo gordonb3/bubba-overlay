@@ -1,0 +1,7 @@
+# Gordon Bos <gordon@bosvangennip.nl> (22 Jan 2018)
+# Outdated packages, replaced by sys-apps/bubba-info
+# Please update your dependencies and/or world config
+# Masked for removal in 30 days.
+dev-php/libbubba-info-php
+dev-perl/libbubba-info-php
+dev-python/python-bubba-info

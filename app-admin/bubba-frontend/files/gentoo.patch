@@ -1,0 +1,1176 @@
+The original scripts were written to run with Debian Squeeze. File paths
+for several system functions are different in Gentoo and possibly with newer
+Debian systems as well.
+
+
+Patch by Gordon Bos
+
+--- a/Makefile
++++ b/Makefile
+@@ -120,7 +120,7 @@
+ 		po4a.conf
+ 	rm -f po4a.stamp
+ 
+-locale_dir=$(DESTDIR)/usr/share/web-admin/admin/locale
++locale_dir=$(DESTDIR)/opt/bubba/web-admin/admin/locale
+ 
+ install:
+ 	$(foreach ll,$(basename $(notdir $(wildcard po/php/*.mo))),\
+--- a/admin/config/browser_cap.php
++++ b/admin/config/browser_cap.php
+@@ -3,5 +3,5 @@
+ 
+ $config['cache_path'] = '/var/cache/web-admin';
+ $config['autoupdate'] = false;
+-$config['ini_file'] = '/usr/share/bubba-frontend/lite_php_browscap.ini';
++$config['ini_file'] = '/var/lib/bubba/lite_php_browscap.ini';
+ ?>
+--- a/admin/config/config.php
++++ b/admin/config/config.php
+@@ -11,7 +11,7 @@
+ |	http://www.your-site.com/
+ |
+ */
+-$config['base_url']	= "/admin/";
++$config['base_url']	= preg_replace("|^(/[^/]*/).*$|","\\1",$_SERVER["REQUEST_URI"]);
+ 
+ /*
+ |--------------------------------------------------------------------------
+--- a/admin/controllers/ajax_settings.php
++++ b/admin/controllers/ajax_settings.php
+@@ -74,14 +74,14 @@
+ 	}
+ 
+   function get_versions() {
+-      $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
++      $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","singapore","filetransferdaemon","logitechmediaserver"));
+       $this->session->set_userdata("version",$versions['bubba']);
+-      $this->json_data = $versions;
+-    }
++      $this->json_data = str_replace("null","not installed",$versions);
++  }
+ 
+   function identify() {
+ 	  $this->json_data = true;
+-	  exec("identify_box &>/dev/null &");
++	  exec("/opt/bubba/bin/identify_box &>/dev/null &");
+   }
+ 
+   function update(){
+--- a/admin/controllers/disk.php
++++ b/admin/controllers/disk.php
+@@ -174,6 +174,7 @@
+ 			case '/dev/sda1':
+ 			case '/dev/sda2':
+ 			case '/dev/sda3':
++			case '/dev/sda4':
+ 				continue 2;
+ 			}
+ 
+@@ -217,6 +218,7 @@
+ 		$vgs=$this->disk_model->list_vgs();
+ 		$mds=$this->disk_model->list_mds();
+ 		$fstab=$this->disk_model->list_fstab();
++		$swap=$this->disk_model->list_swap_partitions();
+ 
+ 		$cid = 0;
+ 		$cid_devives = array();
+@@ -225,11 +227,11 @@
+ 
+         if(is_array($indevices)) {
+             foreach( $indevices as $dev ) {
+-                switch( $dev['dev'] ) {
+-                case '/dev/sda1':
+-                case '/dev/sda3':
+-                    continue 2;
+-                }
++//                switch( $dev['dev'] ) {
++//                case '/dev/sda1':
++//                case '/dev/sda3':
++//                    continue 2;
++//                }
+ 
+                 switch( $dev['usage'] ) {
+                 case 'pv':
+@@ -249,10 +251,21 @@
+                     "mounted" => $this->disk_model->is_mounted( $dev['dev'] ),
+                     "mountpath" => array_key_exists( 'mountpath', $dev ) ? $dev['mountpath'] : '',
+                     "label" => array_key_exists( 'label', $dev ) ? $dev['label'] : '',
++                    "system" => false,
+                 );
+             }
+         }
+ 
++		if( is_array( $fstab ) ) {
++			foreach( $fstab as $fs ) {
++				$device = $fs['device'];
++				if( isset( $devices[$device] ) ) {
++					if ( substr($fs['mount'],0,20) != "/home/storage/extern" ) {
++						$devices[$device]['mountpath'] = $fs['mount'];
++					}
++				}
++			}
++		}
+ 
+ 		$cid = 7;
+ 
+@@ -311,14 +324,26 @@
+                 if( array_key_exists( 'partitions', $disk ) ) {
+                     $disk['partitions'] = $this->disk_model->array_sort( $disk['partitions'], 'dev' );
+                     foreach( $disk['partitions'] as &$partition ) {
+-                        switch( $partition['dev'] ) {
+-                        case '/dev/sda1':
+-                        case '/dev/sda3':
+-                            $disk['formatable'] = false;
+-                            $partition['system'] = true;
+-                            break;
++                        if( isset($devices[$partition['dev']]) && ( substr($devices[$partition['dev']]['mountpath'],0,20) != "/home/storage/extern" ) ) {
++				$partition['mountpath'] = $devices[$partition['dev']]['mountpath'];
++			}
++                        if( isset($devices[$partition['dev']]) && isset($swap[$partition['dev']]) ) {
++				$partition['usage'] = "swap";
++				$disk['formatable'] = false;
++				$partition['mountpath'] = '<swap>';
++				$devices[$partition['dev']]['system'] = true;
++				$devices[$partition['dev']]['mountpath'] = "[swap]";
++			}
++                        switch( $partition['mountpath'] ) {
++                        case '':
++			case '/exports':
++                            $partition['cid'] =  isset($cid_devices[$partition['dev']]) ? $cid_devices[$partition['dev']] : "e";
++			    break;
+                         default:
+                             $partition['cid'] =  isset($cid_devices[$partition['dev']]) ? $cid_devices[$partition['dev']] : "e";
++                            $disk['formatable'] = false;
++                            $devices[$partition['dev']]['system'] = true;
++                            break;
+                         }
+                         switch( $partition['usage'] ) {
+                         case 'pv':
+--- a/admin/controllers/downloads.php
++++ b/admin/controllers/downloads.php
+@@ -10,7 +10,9 @@
+ 
+ 		require_once(APPPATH."/legacy/defines.php");
+ 		require_once(ADMINFUNCS);
+-		require_once(IPCFUNCS);
++		if (file_exists(IPCFUNCS)){
++			require_once(IPCFUNCS);
++		}
+ 
+ 		$this->Auth_model->EnforceAuth('web_admin');
+ 		$this->Auth_model->DenyUser('admin');
+@@ -166,6 +168,7 @@
+ 	function index(){
+ 		$data["uuid"]=uniqid("ftd");
+         $data['enabled'] = query_service("filetransferdaemon");
++		$data['installed'] = file_exists(IPCFUNCS);
+ 
+ 		$this->_renderfull($this->load->view(THEME.'/downloads/downloads_index_view',$data,true));
+ 	}	
+--- a/admin/controllers/network.php
++++ b/admin/controllers/network.php
+@@ -472,12 +472,12 @@
+ 
+ 			if($edit) {
+ 				// get current network configuration
+-				$ifc=get_networkconfig($this->networkmanager->get_lan_interface());
+-				$new_port["serverip"] = $ifc[0];
+-				$new_port["netmask"] = $ifc[1];
++				$ifc=$this->networkmanager->get_networkconfig($this->networkmanager->get_lan_interface());
++				$new_port["serverip"] = $ifc["address"];
++				$new_port["netmask"] = $ifc["netmask"];
+ 
+-				$mask = parse_ip($ifc[1]);
+-				$ip = parse_ip($ifc[0]);
++				$mask = parse_ip($ifc["netmask"]);
++				$ip = parse_ip($ifc["address"]);
+ 				$port_ip = parse_ip($new_port["to_ip"]);
+ 				if($portforward) { // only validate IP if it is a portforward
+ 					$valid_ip = validate_ip($port_ip);
+@@ -651,7 +651,7 @@
+ 		if(!$data['dnsmasq_settings']['running']) {
+ 			$data["dnsmasq_settings"]["dhcpd"]=0;
+ 		}
+-		$data["dhcpd_leases"] = get_leases();
++		$data["dhcpd_leases"] = $data['dnsmasq_settings']['dhcpd']? get_leases() : Array();
+ 
+ 		if(count($lifc)>0){
+ 			$data["olip"] = parse_ip( $lifc["address"] );
+@@ -921,7 +921,7 @@
+ 
+ 		// Restart hostapd to make sure we are in a consistent mode
+ 		if($restart){
+-			invoke_rc_d( "hostapd", "restart" );
++			invoke_rc_d( "hostapd", "reload" );
+ 		} 
+ 
+ 		if($strip){
+--- a/admin/controllers/services.php
++++ b/admin/controllers/services.php
+@@ -42,15 +42,12 @@
+ 		$logitechmediaserver_installed=is_installed($logitechmediaserver_packagename);
+ 		$logitechmediaserver_enabled=$this->input->post('logitechmediaserver_enabled');
+    
+-		$print_status=query_service("cups");
++		$print_status=query_service("cupsd");
+ 		$print_enabled=$this->input->post('print_enabled');
+ 
+ 		$download_status=query_service("filetransferdaemon");
+ 		$download_enabled=$this->input->post('download_enabled');
+ 
+-        $igd_status=$this->networkmanager->igd_port_forward_is_enabled();
+-		$igd_enabled=$this->input->post('igd_enabled');
+-
+ 		$imap_status=query_service("dovecot");
+ 		$imap_enabled=$this->input->post('imap_enabled');
+ 
+@@ -132,12 +129,12 @@
+ 			}       
+ 
+ 			if($print_status && !$print_enabled){
+-				remove_service("cups");
+-				stop_service("cups");
++				remove_service("cupsd");
++				stop_service("cupsd");
+ 				$print_status=0;
+ 			}else if(!$print_status && $print_enabled){
+-				add_service("cups");
+-				start_service("cups");
++				add_service("cupsd");
++				start_service("cupsd");
+ 				$print_status=1;        
+ 			}
+ 
+@@ -151,14 +148,6 @@
+ 				$download_status=1;        
+ 			}
+ 
+-            if($igd_status && !$igd_enabled){
+-                $this->networkmanager->enable_igd_port_forward(false);
+-				$igd_status=0;
+-			}else if(!$igd_status && $igd_enabled){
+-                $this->networkmanager->enable_igd_port_forward(true);
+-				$igd_status=1;        
+-			}
+-
+ 			if($fetchmail_status && !$fetchmail_enabled){
+ 				remove_service("fetchmail");
+ 				stop_service("fetchmail");
+@@ -211,7 +200,6 @@
+ 		$data["fetchmail_status"]=$fetchmail_status;
+ 		$data["print_status"]=$print_status;
+ 		$data["download_status"]=$download_status;
+-		$data["igd_status"]=$igd_status;
+ 		$data["samba_status"]=$samba_status;
+ 
+ 		if($strip){
+--- a/admin/controllers/settings.php
++++ b/admin/controllers/settings.php
+@@ -238,9 +238,9 @@
+       $output = old_apt_query_progress();
+       break;
+     case 'get_versions':
+-      $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","bubba-album","filetransferdaemon","logitechmediaserver"));
++      $versions = get_package_version(array("bubba","bubba3-kernel","bubba-frontend","bubba-backend","singapore","filetransferdaemon","logitechmediaserver"));
+       $this->session->set_userdata("version",$versions['bubba']);
+-      $output = json_encode($versions);
++      $output = str_replace("null","not installed",json_encode($versions));
+       break;
+     }
+     syslog( LOG_DEBUG, $output );
+@@ -341,8 +341,8 @@
+     if(!$error && !$ntp) {
+       if(service_running("ntpd")) {
+         // turn off ntp
+-        stop_service("ntp");
+-        remove_service("ntp");
++        stop_service("ntpd");
++        remove_service("ntpd");
+       }
+ 
+       // -- Set date and time
+@@ -361,8 +361,8 @@
+     } else { // use ntp
+       if(!service_running("ntpd")) {
+         // turn on ntp
+-        start_service("ntp");
+-        add_service("ntp");
++        start_service("ntpd");
++        add_service("ntpd");
+       }
+     }
+ 
+@@ -493,52 +493,50 @@
+   function logs($strip=""){
+     $base_path = '/var/log/';
+     # mapping of log file name and path
+-    $logs = array(
+-      'syslog' => 'syslog',
+-      'auth.log' => 'auth.log',
+-      'daemon.log' => 'daemon.log',
+-      'debug' => 'debug',
+-      'dmesg' => 'dmesg',
+-      'dpkg.log' => 'dpkg.log',
+-      'faillog' => 'faillog',
+-      'kern.log' => 'kern.log',
+-      'mail.log' => 'mail.log',
+-      'minidlna.log' => 'minidlna.log',
+-      'user.log' => 'user.log',
+-      'bubba-backup.log' => 'bubba-backup.log',
+-      'forked-daapd.log' => 'forked-daapd.log',
+-      'fsck' => array(
+-        'checkfs' => 'fsck/checkfs',
+-        'checkroot' => 'fsck/checkroot',
+-      ),
+-      'horde' => array(
+-        'horde' => 'horde/horde3.log',
+-      ),
+-      'samba' => array(
+-        'log.all' => 'samba/log.all',
+-        'log.nmbd' => 'samba/log.nmbd',
+-        'log.smbd' => 'samba/log.smbd',
+-      ),
+-      'apache2' => array(
+-        'access.log' => 'apache2/access.log',
+-        'error.log' => 'apache2/error.log',
+-      ),
+-      'cups' => array(
+-        'access_log' => 'cups/access_log',
+-        'error_log' => 'cups/error_log',
+-      ),
+-      'proftpd' => array(
+-        'controls.log' => 'proftpd/controls.log',
+-        'proftpd.log' => 'proftpd/proftpd.log',
+-        'xferlog' => 'proftpd/xferlog',
+-        'xferreport' => 'proftpd/xferreport',
+-      ),
+-      'tor' => 'tor/notices.log',
+-      'Logitech mediaserver' => array(
+-        'server.log' => 'squeezeboxserver/server.log',
+-        'perfmon.log' => 'squeezeboxserver/perfmon.log',
+-      ),
+-    );
++	$logs = array("messages" => "messages");
++
++	foreach (glob($base_path."*",GLOB_MARK) as $node) {
++		if (preg_match("(/$|gz$|tallylog|wtmp|messages|lastlog)",$node)) continue;
++		$nodename = substr($node,9);
++		$logs[$nodename] = $nodename;
++	}
++
++	foreach (glob($base_path."*",GLOB_ONLYDIR) as $dir) {
++		$basename = substr($dir,9);
++		switch ($basename) {
++			case "sandbox":
++				continue 2;
++				break;
++			case "logitechmediaserver":
++				$dirname = "Logitech Mediaserver";
++				break;
++			case "apache2":
++				$dirname = "Apache webserver";
++				break;
++			case "nginx":
++				$dirname = "Nginx webserver";
++				break;
++			case "cups":
++				$dirname = "Cups printserver";
++				break;
++			case "samba":
++				$dirname = "Samba fileserver";
++				break;
++			default:
++				$dirname = $basename;
++				break;
++		}
++		$logs[$dirname] = Array();
++		$path_len = strlen($dir."/");
++		$numlogfiles = 0;
++		foreach (glob($dir."/*",GLOB_MARK) as $node) {
++			if (preg_match("(/$|gz$)",$node)) continue;
++			$nodename = substr($node,$path_len);
++			$logs[$dirname][$nodename] = $basename."/".$nodename;
++			$numlogfiles++;
++		}
++		if (!$numlogfiles) unset($logs[$dirname]);
++	}
+ 
+     function array_values_recursive($array) {
+       $flat = array();
+@@ -649,8 +647,7 @@
+             $valid = $this->networkmanager->easyfind_validate($easyfind_name);
+             if($valid) {
+               $server_response = $this->networkmanager->easyfind_setname($easyfind_name.".".EASYFIND);
+-              $this->networkmanager->enable_igd_easyfind(true);
+-              if($server_response['error']) {
++              if($server_response['error'] != "false") {
+                 $msg = $this->networkmanager->decode_easyfindmsg($server_response);
+                 throw new Exception(sprintf(_("Easyfind failed with following error: %s"), $msg));
+               }
+@@ -670,7 +667,6 @@
+           $update = true;
+ 
+           $server_response = $this->networkmanager->easyfind_setname("");
+-          $this->networkmanager->enable_igd_easyfind(false);
+           if($data['easyfind']['error'] != "false") {
+             $msg = $this->networkmanager->decode_easyfindmsg($data['easyfind']);
+             throw new Exception(sprintf(_("Easyfind failed with following error: %s"), $msg));
+--- a/admin/controllers/stat.php
++++ b/admin/controllers/stat.php
+@@ -36,7 +36,7 @@
+     }
+ 
+     function _getprinters() {
+-        $json =  _system('cups-list-printers');
++        $json =  _system('/opt/bubba/bin/cups-list-printers');
+         return json_decode(implode($json),true);
+     }
+ 
+--- a/admin/controllers/users.php
++++ b/admin/controllers/users.php
+@@ -117,7 +117,7 @@
+ 				) {
+ 					$shell = '/bin/bash';
+ 				} else {
+-					$shell = '/usr/sbin/nologin'; 
++					$shell = '/sbin/nologin'; 
+ 				}
+ 				$group = 'users'; // Static group for em all
+ 	
+@@ -247,7 +247,7 @@
+ 					$this->update_cfg("default_sideboard", $sideboard ? "yes" : "no","admin" );
+ 				}
+ 				*/
+-				if( !$error && update_user($realname,$shell?'/bin/bash':'/usr/sbin/nologin',$username)){
++				if( !$error && update_user($realname,$shell?'/bin/bash':'/sbin/nologin',$username)){
+ 					$error = sprintf(_("Failed to edit account for %s (%3$s) shell: %2$s"), $realname, $shell, $username);
+ 				}		
+ 			} else {
+@@ -296,13 +296,15 @@
+ 					if($userdata){
+ 						if(rm("/home/$username","root")==0){
+ 						}else{
+-							$error = sprintf(_('Was unabler to remove the home directory for user %s'), $username);
++							$error = sprintf(_('Was unable to remove the home directory for user %s'), $username);
+ 						}
++/*
+ 						try {
+ 							purge_horde( $username );
+ 						} catch( AdminException $e ) {
+ 							$error = sprintf(_('Fatal error when trying to purge horde configurations for user %s'),$username);
+ 						}
++*/
+ 					}
+ 				}else{
+ 					$error = sprintf(_('Fatal error when trying to remove the user %s'), $username);
+--- a/admin/controllers/wizard.php
++++ b/admin/controllers/wizard.php
+@@ -116,7 +116,7 @@
+ 
+         try {
+             if( $username && $password1 && $password1 == $password2 ) {
+-                $shell = '/usr/sbin/nologin';
++                $shell = '/sbin/nologin';
+                 $group = 'users'; // Static group for em all
+ 
+                 if (
+@@ -150,8 +150,7 @@
+                 $valid = $this->networkmanager->easyfind_validate($easyfind_name);
+                 if($valid) {
+                   $server_response = $this->networkmanager->easyfind_setname($easyfind_name.".".EASYFIND);
+-                  $this->networkmanager->enable_igd_easyfind(true);
+-                  if($server_response['error']) {
++                  if($server_response['error'] != "false") {
+                     $msg = $this->networkmanager->decode_easyfindmsg($server_response);
+                     throw new Exception(sprintf(_("Easyfind failed with following error: %s"), $msg));
+                   }
+@@ -162,8 +161,7 @@
+               }
+             } else {
+               $server_response = $this->networkmanager->easyfind_setname("");
+-              $this->networkmanager->enable_igd_easyfind(false);
+-              if($server_response['error']) {
++              if($server_response['error'] != "false") {
+                 $msg = $this->networkmanager->decode_easyfindmsg($server_response);
+                 throw new Exception(sprintf(_("Easyfind failed with following error: %s"), $msg));
+               }
+@@ -174,9 +172,9 @@
+         }
+ 
+         if(!empty($errors)) {
+-            $this->output->set_output(json_encode(array('error' => true, 'messages' => $errors)));
++            $this->output->set_output(json_encode(array('error' => "true", 'messages' => $errors)));
+         } else {
+-            $this->output->set_output(json_encode(array('error' => false,)));
++            $this->output->set_output(json_encode(array('error' => "false",)));
+         }
+     }
+ 
+--- a/admin/helpers/bubba_socket_helper.php
++++ b/admin/helpers/bubba_socket_helper.php
+@@ -118,44 +118,44 @@
+ class OldBubbaAptSocket extends BubbaSocket {
+ 	function __construct() {
+ 		parent::__construct( 
+-			'/usr/lib/web-admin/updatebackend.pl', 
++			'/opt/bubba/bin/updatebackend.pl', 
+ 			array( 
+ 				'--mode=ithreads', 
+ 				'--daemonize' 
+ 			), 
+-			'/tmp/bubba-apt.socket'
++			'/run/bubba-apt.socket'
+ 		);
+ 	}
+ }
+ 
+ class OldBubbaHotfixSocket extends BubbaSocket {
+ 	function __construct() {
+-		parent::__construct( '/usr/lib/web-admin/hotfix.pl', array( '--mode=ithreads', '--daemonize' ), '/tmp/bubba-hotfix.socket' );
++		parent::__construct( '/opt/bubba/bin/hotfix.pl', array( '--mode=ithreads', '--daemonize' ), '/run/bubba-hotfix.socket' );
+ 	}
+ }
+ 
+ class BubbaNetworkManagerSocket extends BubbaSocket {
+ 	function __construct() {
+ 		parent::__construct( 
+-			'/usr/sbin/bubba-networkmanager', 
++			'/opt/bubba/sbin/bubba-networkmanager', 
+ 			array(
+-				'--socket', '/tmp/bubba-networkmanager.sock',
+-				'--config', '/etc/bubba-networkmanager.conf'
++				'--socket', '/run/bubba-networkmanager.sock',
++				'--config', '/etc/bubba/networkmanager.conf'
+ 			),
+-			'/tmp/bubba-networkmanager.sock' 
++			'/run/bubba-networkmanager.sock' 
+ 		);
+ 	}
+ }
+ 
+ class BubbaAlbumSocket extends BubbaSocket {
+ 	function __construct() {
+-		parent::__construct( '/usr/sbin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-album.socket' );
++		parent::__construct( '/opt/bubba/bin/album_import.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/run/bubba-album.socket' );
+ 	}
+ }
+ 
+ class BubbaDiskSocket extends BubbaSocket {
+ 	function __construct() {
+-		parent::__construct( '/usr/lib/web-admin/diskdaemon.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/tmp/bubba-disk.socket' );
++		parent::__construct( '/opt/bubba/bin/diskdaemon.pl', array( '--debug', '--mode=ithreads', '--daemonize' ), '/run/bubba-disk.socket' );
+ 	}
+ }
+ function apt_query_progress() {
+--- a/admin/helpers/exec_helper.php
++++ b/admin/helpers/exec_helper.php
+@@ -32,8 +32,8 @@
+ 
+ function invoke_rc_d( $name, $action ) {
+     $cmd = array(
+-        "/usr/sbin/invoke-rc.d", 
+-        "--try-anyway", 
++        "/sbin/rc-service", 
++        "-q", 
+         $name, 
+         $action
+     );
+@@ -42,31 +42,31 @@
+ }
+ 
+ function update_rc_d( $name, $action="defaults", $priority=0, $runlevel=0) {
+-		if( ($runlevel != 0) && ($priority != 0) ) {
+-		  $cmd = array(
+-		      "/usr/sbin/update-rc.d", 
+-		      $name, 
+-		      $action,
+-		      $priority,
+-		      $runlevel,
+-		      "."
+-		  );
+-		} else {
+-		  if($action == "remove") {
+-			  $cmd = array(
+-		      "/usr/sbin/update-rc.d", 
+-		      "-f", 
+-		      $name, 
+-		      $action
+-			  );
+-		  } else {
+-			  $cmd = array(
+-		      "/usr/sbin/update-rc.d", 
+-		      $name, 
+-		      $action
+-				);
+-			}
+-		}
++	if($action == "enable") {
++		$cmd = array(
++			"/sbin/rc-update",
++			"-q",
++			"add",
++			$name,
++			"default"
++		);
++	} elseif($action == "disable") {
++		$cmd = array(
++			"/sbin/rc-update",
++			"-q",
++			"del",
++			$name,
++			"default"
++		);
++	} else {
++		$cmd = array(
++			"/sbin/rc-update",
++			"-q",
++			$action,
++			$name,
++			"default"
++		);
++	}
+ 	exec( escapeshellargs( $cmd ), $output, $retval );
+ 	return $retval == 0;
+ }
+--- a/admin/index.php
++++ b/admin/index.php
+@@ -0,0 +1,32 @@
++<?php
++define('ENVIRONMENT', 'production');
++
++if (defined('ENVIRONMENT'))
++{
++	switch (ENVIRONMENT)
++	{
++		case 'development':
++			error_reporting(E_ALL);
++		break;
++
++		case 'testing':
++		case 'production':
++			error_reporting(0);
++		break;
++
++		default:
++			exit('The application environment is not set correctly.');
++	}
++}
++
++$system_path = "/opt/codeigniter/system/";
++$application_folder = "/opt/bubba/web-admin/admin";
++
++define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
++define('BASEPATH', str_replace("\\", "/", $system_path));
++define('FCPATH', str_replace(SELF, '', __FILE__));
++define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
++define('APPPATH', $application_folder.'/');
++
++require_once BASEPATH.'core/CodeIgniter.php';
++
+--- a/admin/legacy/defines.php
++++ b/admin/legacy/defines.php
+@@ -1,23 +1,24 @@
+ <?php
+ $CI =& get_instance();
+-define("BACKEND","/usr/lib/web-admin/backend.pl");
+-define("BACKUP","/usr/lib/web-admin/backup.pl");
++define("SCRIPTDIR","/opt/bubba/bin");
++define("BACKEND",SCRIPTDIR."/backend.pl");
++define("BACKUP",SCRIPTDIR."/backup.pl");
+ define("RESTORE_LOCKFILE","/var/lock/restore.lock");
+ define("BACKUP_LOCKFILE","/var/lock/backup.lock");
+ 
+-define("UPDATER","/usr/lib/web-admin/updater.pl");
+-define("PRINTFS","/usr/lib/web-admin/print.pl");
+-define("FIREWALL","/usr/lib/web-admin/firewall.pl");
+-define("DISK","/usr/lib/web-admin/disk.pl");
+-define("ADMINFUNCS","/usr/lib/web-admin/adminfunctions.php");
+-define("IPCFUNCS","/usr/share/ftd/ipc.php");
+-define("EASYFIND_CONF","/etc/network/easyfind.conf");
++define("UPDATER",SCRIPTDIR."/updater.pl");
++define("PRINTFS",SCRIPTDIR."/print.pl");
++define("FIREWALL",SCRIPTDIR."/firewall.pl");
++define("DISK",SCRIPTDIR."/disk.pl");
++define("ADMINFUNCS",SCRIPTDIR."/adminfunctions.php");
++define("IPCFUNCS","/opt/bubba/web-admin/ftd/ipc.php");
++define("EASYFIND_CONF","/etc/bubba/easyfind.conf");
+ define("PWFILE","/etc/shadow");
+ define("UINFOFILE","/etc/passwd");
+ define("VERSION","BUBBA_VERSION");
+-define("FORMPREFIX","/admin");
++define("FORMPREFIX",preg_replace("|^(/[^/]*)[/$].*$|","\\1",$_SERVER["REQUEST_URI"]));
+ define("FALLBACKIP","192.168.10.1");
+-define("BUBBA_VERSION","/usr/share/bubba/bubba.version");
++define("BUBBA_VERSION","/etc/bubba/bubba.version");
+ define("USER_CONFIG",".bubbacfg");
+ define("ADMINCONFIG","/home/admin/".USER_CONFIG);
+ 
+--- a/admin/libraries/Browscap_raw.php
++++ b/admin/libraries/Browscap_raw.php
+@@ -136,14 +136,14 @@
+ 	 *
+ 	 * @var string
+ 	 */
+-	public $cacheFilename   = 'cache.php';
++	public $cacheFilename   = '/var/lib/bubba/cache.php';
+ 	
+ 	/**
+ 	 * Where to store the downloaded ini file.
+ 	 *
+ 	 * @var string
+ 	 */
+-	public $iniFilename     = 'browscap.ini';
++	public $iniFilename     = '/var/lib/bubba/browscap.ini';
+ 	
+ 	/**
+ 	 * Path to the cache directory
+--- a/admin/models/auth_model.php
++++ b/admin/models/auth_model.php
+@@ -80,7 +80,7 @@
+ 	private $realname = "";
+ 
+ 	private $_dom;
+-	private $_xml_file = "/etc/bubba_auth.xml";
++	private $_xml_file = "/etc/bubba/auth.xml";
+ 	private $_lock_file = "/var/lock/bubba_auth.lock";
+ 
+ 	function Auth_model(){
+--- a/admin/models/disk_model.php
++++ b/admin/models/disk_model.php
+@@ -1,7 +1,7 @@
+ <?php
+ 
+ class Disk_model extends CI_Model {
+-	private $manager = "/usr/sbin/diskmanager";
++	private $manager = "/opt/bubba/sbin/diskmanager";
+ 	function __construct() {
+ 		parent::__construct();
+ 		$this->load->helper('bubba_socket');		
+@@ -527,8 +527,8 @@
+ 	}
+ 
+ 	function diskdaemon_is_running() {
+-		if( file_exists('/tmp/bubba-disk.socket') ) {
+-			exec( 'fuser -s /tmp/bubba-disk.socket', $ret, $err );
++		if( file_exists('/run/bubba-disk.socket') ) {
++			exec( 'fuser -s /run/bubba-disk.socket', $ret, $err );
+ 			if( $err == 0 ) {
+ 				return true;
+ 			}
+@@ -617,5 +617,16 @@
+ 		return trim($this->_raw_system( "hddtemp", "-n", $dev ));
+ 	}
+ 
++
++	function list_swap_partitions() {
++		$swap_partitions = Array();
++		$swap_on = explode("\n",$this->_raw_system( '/sbin/swapon', '--show' ) );
++		unset($swap_on[0]);
++		foreach( $swap_on as $line ) {
++			$dev = strtok(trim($line), " ");
++			$swap_partitions[$dev] = "swap";
++		}
++		return $swap_partitions;
++	}
+ }
+ 
+--- a/admin/models/menu.php
++++ b/admin/models/menu.php
+@@ -63,14 +63,14 @@
+             ),
+             array(
+                 'label' => pgettext('menu',"Webmail"),
+-                'id' => 'pim',
+-                'uri' => '/pim',
++                'id' => 'webmail',
++                'uri' => '/webmail',
+                 'auth' => false,
+                 'class' => 'ui-login-menubar-a',
+                 'icon' => 'default-icon',
+                 'lock-icon' => array("default-icon-mail","default-icon-mail-lock"),
+                 'abs_uri' => true,
+-                'target' => "window_pim",
++                'target' => "window_webmail",
+             ),
+             array(
+                 'label' => pgettext('menu',"User settings"),
+@@ -250,7 +250,7 @@
+                         'alias' => array('settings/backup','settings/restore'),
+                     ),
+                     array(
+-                        'label' => pgettext('menu',"Software update"),
++                        'label' => pgettext('menu',"Software version"),
+                         'id' => 'settings-update',
+                         'uri' => 'settings/software',
+                     ),
+--- a/admin/models/networkmanager.php
++++ b/admin/models/networkmanager.php
+@@ -156,27 +156,78 @@
+   }
+ 
+   public function set_hostname($name) {
+-    file_put_contents('/etc/hostname', $name);
+-    file_put_contents('/etc/mailname', "$name.localdomain");
+-    _system('hostname', '-F', '/etc/hostname');
++    $hostname = _system('hostname','-f');
++    $oldname = strtok($hostname[0],'.');
++    $olddomain = strtok('#');
++    $newname = strtok($name,'.');
++    $newdomain = ($name=="$newname.")?"":strtok('#');
++    if (!$newdomain) {
++        $newdomain = $olddomain? $olddomain:"localdomain";
++    }
++    file_put_contents('/etc/conf.d/hostname', "hostname=\"$newname\"");
++    _system('rc-config', 'restart', 'hostname');
+ 
+     $lanip = $this->_get_ip($this->get_lan_interface());
++    $oldhosts = _system("grep -m 1 \"^".str_replace('.','\.',$lanip)."\s\" /etc/hosts");
+ 
+-    $hosts = file_get_contents('/usr/share/bubba-backend/hosts.in');
+-    str_replace(
+-      array('@LANIP@', '@NAME@'),
+-      array($lanip, $name),
+-      $hosts
+-    );
++    $newhosts = $lanip;
++    $newhosts .= $newdomain? "\t"."$newname.$newdomain":"";
++    $newhosts .= "\t".$newname;
++
++    if ($oldhosts[0]) {
++        strtok($oldhosts[0]," \t");
++        while ($alias = strtok(" \t")) {
++            switch ($alias) {
++                case "$oldname":
++                    break;
++               	case "$oldname.$olddomain":
++                    break;
++               	default:
++                    $newhosts .= "\t".$alias;
++            }
++       	}
++        $hosts = str_replace($oldhosts[0],$newhosts,file_get_contents('/etc/hosts'));
++    } else {
++        $localhost = _system("grep -m 1 \"^127\.0\.0\.1\s\" /etc/hosts");
++       	if ($localhost[0]) {
++            $hosts = str_replace($localhost[0],$localhost[0]."\n".$newhosts,file_get_contents('/etc/hosts'));
++        } else {
++            $hosts = str_replace(
++                array('@LANIP@', '@NAME@'),
++                array($lanip, $name),
++                file_get_contents('/var/lib/bubba/hosts.in')
++            );
++
++        }
++    }
+     file_put_contents('/etc/hosts', $hosts);
+ 
+-    $dhclient = explode("\n", file_get_contents('/etc/dhcp/dhclient.conf'));
+-    $dhclient = preg_grep("#send host-name#", $dhclient, PREG_GREP_INVERT);
+-    $dhclient[] = "send host-name \"$name\";";
+-
+-    file_put_contents('/etc/dhcp/dhclient.conf', implode( "\n", $dhclient));
+-    $this->ifrestart($this->get_lan_interface());
+-    $this->ifrestart($this->get_wan_interface());
++    $webconf = _system("grep -r \"ServerAlias\s*$oldname\(\|\.$olddomain\)\(\|#.*\)\s*$\" /etc/apache2/vhosts.d/");
++    for ($i=0;$i<sizeof($webconf);$i++) {
++        $conffile = strtok($webconf[$i],":");
++        $oldcontent = strtok("\n");
++        _system("sed -i \"/^".$oldcontent."$/d\" $conffile");
++    }
++
++
++    $webconf = _system("grep -r \"ServerName\s*\($oldname\|b3\)\(\|\.$olddomain\)\(\|#.*\)\s*$\" /etc/apache2/vhosts.d/");
++    for ($i=0;$i<sizeof($webconf);$i++) {
++        $conffile = strtok($webconf[$i],':');
++        $prefix = strtok("S");
++        $oldcontent = $prefix."S".strtok('.');
++        $newcontent = preg_replace("/(".$oldname."|b3)$/",$newname,$oldcontent);
++        if ($newdomain) {
++            $newalias = str_replace("ServerName","ServerAlias",$newcontent);
++            $newcontent .= ".".$newdomain."\\\\n".$newalias;
++        }
++        $oldcontent .= ($domain=strtok("\n"))? ".".$domain:"";
++        _system("sed -i \"s/^".$oldcontent."$/$newcontent/\" $conffile");
++    }
++
++    $lancfg = $this->get_networkconfig($this->get_lan_interface());
++    if ($lancfg["dhcp"]) { $this->ifrestart($this->get_lan_interface()); }
++    $wancfg = $this->get_networkconfig($this->get_wan_interface());
++    if ($wancfg["dhcp"]) { $this->ifrestart($this->get_wan_interface()); }
+ 
+     $proftpd = file_get_contents("/etc/proftpd/proftpd.conf");
+     $proftpd = preg_replace("#ServerName\s*\"[\w-]*\"#", "ServerName\t\t\t\"$name\"", $proftpd);
+@@ -392,7 +443,7 @@
+ 		if($gw!=Null){
+ 			$ret["gateway"]=$gw;
+ 		}
+-		$ret["dhcp"]=($iface["config"]["ethernet"]["addressing"]=="dhcp")?1:0;
++		$ret["dhcp"]=($iface["config"]["ethernet"]["addressing"]!="static")?1:0;
+ 
+ 		return $ret;
+ 	}
+@@ -413,6 +464,12 @@
+ 			start_service("proftpd");
+ 		}
+ 		if($interface == $this->get_lan_interface()) {
++	    if(query_service("apache2")){
++			invoke_rc_d("apache2","reload");
++	    }
++	    if(query_service("nginx")){
++			invoke_rc_d("nginx","reload");
++	    }
+ 	    if(query_service("samba")){
+ 				restart_samba();
+ 	    }
+@@ -489,12 +546,14 @@
+ 	}
+ 
+ 	public function set_lanif( $if ) {
++		// Dont run routines on reload of page
++                if($if == $this->get_lan_interface()) {
++			return;
++		}
+ 
+ 		_system( FIREWALL, 'set_lanif', $if );
+ 		_system( BACKEND, 'set_interface', $if );
+ 
+-        $this->igd_set_interface($if);
+-
+ 		// TODO: Refactor into separate function
+ 		$dnsmasqcfg=get_dnsmasq_settings();
+ 		$dnsmasqcfg["interface"]=$if;
+@@ -927,7 +986,7 @@
+ 		return $this->wanif = $data['wanif'];
+     }
+ 
+-    private $_igd_conf = "/etc/bubba-igd.conf";
++    private $_igd_conf = "/etc/bubba/igd.conf";
+ 
+     private function _igd_ini_get($key) {
+         $data = file_get_contents($this->_igd_conf);
+@@ -1036,7 +1095,7 @@
+     if($this->tor_running()) {
+ 			return $enabled = true;
+ 		} else {
+-			$cmd = 'ps aux | grep "/usr/sbin/tor" | grep -v "grep"';
++			$cmd = 'ps aux | grep "/usr/bin/tor" | grep -v "grep"';
+ 			exec($cmd, $output);
+ 			if($output) {
+ 				return $enabled = true;
+@@ -1202,7 +1261,7 @@
+             "##          Any manual changes in this file might be lost when updating from web-admin.",
+             "##",
+             "",
+-            'Log notice file /var/log/tor/notices.log',
++            'Log notice file /var/log/tor-notices.log',
+             "Nickname $data[nickname]",
+             "ContactInfo $data[contact]",
+             "ORPort $data[relay_port]"
+@@ -1334,19 +1393,19 @@
+         $oldcfg = file_get_contents($cfg_file);
+ 
+         if(preg_match("#ORPort (?P<port>\d+)#", $oldcfg, $m)) {
+-            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'INPUT');
++            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'Bubba_IN');
+         }
+ 
+         if(preg_match("#DirPort (?P<port>\d+)#", $oldcfg, $m)) {
+-            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'INPUT');
++            _system( FIREWALL, 'closeport', $m['port'], 'tcp', 0, 'filter', 'Bubba_IN');
+         }
+ 
+         if( $enabled ) {
+             if($relay_port){
+-                _system( FIREWALL, 'openport', $relay_port, 'tcp', 0, 'filter', 'INPUT');
++                _system( FIREWALL, 'openport', $relay_port, 'tcp', 0, 'filter', 'Bubba_IN');
+             }
+             if($dir_port){
+-                _system( FIREWALL, 'openport', $dir_port, 'tcp', 0, 'filter', 'INPUT');
++                _system( FIREWALL, 'openport', $dir_port, 'tcp', 0, 'filter', 'Bubba_IN');
+             }
+         }
+     }
+--- a/admin/models/oldbackup.php
++++ b/admin/models/oldbackup.php
+@@ -50,7 +50,7 @@
+ }
+ 
+ class Oldbackup extends CI_Model {
+-	private $diskmanager = "/usr/sbin/diskmanager";
++	private $diskmanager = "/opt/bubba/sbin/diskmanager";
+ 
+     public function list_backups($job) {
+         // change this to read a history file with status of each job and time
+--- a/admin/views/default/_js/software.js
++++ b/admin/views/default/_js/software.js
+@@ -12,7 +12,7 @@
+             tr.append(
+             $("<td>").addClass("packagename").text(package_name));
+             tr.append(
+-            $("<td>").addClass("packageversion").text(package_version));
++            $("<td width=\"120px\">").addClass("packageversion").text(package_version));
+             $("#package_versions_body").append(tr);
+         })
+     },
+--- a/admin/views/default/album/album_album_view.php
++++ b/admin/views/default/album/album_album_view.php
+@@ -413,7 +413,7 @@
+ 	<th colspan="2" class="ui-state-default ui-widget-header"><?=_("Existing albums")?></th>
+ </tr>
+ <tr>
+-	<td colspan="2"><div><?=_("Adding images is done using the")?> <a href="/admin/filemanager/cd/home/storage/pictures"><?=_("filemanager")?></a></div></td>
++	<td colspan="2"><div><?=_("Adding images is done using the")?> <a href="<?=FORMPREFIX?>/filemanager/cd/home/storage/pictures"><?=_("filemanager")?></a></div></td>
+ </tr>
+ <tr>
+ 	<td><div id="album_list" /></td>
+--- a/admin/views/default/disk/disk_view.php
++++ b/admin/views/default/disk/disk_view.php
+@@ -87,15 +87,20 @@
+ 	?></td>
+ 	<td><?=isset($devices[$legend['name']]['label'])?$devices[$legend['name']]['label']:""?></td> 
+ 	<td><?=sizetohuman($legend['size'],1000)?>B</td> 
+-	<td><?if(isset($devices[$legend['name']]['mountpath'])):?>
+-		<a href="<?=site_url("filemanager/cd".$devices[$legend['name']]['mountpath'])?>"><?=$devices[$legend['name']]['mountpath']?></a>
++	<td><?if(isset($devices[$legend['name']]['mountpath'])):
++		if(substr($devices[$legend['name']]['mountpath'],0,5) != "/home"):?>
++			<font color="#aaaaaa"><?=$devices[$legend['name']]['mountpath']?></font>
++	        <?else:?>
++			<a href="<?=site_url("filemanager/cd".$devices[$legend['name']]['mountpath'])?>"><?=$devices[$legend['name']]['mountpath']?></a>
++		<?endif?>
+ 	<?endif?></td>
+ 	<td>
+-		<? if( isset($devices[$legend['name']]) ):?>
++		<? if( isset($devices[$legend['name']]) && !$devices[$legend['name']]['system']):?>
+ 		<input type="button" rel="<?=$legend['name']?>" class="button mount <?=$devices[$legend['name']]['mounted']?'mounted':''?>" value="<?=$devices[$legend['name']]['mounted']?_("Disconnect"):_("Connect")?>" /></td>
+ 		<?endif?>
+ </tr>
+ <?endforeach?>
++<!--
+ <tr>
+ 	<td><div class="colorcode partition-system"></div></td>
+ 	<td><?=_("System partitions")?></td>
+@@ -103,4 +108,5 @@
+ 	<td />
+ 	<td />
+ </tr>
++-->
+ </table>
+--- a/admin/views/default/downloads/downloads_index_view.php
++++ b/admin/views/default/downloads/downloads_index_view.php
+@@ -16,7 +16,11 @@
+ 
+ <?if(!$enabled):?>
+ <div class="ui-information-panel">
+-    <?=_("Download service disabled")?>
++    <?if(!$installed):?>
++        <?=_("Download service not installed")?>
++    <?else:?>
++        <?=_("Download service disabled")?>
++    <?endif?>
+ </div>
+ <?endif?>
+ 
+--- a/admin/views/default/help/en/settings_software.html
++++ b/admin/views/default/help/en/settings_software.html
+@@ -1,6 +1,7 @@
+ <h3>
+-  Software update
++  Software version
+ </h3>
++<!--
+ <p>
+   {PLATFORM}'s software can easily be updated to gain new functionality. Press 'Update system', and the update is automatically performed. Please have patient, it might take a while to perform an update.
+ </p>
+@@ -57,6 +58,7 @@
+ <h3>
+   Current package versions
+ </h3>
++-->
+ <p>
+   Detailed information about {PLATFORM} software versions is shown here.
+ </p>
+--- a/admin/views/default/main_view.php
++++ b/admin/views/default/main_view.php
+@@ -83,7 +83,7 @@
+ 
+ var login_dialog;
+ var window_music;
+-var window_pim;
++var window_webmail;
+ var window_album;
+ 
+ jQuery.validator.setDefaults({ 
+--- a/admin/views/default/services/services_view.php
++++ b/admin/views/default/services/services_view.php
+@@ -64,10 +64,6 @@
+       <td><label for=""><?=_('Up and downloads')?></label></td>
+       <td ><input name="download_enabled" type="checkbox" class="slide"value="1" <?= $download_status?"checked=\"checked\"":"" ?>/></td>
+    </tr>	  
+-   <tr>
+-      <td><label for=""><?=_('Remote access through other router')?></label></td>
+-      <td ><input name="igd_enabled" type="checkbox" class="slide"value="1" <?= $igd_status?"checked=\"checked\"":"" ?>/></td>
+-   </tr>	
+ 	<tfoot>
+ 	<tr><td>
+ 	<button class="submit" id="fn-settings-update"><?=_("Update")?></button>
+--- a/admin/views/default/settings/settings_logs_view.php
++++ b/admin/views/default/settings/settings_logs_view.php
+@@ -1,3 +1,4 @@
++<?$bgwhite=true?>
+ <table class="ui-table-outline">
+ <thead>
+     <tr><td colspan="2" class="ui-state-default ui-widget-header"><?=_('Show logs')?></td></tr>
+@@ -8,13 +9,14 @@
+ 	<select name="log" id="settings_log">
+ 	<?foreach( $logs as $name => $path ):?>
+ 		<?if(is_array($path)):?>
+-		<optgroup label="<?=$name?>">
++		<?$bgwhite=!$bgwhite?>
++		<optgroup label="<?=$name?>" style="color:red;<?if(!$bgwhite)echo "background:#eeeeee;"?>">
+ 		<?foreach( $path as $inner_name => $inner_path ):?>
+-			<option <?if(isset($log_name)&& $log_name == $inner_path){echo "selected=\"selected\"";}?> label="<?=$inner_name?>" value="<?=$inner_path?>"> <?=$inner_name?> </option>
++			<option style="color:#333;<?if(!$bgwhite)echo "background:#eeeeee;"?>" <?if(isset($log_name)&& $log_name == $inner_path){echo "selected=\"selected\"";}?> label="<?=$inner_name?>" value="<?=$inner_path?>"> <?=$inner_name?> </option>
+ 		<?endforeach?>
+ 		</optgroup>
+ 		<?else:?>
+-		<option <?if(isset($log_name)&& $log_name == $path){echo "selected=\"selected\"";}?> label="<?=$name?>" value="<?=$path?>"> <?=$name?> </option>
++		<option style="color:#333;" <?if(isset($log_name)&& $log_name == $path){echo "selected=\"selected\"";}?> label="<?=$name?>" value="<?=$path?>"> <?=$name?> </option>
+ 		<?endif?>
+ 	<?endforeach?>
+ 	</select>
+--- a/admin/views/default/settings/settings_software_view.php
++++ b/admin/views/default/settings/settings_software_view.php
+@@ -4,7 +4,7 @@
+ 
+ <div class="ui-indent-margin">
+     <div class="ui-expandable ui-div-small-header"><?=_("Detailed information")?></div>
+-    <div class="ui-helper-hidden">
++<!--    <div class="ui-helper-hidden"> -->
+ 
+         <table id="package_versions" class="ui-table-outline">
+             <thead>
+@@ -22,6 +22,7 @@
+     </div>
+ </div>
+ 
++<!--
+ <form id="update" method="post">
+ 
+     <table class="ui-table-outline">
+@@ -43,3 +44,4 @@
+     <pre id="tmp"></pre>
+ </form>
+ 
++-->
+--- a/admin/views/default/stat/stat_view.php
++++ b/admin/views/default/stat/stat_view.php
+@@ -57,7 +57,7 @@
+ 				</tr>
+ 			</table>
+ 				<form action="settings/software" method="post">
+-					<input type="submit" id="ui-stat-swupdate" value="<?=_("Software update")?>"/>
++					<input type="submit" id="ui-stat-swupdate" value="<?=_("Version info")?>"/>
+ 				</form>
+ 		</td>
+ 	</tr>
