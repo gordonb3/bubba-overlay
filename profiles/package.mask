@@ -1,7 +1,7 @@
 # Gordon Bos <gordon@bosvangennip.nl> (25 Jan 2018)
 # Java 7 is no longer supported on Gentoo
 # Masked for removal in 30 days.
-=dev-java/openjdk-bin-7*y
+=dev-java/openjdk-bin-7*
 
 
 # Gordon Bos <gordon@bosvangennip.nl> (25 Jan 2018)
