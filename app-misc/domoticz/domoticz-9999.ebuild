@@ -14,18 +14,19 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="systemd telldus openzwave python i2c +spi"
+IUSE="systemd telldus openzwave python i2c +spi static-libs"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
 	dev-libs/libusb-compat
 	dev-embedded/libftdi
 	dev-db/sqlite
-	dev-libs/boost
-	sys-libs/zlib
+	dev-libs/boost[static-libs=]
+	sys-libs/zlib[static-libs=]
 	telldus? ( app-misc/telldus-core )
-	openzwave? ( dev-libs/openzwave )
+	openzwave? ( dev-libs/openzwave[static-libs=] )
 	python? ( dev-lang/python )
+	dev-libs/openssl[static-libs=]
 "
 
 DEPEND="${RDEPEND}
@@ -35,15 +36,19 @@ src_prepare() {
 	# link build directory
 	ln -s ${S} ${WORKDIR}/${PF}_build
 
-	# Hard disable static boost:
-	#sed \
-	#	-e "s:\${USE_STATIC_BOOST}:OFF:" \
-	#	-i CMakeLists.txt
-
 	use telldus || {
 		sed \
 		-e "s/libtelldus-core.so/libtelldus-core.so.invalid/" \
 		-e "/Found telldus/d" \
+		-e "/find_path(TELLDUSCORE_INCLUDE/c  set(TELLDUSCORE_INCLUDE NO)" \
+		-e "/Not found telldus-core/c  message(STATUS \"tellstick support disbled\")" \
+		-i CMakeLists.txt
+	}
+
+	use openzwave || {
+		sed \
+		-e "/pkg_check_modules(OPENZWAVE/cset(OPENZWAVE_FOUND NO)" \
+		-e "s/==== OpenZWave.*!/OpenZWave support disabled/" \
 		-i CMakeLists.txt
 	}
 
@@ -55,12 +60,13 @@ src_configure() {
 		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
 		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
 		-DBoost_INCLUDE_DIR="OFF"
-		-DUSE_STATIC_BOOST="NO"
+		-DUSE_STATIC_BOOST=$(usex static-libs)
 		-DUSE_PYTHON=$(usex python)
 		-DINCLUDE_LINUX_I2C=$(usex i2c)
 		-DINCLUDE_SPI=$(usex spi)
-		-DUSE_STATIC_OPENZWAVE=$(usex openzwave)
-		-DUSE_OPENSSL_STATIC="NO"
+		-DUSE_STATIC_OPENZWAVE=$(usex static-libs)
+		-DUSE_OPENSSL_STATIC=$(usex static-libs)
+		-DUSE_STATIC_LIBSTDCXX=$(usex static-libs)
 	)
 
 	cmake-utils_src_configure
