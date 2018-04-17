@@ -7,8 +7,8 @@ EAPI="5"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-COMMIT="da909c2b"
-CTIME="2018-03-27 15:46:33 +0200"
+COMMIT="27c7e89f"
+CTIME="2018-04-16 20:14:39 +0200"
 
 SRC_URI="https://github.com/domoticz/domoticz/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
