@@ -22,7 +22,7 @@ RDEPEND="net-misc/curl
 	dev-embedded/libftdi
 	dev-db/sqlite
 	dev-libs/boost[static-libs=]
-	sys-libs/zlib[static-libs=]
+	sys-libs/zlib[minizip,static-libs=]
 	telldus? ( app-misc/telldus-core )
 	openzwave? ( dev-libs/openzwave[static-libs=] )
 	python? ( dev-lang/python )
@@ -67,6 +67,7 @@ src_configure() {
 		-DUSE_STATIC_OPENZWAVE=$(usex static-libs)
 		-DUSE_OPENSSL_STATIC=$(usex static-libs)
 		-DUSE_STATIC_LIBSTDCXX=$(usex static-libs)
+		-DUSE_BUILTIN_MINIZIP=no
 	)
 
 	cmake-utils_src_configure
