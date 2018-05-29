@@ -7,8 +7,8 @@ EAPI="5"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-COMMIT="97faf435"
-CTIME="2018-04-01 13:32:51 +0200"
+COMMIT="000080de"
+CTIME="2018-05-28 11:25:29 +0200"
 
 SRC_URI="https://github.com/domoticz/domoticz/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
@@ -16,7 +16,7 @@ DESCRIPTION="Home automation system"
 HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~arm ~ppc"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 IUSE="systemd telldus openzwave python i2c +spi static-libs"
 
 
@@ -27,7 +27,7 @@ RDEPEND="net-misc/curl
 	dev-embedded/libftdi
 	dev-db/sqlite
 	dev-libs/boost[static-libs=]
-	sys-libs/zlib[static-libs=]
+	sys-libs/zlib[minizip,static-libs=]
 	telldus? ( app-misc/telldus-core )
 	openzwave? ( dev-libs/openzwave )
 	python? ( dev-lang/python )
@@ -92,6 +92,7 @@ src_configure() {
 		-DUSE_STATIC_OPENZWAVE=$(usex static-libs)
 		-DUSE_OPENSSL_STATIC=$(usex static-libs)
 		-DUSE_STATIC_LIBSTDCXX=$(usex static-libs)
+		-DUSE_BUILTIN_MINIZIP=no
 	)
 
 	cmake-utils_src_configure
@@ -116,6 +117,10 @@ src_install() {
 	insinto /var/lib/${PN}
 	touch ${ED}/var/lib/${PN}/.keep_db_folder
 
-}
+	# compress static web content
+	find ${ED} -name "*.css" -exec gzip -9 {} \;
+	find ${ED} -name "*.js" -exec gzip -9 {} \;
+	find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
 
+}
 
