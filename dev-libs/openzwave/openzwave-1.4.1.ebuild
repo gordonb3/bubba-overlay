@@ -13,12 +13,12 @@ SRC_URI="http://old.openzwave.com/downloads/${PF}.tar.gz"
 RESTRICT="mirror"
 LICENSE="GPL-3 Apache-2.0"
 SLOT="0"
-KEYWORDS="arm ppc"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 IUSE="-examples -htmldoc"
 
 DEPEND="htmldoc? ( app-doc/doxygen  media-gfx/graphviz )"
 
-DEPEND=""
+RDEPEND=""
 
 
 src_prepare() {

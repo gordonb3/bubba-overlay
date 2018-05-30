@@ -18,7 +18,7 @@ IUSE="-examples -htmldoc"
 
 DEPEND="htmldoc? ( app-doc/doxygen  media-gfx/graphviz )"
 
-DEPEND=""
+RDEPEND=""
 
 
 src_prepare() {
