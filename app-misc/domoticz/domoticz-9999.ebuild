@@ -22,7 +22,12 @@ RDEPEND="net-misc/curl
 	dev-embedded/libftdi
 	dev-db/sqlite
 	dev-libs/boost[static-libs=]
-	sys-libs/zlib[minizip,static-libs=]
+	!static-libs?
+	( sys-libs/zlib[minizip]
+	  dev-lang/lua
+	  app-misc/mosquitto
+	  dev-db/sqlite
+	)
 	telldus? ( app-misc/telldus-core )
 	openzwave? ( dev-libs/openzwave[static-libs=] )
 	python? ( dev-lang/python )
@@ -67,7 +72,11 @@ src_configure() {
 		-DUSE_STATIC_OPENZWAVE=$(usex static-libs)
 		-DUSE_OPENSSL_STATIC=$(usex static-libs)
 		-DUSE_STATIC_LIBSTDCXX=$(usex static-libs)
-		-DUSE_BUILTIN_MINIZIP=no
+		-DUSE_BUILTIN_ZLIB=$(usex static-libs)
+		-DUSE_BUILTIN_MINIZIP=$(usex static-libs)
+		-DUSE_BUILTIN_LUA=$(usex static-libs)
+		-DUSE_BUILTIN_MOSQUITTO=$(usex static-libs)
+		-DUSE_BUILTIN_SQLITE=$(usex static-libs)
 	)
 
 	cmake-utils_src_configure
@@ -90,4 +99,9 @@ src_install() {
 
 	insinto /var/lib/${PN}
 	touch ${ED}/var/lib/${PN}/.keep_db_folder
+
+        # compress static web content
+        find ${ED} -name "*.css" -exec gzip -9 {} \;
+        find ${ED} -name "*.js" -exec gzip -9 {} \;
+        find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
 }
