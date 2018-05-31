@@ -75,7 +75,7 @@ src_configure() {
 		-DUSE_BUILTIN_ZLIB=$(usex static-libs)
 		-DUSE_BUILTIN_MINIZIP=$(usex static-libs)
 		-DUSE_BUILTIN_LUA=$(usex static-libs)
-		-DUSE_BUILTIN_MOSQUITTO=$(usex static-libs)
+		-DUSE_BUILTIN_MQTT=$(usex static-libs)
 		-DUSE_BUILTIN_SQLITE=$(usex static-libs)
 	)
 
