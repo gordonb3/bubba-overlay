@@ -8,11 +8,11 @@ inherit cmake-utils eutils
 
 DESCRIPTION="Library to control a Telldus TellStick"
 HOMEPAGE="http://www.telldus.com/"
-SRC_URI="http://download.telldus.se/TellStick/Software/${PN}/${PF}.tar.gz"
+SRC_URI="http://download.telldus.com/TellStick/Software/${PN}/${PF}.tar.gz"
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="arm ppc"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 IUSE=""
 
 DEPEND="dev-libs/confuse
