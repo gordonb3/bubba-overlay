@@ -3,7 +3,7 @@
 # $Header$
 
 EAPI="5"
-SLOT="7"
+SLOT="8"
 
 
 inherit eutils java-vm-2 prefix versionator
@@ -22,15 +22,14 @@ MY_PV="$(get_version_component_range 2)${MY_PV_EXT}"
 
 AT_arm="ejdk-${MY_PV}-linux-arm-sflt.tar.gz"
 
-DEB_DIST="http://security.debian.org/debian-security/pool/updates/main/o/"
-DEB_VERSION="7u151-2.6.11-2~deb8u1"
+DEB_DIST="http://ftp.nl.debian.org/debian/pool/main/o"
+DEB_VERSION="8u171-b11-1~deb9u1"
 DEB_PKGS=( jre-headless jre jdk )
 DEB_ARCH="armel" 
 
 DESCRIPTION="Debian precompile Java SE Development Kit"
 HOMEPAGE="http://openjdk.java.net/"
 
-SRC_URI="${DEB_DIST}/${MY_PN}-${SLOT}/${MY_PN}-${SLOT}-jre-lib_${DEB_VERSION}_all.deb"
 for pkg in "${DEB_PKGS[@]}"; do
 	SRC_URI+="
 		${DEB_DIST}/${MY_PN}-${SLOT}/${MY_PN}-${SLOT}-${pkg}_${DEB_VERSION}_${DEB_ARCH}.deb
@@ -39,8 +38,8 @@ done
 
 LICENSE="GPL-2-with-linking-exception"
 KEYWORDS="~arm"
-IUSE="+alsa cjk +cups +gtk headless-awt nsplugin nss pulseaudio selinux +webstart"
-REQUIRED_USE="gtk? ( !headless-awt ) nsplugin? ( !headless-awt )"
+IUSE="alsa cups cjk +headless-awt nss selinux"
+REQUIRED_USE=""
 
 RESTRICT="preserve-libs strip mirror"
 QA_PREBUILT="opt/.*"
@@ -84,20 +83,11 @@ RDEPEND=">=dev-libs/glib-2.42:2
 		media-fonts/sazanami
 	)
 	cups? ( >=net-print/cups-2.0 )
-	gtk? (
-		>=dev-libs/atk-2.16.0
-		>=x11-libs/cairo-1.14.2
-		x11-libs/gdk-pixbuf:2
-		>=x11-libs/gtk+-2.24:2
-		>=x11-libs/pango-1.36
-	)
 	selinux? ( sec-policy/selinux-java )"
 
 DEPEND="!arm? ( dev-util/patchelf )"
 
-PDEPEND="webstart? ( dev-java/icedtea-web:0[icedtea7(+)] )
-	nsplugin? ( dev-java/icedtea-web:0[icedtea7(+),nsplugin] )
-	pulseaudio? ( dev-java/icedtea-sound )"
+PDEPEND=""
 
 
 S="${WORKDIR}/openjdk"
@@ -105,11 +95,6 @@ S="${WORKDIR}/openjdk"
 src_unpack() {
 	mkdir -p ${S} || die
 	cd ${S}
-	pkg="jre-lib"
-	ar x ${DISTDIR}/${MY_PN}-${SLOT}-${pkg}_${DEB_VERSION}_all.deb
-	ls -1 data.t* | while read file; do mv $file ${pkg}-$file; done
-	unpack ./${pkg}-data.t*
-	rm ${pkg}-data.t* control.t*
 	for pkg in "${DEB_PKGS[@]}"; do
 		ar x ${DISTDIR}/${MY_PN}-${SLOT}-${pkg}_${DEB_VERSION}_${DEB_ARCH}.deb
 		ls -1 data.t* | while read file; do mv $file ${pkg}-$file; done
@@ -126,12 +111,8 @@ src_prepare() {
 	fi
 
 	if use headless-awt; then
-		rm -vr jre/lib/$(get_system_arch)/{xawt,libsplashscreen.*} \
+		rm -vr jre/lib/$(get_system_arch)/libsplashscreen.* \
 		   {,jre/}bin/policytool bin/appletviewer || die
-	fi
-
-	if ! use gtk; then
-		rm -v jre/lib/$(get_system_arch)/libjavagtk.* || die
 	fi
 
 	if [ -d ../java-${SLOT}-openjdk-common ]; then
@@ -184,15 +165,6 @@ src_install() {
 
 	dodoc ${S}/usr/share/doc/openjdk-${SLOT}-jdk/*
 
-	if use webstart || use nsplugin; then
-		dosym /usr/libexec/icedtea-web/itweb-settings "${dest}/bin/itweb-settings"
-		dosym /usr/libexec/icedtea-web/itweb-settings "${dest}/jre/bin/itweb-settings"
-	fi
-	if use webstart; then
-		dosym /usr/libexec/icedtea-web/javaws "${dest}/bin/javaws"
-		dosym /usr/libexec/icedtea-web/javaws "${dest}/jre/bin/javaws"
-	fi
-
 	# Both icedtea itself and the icedtea ebuild set PAX markings but we
 	# disable them for the icedtea-bin build because the line below will
 	# respect end-user settings when icedtea-bin is actually installed.
@@ -205,15 +177,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	if use nsplugin; then
-		if [[ -n ${REPLACING_VERSIONS} ]] && ! version_is_at_least 7.2.4.3 ${REPLACING_VERSIONS} ]]; then
-			elog "The nsplugin for icedtea-bin is now provided by the icedtea-web package"
-			elog "If you had icedtea-bin-7 nsplugin selected, you may see a related error below"
-			elog "The switch should complete properly during the subsequent installation of icedtea-web"
-			elog "Afterwards you may verify the output of 'eselect java-nsplugin list' and adjust accordingly'"
-		fi
-	fi
-
 	# Set as default VM if none exists
 	java-vm-2_pkg_postinst
 }
