@@ -14,7 +14,7 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="systemd telldus openzwave python i2c +spi static-libs"
+IUSE="systemd telldus openzwave python i2c +spi static-libs examples"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -24,7 +24,7 @@ RDEPEND="net-misc/curl
 	dev-libs/boost[static-libs=]
 	!static-libs?
 	( sys-libs/zlib[minizip]
-	  dev-lang/lua
+	  dev-lang/lua:5.2
 	  app-misc/mosquitto
 	  dev-db/sqlite
 	)
@@ -100,8 +100,38 @@ src_install() {
 	insinto /var/lib/${PN}
 	touch ${ED}/var/lib/${PN}/.keep_db_folder
 
-        # compress static web content
-        find ${ED} -name "*.css" -exec gzip -9 {} \;
-        find ${ED} -name "*.js" -exec gzip -9 {} \;
-        find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
+	dodoc History.txt License.txt
+
+	# compress static web content
+	find ${ED} -name "*.css" -exec gzip -9 {} \;
+	find ${ED} -name "*.js" -exec gzip -9 {} \;
+	find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
+
+	# cleanup examples and non functional scripts
+	rm -rf ${ED}/opt/${PN}/{updatedomo,server_cert.pem,History.txt,License.txt}
+	rm -rf ${ED}/opt/${PN}/scripts/{update_domoticz,restart_domoticz,download_update.sh,_domoticz_main*,logrotate}
+	use examples || {
+		rm -rf ${ED}/opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
+		rm -rf ${ED}/opt/${PN}/plugins/examples
+	}
+	rm -rf ${ED}/opt/${PN}/dzVents/.gitignore
+	find ${ED}/opt/${PN}/scripts -empty -type d -exec rmdir {} \;
+
+	# move scripts to /var/lib/domoticz
+	mv ${ED}/opt/${PN}/scripts ${ED}/var/lib/${PN}/
+	#dosym /var/lib/${PN}/scripts /opt/${PN}/scripts
+}
+
+
+pkg_postinst() {
+	havescripts=$(find /opt/${PN} -maxdepth 1 -type d -name scripts)
+	if [ ! -z "${havescripts}" ]; then
+		mv /opt/${PN}/scripts/* /var/lib/${PN}/scripts/
+		rmdir /opt/${PN}/scripts
+	fi
+	ln -s /var/lib/${PN}/scripts /opt/${PN}/scripts
+}
+
+pkg_prerm() {
+	find /opt/${PN} -type l -exec rm {} \;
 }
