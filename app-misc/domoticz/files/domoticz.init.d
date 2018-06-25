@@ -32,8 +32,8 @@ checkconfig() {
 		eerror "Please edit /etc/conf.d/${NAME}"
 		eerror "\${APPROOT} not defined!"
 		return 1
-	fi	
-	
+	fi
+
 	return 0
 }
 
