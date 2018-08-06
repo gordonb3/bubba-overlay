@@ -28,11 +28,22 @@ DEPEND="${CDEPEND}
 	virtual/os-headers"
 RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-shutdown )
+	!<sys-apps/openrc-0.13
 	dev-embedded/u-boot-tools
 "
 
-S=${WORKDIR}/${PN}-2.88dsf
+S=${WORKDIR}/${P}dsf
 
+
+PATCHES=(
+	"${FILESDIR}/${PN}-2.86-kexec.patch" #80220
+        "${FILESDIR}/${PN}-2.86-shutdown-single.patch" #158615
+        "${FILESDIR}/${P}-makefile.patch" #319197
+        "${FILESDIR}/${P}-selinux.patch" #326697
+        "${FILESDIR}/${P}-shutdown-h.patch" #449354
+        "${FILESDIR}/${P}-sysmacros.patch"
+        "${FILESDIR}/${P}-ttydefaults.patch" #551626
+)
 
 pkg_pretend() {
 	if use feroceon ; then
@@ -66,11 +77,7 @@ no_bubba() {
 
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-2.86-kexec.patch #80220
-	epatch "${FILESDIR}"/${PN}-2.86-shutdown-single.patch #158615
-	epatch "${FILESDIR}"/${PN}-2.88-makefile.patch #319197
-	epatch "${FILESDIR}"/${PN}-2.88-selinux.patch #326697
-	epatch "${FILESDIR}"/${PN}-2.88-shutdown-h.patch #449354
+        epatch "${PATCHES[@]}"
 	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
 
 	# last/lastb/mesg/mountpoint/sulogin/utmpdump/wall have moved to util-linux
@@ -125,7 +132,7 @@ src_prepare() {
 
 	if use feroceon ; then
 		cd "${S}"
-		epatch "${FILESDIR}"/${PN}-2.88-write-magic.patch
+		epatch "${FILESDIR}"/${P}-write-magic.patch
 	fi
 
 }
