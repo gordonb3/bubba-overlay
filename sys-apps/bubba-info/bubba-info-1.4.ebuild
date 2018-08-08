@@ -85,7 +85,7 @@ src_compile() {
 		einfo "compile perl module"
 		cd perl
 		ln -s ${S}/bubba-info.h ./
-		emake DESTDIR=${ED}
+		emake DESTDIR=${ED} OTHERLDFLAGS="-L../libbubba-info-1.3/.libs"
 		cd - &>/dev/null
 	fi
 
