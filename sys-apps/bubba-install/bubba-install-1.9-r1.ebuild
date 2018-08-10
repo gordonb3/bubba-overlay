@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-API=5
+EAPI="5"
 
 KEYWORDS="~arm"
 
