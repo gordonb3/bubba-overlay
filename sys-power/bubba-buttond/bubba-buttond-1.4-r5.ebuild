@@ -4,7 +4,7 @@
 
 EAPI="5"
 
-inherit eutils systemd
+inherit eutils systemd toolchain-funcs
 
 DESCRIPTION="Excito B3 power control"
 HOMEPAGE="http://www.excito.com/"
@@ -37,7 +37,7 @@ pkg_setup() {
 
 
 src_compile() {
-	make
+	emake CC=$(tc-getCC)
 }
 
 
