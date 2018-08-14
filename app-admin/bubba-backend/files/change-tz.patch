@@ -1,0 +1,18 @@
+
+
+--- a/web-admin/lib/Bubba.pm
++++ b/web-admin/lib/Bubba.pm
+@@ -2032,6 +2032,13 @@
+ 	$ret = system($cmd);
+ 	$cmd = "echo '$timezone' > '/etc/timezone'";
+ 	$ret = system($cmd);
++	$cmd="sed -e '/date\.timezone/d' -e '$a\' -i /etc/php/*/ext/bubba-admin.ini";
++	$ret = system($cmd);
++	my @filelist= `ls -1 /etc/php/*/ext/bubba-admin.ini`;
++	foreach $file (@filelist) {
++		open(my $fd, ">>$file");
++		print $fd "date.timezone=\"$timezone\"\n";
++	}
+ 	if($ret) {
+ 		print 1;
+ 	} else {
