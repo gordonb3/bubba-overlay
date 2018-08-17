@@ -21,7 +21,7 @@ RDEPEND="${DEPEND}"
 
 src_install() {
 	exeinto "/usr/local/sbin"
-	newexe "${FILESDIR}/install_on_sda-1.10.sh" "install_on_sda.sh"
+	newexe "${FILESDIR}/install_on_sda-1.11.sh" "install_on_sda.sh"
 	insinto "/root"
 	doins "${FILESDIR}/fstab-on-b3" "${FILESDIR}/install.ini"
 }
