@@ -17,7 +17,7 @@ SRC_URI="https://github.com/${PN}/${MY_PN}/releases/download/${PV}/${MY_P}-compl
 LICENSE="GPL-3 BSD PHP-2.02 PHP-3 MIT public-domain"
 KEYWORDS="amd64 arm ppc ppc64 ~sparc x86"
 
-IUSE="enigma ldap managesieve mysql postgres sqlite ssl spell"
+IUSE="enigma ldap managesieve -mysql -postgres +sqlite ssl spell"
 REQUIRED_USE="|| ( mysql postgres sqlite )"
 
 SLOT="0"
