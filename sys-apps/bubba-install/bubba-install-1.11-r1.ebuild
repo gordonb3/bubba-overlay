@@ -21,17 +21,15 @@ RDEPEND="${DEPEND}"
 
 src_install() {
 	exeinto "/usr/local/sbin"
-	newexe "${FILESDIR}/install_on_sda-1.10.sh" "install_on_sda.sh"
+	newexe "${FILESDIR}/install_on_sda-1.11.sh" "install_on_sda.sh"
 	insinto "/root"
-	doins "${FILESDIR}/fstab-on-b3"
-
+	doins "${FILESDIR}/fstab-on-b3" "${FILESDIR}/install.ini"
 }
 
 fix_old_install_scripts_if_present() {
 	if [[ -x "${ROOT}/root/install_on_sda.sh" && ! -L "${ROOT}/root/install_on_sda.sh" ]]; then
 		ewarn "Replacing /root/install_on_sda.sh script with symlink..."
 		rm -f "${ROOT}/root/install_on_sda.sh"
-		ln -s "${ROOT}/usr/local/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
 	fi
 	if [ -x "${ROOT}/root/install_on_sda_gpt.sh" ]; then
 		rm -f "${ROOT}/root/install_on_sda_gpt.sh"
@@ -40,6 +38,10 @@ fix_old_install_scripts_if_present() {
 
 pkg_postinst() {
 	fix_old_install_scripts_if_present
+
+	if [ ! -x "${ROOT}/root/install_on_sda.sh" ]; then
+		ln -s "${ROOT}/usr/local/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
+	fi
 
 	local OPTS="FORCEINSTALL"
 
