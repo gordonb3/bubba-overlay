@@ -40,7 +40,7 @@ DEPEND="
 
 RDEPEND="${DEPEND}
 	app-admin/hddtemp
-	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,crypt,imap]
+	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,imap]
 	dev-php/PEAR-HTTP_Request2
 	sys-apps/bubba-info[php]
 	www-apps/codeigniter-bin
@@ -99,6 +99,9 @@ src_prepare() {
 		sed -i "s/forked-daapd/daapd/" admin/controllers/services.php
 		sed -i "s/forked-daapd/daapd/" admin/models/networkmanager.php
 	fi
+
+	# new deprecations in PHP 7.2
+	epatch ${FILESDIR}/php7.2.patch
 }
 
 
@@ -155,7 +158,7 @@ src_install() {
 	insinto /var/lib/bubba
 	doins lite_php_browscap.ini
 
-	dodir /var/log/web-admin 
+	keepdir /var/log/web-admin
 
 	if use systemd; then
 		systemd_dounit ${FILESDIR}/bubba-adminphp.service
