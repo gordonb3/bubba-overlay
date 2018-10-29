@@ -91,23 +91,25 @@ echo "Installing: check '$LOG' in case of errors"
 
 if ( $WIPE ); then
 	NSTEPS=$((NSTEPS+1))
-	echo "Step $STEP of $NSTEPS: creating new \"${ptable}\" partition table on /dev/sda..."
-	STEP=$((STEP+1))
 
-	if [ $SIZE -lt 20 ];then
-		echo "NOTICE - resetting SIZE to the default value of 20GiB as the specified value is too small to reliably run our system."
-		SIZE=20
-	fi
-
+	# determine type of partition table to create
 	ptable=$(fdisk -l /dev/sda | grep "Disklabel type" | awk '{print $NF}')
 	if [ ${ptable} != "dos" ] && [ ${ptable} != "gpt" ]; then
-		echo "NOTICE - Unknown partition table or disk not initialized"
+#		echo "NOTICE - Unknown partition table or disk not initialized"
 		ptable=dos
 	fi
 	if [ ${ptable} != "gpt" ]; then
 		if [ ! -z $(fdisk -l /dev/sda | grep TiB | awk '{print 4000000000-$(NF-1)}' | grep "^\-") ]; then
 			ptable=gpt
 		fi
+	fi
+
+	echo "Step $STEP of $NSTEPS: creating new \"${ptable}\" partition table on /dev/sda..."
+	STEP=$((STEP+1))
+
+	if [ $SIZE -lt 20 ];then
+		echo "NOTICE - resetting SIZE to the default value of 20GiB as the specified value is too small to reliably run our system."
+		SIZE=20
 	fi
 
 	# create new partition table
@@ -163,7 +165,7 @@ if [ -e /root/root-on-sda3-kernel/boot.ini ]; then
 				echo -e "\n# enable this to boot into systemd service manager (default: openrc)" >> /mnt/sdaboot/boot.ini
 				echo -e "INIT=\"systemd\"" >> /mnt/sdaboot/boot.ini
 			fi
-			
+
 		fi
 	else
 		# openrc init
