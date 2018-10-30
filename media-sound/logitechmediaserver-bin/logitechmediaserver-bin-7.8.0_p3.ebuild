@@ -49,6 +49,7 @@ RDEPEND="
 	!prefix? ( >=sys-apps/baselayout-2.0.0 )
 	!prefix? ( virtual/logger )
 	dev-db/sqlite
+	media-libs/giflib
 	"
 
 # This is a binary package and contains prebuilt executable and library
