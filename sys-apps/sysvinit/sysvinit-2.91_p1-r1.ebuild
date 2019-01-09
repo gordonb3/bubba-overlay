@@ -15,7 +15,7 @@ SRC_URI="mirror://nongnu/${PN}/${MY_P}.tar.xz"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm"
-IUSE="selinux ibm static kernel_FreeBSD feroceon"
+IUSE="selinux ibm static kernel_FreeBSD +feroceon"
 
 CDEPEND="
 	selinux? (
