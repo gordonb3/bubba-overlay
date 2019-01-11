@@ -21,6 +21,7 @@ RDEPEND="
 	dev-perl/Moo
 "
 DEPEND="${RDEPEND}
+	dev-perl/Module-Install
 	test? (
 		>=dev-perl/Test-Deep-0.106
 		dev-perl/Test-Exception
