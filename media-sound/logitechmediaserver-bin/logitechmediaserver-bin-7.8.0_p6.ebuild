@@ -49,6 +49,7 @@ RDEPEND="
 	!prefix? ( >=sys-apps/baselayout-2.0.0 )
 	!prefix? ( virtual/logger )
 	dev-db/sqlite
+	media-libs/giflib
 	"
 
 # This is a binary package and contains prebuilt executable and library
@@ -72,13 +73,13 @@ RUN_UID=logitechmediaserver
 RUN_GID=logitechmediaserver
 
 # Installation locations
-OPTDIR="/opt/${MY_PN}"
-VARDIR="/var/lib/${MY_PN}"
-CACHEDIR="${VARDIR}/cache"
-USRPLUGINSDIR="${VARDIR}/Plugins"
+BINDIR="/opt/${MY_PN}"
+DATADIR="/var/lib/${MY_PN}"
+CACHEDIR="${DATADIR}/cache"
+USRPLUGINSDIR="${DATADIR}/Plugins"
 SVRPLUGINSDIR="${CACHEDIR}/InstalledPlugins"
-CLIENTPLAYLISTSDIR="${VARDIR}/ClientPlaylists"
-PREFSDIR="/etc/${MY_PN}"
+CLIENTPLAYLISTSDIR="${DATADIR}/ClientPlaylists"
+PREFSDIR="${DATADIR}/preferences"
 LOGDIR="/var/log/${MY_PN}"
 SVRPREFS="${PREFSDIR}/server.prefs"
 
@@ -89,6 +90,8 @@ SBS_VARLIBDIR='/var/lib/squeezeboxserver'
 SBS_SVRPLUGINSDIR="${SBS_VARLIBDIR}/cache/InstalledPlugins"
 SBS_USRPLUGINSDIR="${SBS_VARLIBDIR}/Plugins"
 
+# Original preferences location from the Squuezebox overlay
+R1_PREFSDIR="/etc/${MY_PN}"
 
 
 pkg_setup() {
@@ -102,10 +105,9 @@ src_install() {
 
 	PERL_VER=$(echo "print \$^V" | perl | sed "s/v\(.\...\).*/\1/")
 
-	local CPAN_BIN="${S}"/../"${MY_PN}"-cpan*
 	# Everything into our package in the /opt hierarchy (LHS)
-	dodir "${OPTDIR}"
-	cp -aR "${S}"/* "${ED}${OPTDIR}" || die "Unable to install package files"
+	dodir "${BINDIR}"
+	cp -aR "${S}"/* "${ED}${BINDIR}" || die "Unable to install package files"
 
 	# Documentation
 	dodoc Changelog*.html
@@ -113,19 +115,19 @@ src_install() {
 	dodoc License*.txt
 
 	# Clean documentation from target install folder
-	rm "${ED}${OPTDIR}"/Changelog*.html
-	rm "${ED}${OPTDIR}"/Installation.txt
-	rm "${ED}${OPTDIR}"/License*.txt
+	rm "${ED}${BINDIR}"/Changelog*.html
+	rm "${ED}${BINDIR}"/Installation.txt
+	rm "${ED}${BINDIR}"/License*.txt
 
 
 	# change dir to CPAN binaries
 	cd "${S}"/../"${MY_PN}"-cpan*
 
 	# overwrite everything in Bin CPAN and Slim with our platform specific versions
-	cp -aR Bin CPAN Slim "${ED}${OPTDIR}" || die "Unable to install CPAN binaries"
+	cp -aR Bin CPAN Slim "${ED}${BINDIR}" || die "Unable to install CPAN binaries"
 
 	# The custom OS module for Gentoo - provides OS-specific path details
-	cp -aR gentoo/Slim gentoo/slimserver.pl "${ED}${OPTDIR}" || die "Unable to install Gentoo custom OS module"
+	cp -aR gentoo/Slim gentoo/slimserver.pl "${ED}${BINDIR}" || die "Unable to install Gentoo custom OS module"
 
 	# Gentoo additional documentation
 	dodoc "Gentoo-plugins-README.txt"
@@ -134,17 +136,12 @@ src_install() {
 	if has he ${LINGUAS} || has he ${L10N}; then
 		einfo "Keeping Hebrew lang files"
 	else
-		rm "${ED}${OPTDIR}"/CPAN/Locale/Hebrew.pm
-		rmdir --ignore-fail-on-non-empty "${ED}${OPTDIR}"/CPAN/Locale
-		rm -r "${ED}${OPTDIR}"/CPAN/arch/*/*/auto/Locale/Hebrew
-		rmdir --ignore-fail-on-non-empty "${ED}${OPTDIR}"/CPAN/arch/*/*/auto/Locale
+		rm "${ED}${BINDIR}"/CPAN/Locale/Hebrew.pm
+		rmdir --ignore-fail-on-non-empty "${ED}${BINDIR}"/CPAN/Locale
+		rm -r "${ED}${BINDIR}"/CPAN/arch/*/*/auto/Locale/Hebrew
+		rmdir --ignore-fail-on-non-empty "${ED}${BINDIR}"/CPAN/arch/*/*/auto/Locale
 	fi
 
-
-	# Preferences directory
-	dodir "${PREFSDIR}"
-	fowners ${RUN_UID}:${RUN_GID} "${PREFSDIR}"
-	fperms 770 "${PREFSDIR}"
 
 	# This may seem a weird construct, but it keeps me from getting QA messages on OpenRC systems
 	if use systemd ; then
@@ -157,52 +154,40 @@ src_install() {
 	fi
 	newconfd "gentoo/logitechmediaserver.conf.d" "${MY_PN}"
 
-
-	# Initialize server var directory
-	dodir "${VARDIR}"
-	fowners ${RUN_UID}:${RUN_GID} "${VARDIR}"
-	fperms 770 "${VARDIR}"
-
-	# Initialize server cache directory
-	dodir "${CACHEDIR}"
-	fowners ${RUN_UID}:${RUN_GID} "${CACHEDIR}"
-	fperms 770 "${CACHEDIR}"
-
-	# Initialize the log directory
-	dodir "${LOGDIR}"
-	fowners ${RUN_UID}:${RUN_GID} "${LOGDIR}"
-	fperms 770 "${LOGDIR}"
-	touch "${ED}/${LOGDIR}/server.log"
-	touch "${ED}/${LOGDIR}/scanner.log"
-	touch "${ED}/${LOGDIR}/perfmon.log"
-	fowners ${RUN_UID}:${RUN_GID} "${LOGDIR}/server.log"
-	fowners ${RUN_UID}:${RUN_GID} "${LOGDIR}/scanner.log"
-	fowners ${RUN_UID}:${RUN_GID} "${LOGDIR}/perfmon.log"
-
-	# Initialise the user-installed plugins directory
-	dodir "${USRPLUGINSDIR}"
-	fowners ${RUN_UID}:${RUN_GID} "${USRPLUGINSDIR}"
-	fperms 770 "${USRPLUGINSDIR}"
-
-	# Initialise the client playlists directory
-	dodir "${CLIENTPLAYLISTSDIR}"
-	fowners ${RUN_UID}:${RUN_GID} "${CLIENTPLAYLISTSDIR}"
-	fperms 770 "${CLIENTPLAYLISTSDIR}"
-
 	# Install logrotate support
 	insinto /etc/logrotate.d
 	newins "gentoo/logitechmediaserver.logrotate.d" "${MY_PN}"
 
 	cd -
 
+	# Create data directory structure
+	keepdir "${PREFSDIR}"
+	keepdir "${CACHEDIR}"
+	keepdir "${LOGDIR}"
+	keepdir "${USRPLUGINSDIR}"
+	keepdir "${CLIENTPLAYLISTSDIR}"
+	fowners ${RUN_UID}:${RUN_GID} -R "${DATADIR}"
+	fperms 0770 -R "${DATADIR}"
+	fowners ${RUN_UID}:${RUN_GID} "${LOGDIR}"
+
+	# Replace the 5.24 modules with the PIE versions if we are on profile 17
+	if [ "${PERL_VER}" == "5.24" ]; then
+		if (gcc -march=native -E -v - </dev/null 2>&1 | grep -q "\-\-enable\-default\-pie"); then
+			rm -r "${ED}${BINDIR}"/CPAN/arch/5.24
+			mv "${ED}${BINDIR}"/CPAN/arch/5.24-pie "${ED}${BINDIR}"/CPAN/arch/5.24
+		fi
+	fi
+
 	# Remove obsolete Perl modules
-	ls -1 "${ED}${OPTDIR}"/CPAN/arch | while read arch; do
+	ls -1 "${ED}${BINDIR}"/CPAN/arch | while read arch; do
 		if [ "${arch}" != "${PERL_VER}" ]; then
-			rm -r "${ED}${OPTDIR}"/CPAN/arch/"${arch}"
+			rm -r "${ED}${BINDIR}"/CPAN/arch/"${arch}"
 		fi
 	done
+
+	# Compress is a core function since Perl 5.22
 	if [ "${PERL_VER}" != "5.20" ]; then
-		rm -r "${ED}${OPTDIR}"/CPAN/Compress
+		rm -r "${ED}${BINDIR}"/CPAN/Compress
 	fi
 }
 
@@ -254,6 +239,16 @@ pkg_postinst() {
 	elog "directory:"
 	elog "\t${USRPLUGINSDIR}"
 	elog ""
+
+	# Bug: LMS should not write to /etc
+	# Move existing preferences from /etc to /var/lib
+	if [ ! -f "${PREFSDIR}/server.prefs" ]; then
+		if [ -d "${R1_PREFSDIR}" ]; then
+			cp -r "${R1_PREFSDIR}"/* "${PREFSDIR}" || die "Failed to copy preferences"
+			rm -r "${R1_PREFSDIR}"
+			chown -R ${RUN_UID}.${RUN_GID} "${PREFSDIR}"
+		fi
+	fi
 
 	# Show some instructions on starting and accessing the server.
 	lms_starting_instr
