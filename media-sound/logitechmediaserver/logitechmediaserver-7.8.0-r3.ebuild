@@ -190,6 +190,9 @@ src_prepare() {
 
 	# fix deprecation warning in Perl 2.4
 	epatch "${FILESDIR}/perl-24.patch"
+
+	# fix default user name to run as
+	sed -e "s/squeezeboxserver/logitechmediaserver/" -i slimserver.pl
 }
 
 src_compile() {
@@ -224,12 +227,13 @@ lms_clean_oldfiles() {
 src_install() {
 
 	# The custom OS module for Gentoo - provides OS-specific path details
-	cp "${FILESDIR}/gentoo-filepaths.pm-r2" "Slim/Utils/OS/Custom.pm" || die "Unable to install Gentoo custom OS module"
+	cp "${FILESDIR}/gentoo-filepaths.pm" "Slim/Utils/OS/Custom.pm" || die "Unable to install Gentoo custom OS module"
 
-	# Everthing into our package in the /opt hierarchy (LHS)
+	# Everthing in our package into the /opt hierarchy (LHS)
 	dodir "${BINDIR}"
 	cp -aR "${S}"/* "${ED}${BINDIR}" || die "Unable to install package files"
-	cp -aR "${S}"/../CPAN.upstream/build/5.*/lib/perl5/*linux*/* "${ED}${BINDIR}/CPAN" || die "Unable to install package files"
+	cp -aR "${S}"/../CPAN.upstream/build/5.*/lib/perl5/*linux*/* "${ED}${BINDIR}/CPAN/" || die "Unable to install package files"
+	cp -aR "${S}"/../CPAN.upstream/build/5.*/lib/perl5/Audio "${ED}${BINDIR}/CPAN/" || die "Unable to install package files"
 
 	# Delete files that also exist in Perl's vendor path
 	# (possibly hazardous on broken perl installs, but required to fix version conflicts)
@@ -249,11 +253,11 @@ src_install() {
 	# This may seem a weird construct, but it keeps me from getting QA messages on OpenRC systems
 	if use systemd ; then
 		# Install unit file (systemd)
-		cat "${FILESDIR}/${MY_PN}.service-r2" | sed "s/^#Env/Env/" > "${S}/../${MY_PN}.service"
+		cat "${FILESDIR}/${MY_PN}.service" | sed "s/^#Env/Env/" > "${S}/../${MY_PN}.service"
 		systemd_dounit "${S}/../${MY_PN}.service"
 	else
 		# Install init script (OpenRC)
-		newinitd "${FILESDIR}/logitechmediaserver.init.d-r2" "${MY_PN}"
+		newinitd "${FILESDIR}/logitechmediaserver.init.d" "${MY_PN}"
 	fi
 	newconfd "${FILESDIR}/logitechmediaserver.conf.d" "${MY_PN}"
 

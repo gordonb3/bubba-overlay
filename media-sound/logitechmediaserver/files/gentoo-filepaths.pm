@@ -59,7 +59,7 @@ sub dirsFor {
 	} elsif ($dir =~ /^(?:prefs)$/) {
 
 		# Server and plugin preferences are in a different place.
-		push @dirs, $::prefsdir || '/etc/logitechmediaserver';
+		push @dirs, $::prefsdir || '/var/lib/logitechmediaserver/preferences';
 
 	} elsif ($dir eq 'log') {
 

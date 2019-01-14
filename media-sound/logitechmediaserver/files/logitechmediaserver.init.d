@@ -6,15 +6,15 @@
 # These fit the Logitech Media Server ebuild and so shouldn't need to be
 # changed; user-servicable parts go in /etc/conf.d/logitechmediaserver.
 lms=logitechmediaserver
-rundir=/var/run/${lms}
+rundir=/run/${lms}
 logdir=/var/log/${lms}
-optdir=/opt/${lms}
+bindir=/opt/${lms}
 vardir=/var/lib/${lms}
 pidfile=${rundir}/${lms}.pid
 cachedir=${vardir}/cache
-prefsdir=/etc/${lms}
+prefsdir=${vardir}/preferences
 lmsuser=${lms}
-lmsbin=${optdir}/slimserver.pl
+lmsbin=${bindir}/slimserver.pl
 
 depend() {
 	need net
