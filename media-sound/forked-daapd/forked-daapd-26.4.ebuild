@@ -26,6 +26,7 @@ RDEPEND="
 	dev-libs/libgcrypt:0
 	dev-libs/libunistring
 	dev-libs/mxml[threads]
+	dev-libs/json-c
 	media-libs/alsa-lib
 	net-dns/avahi[dbus]
 	virtual/ffmpeg
