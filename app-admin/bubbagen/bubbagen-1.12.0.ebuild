@@ -11,13 +11,11 @@ HOMEPAGE="https://github.com/gordonb3/bubbagen"
 KEYWORDS="~arm ~ppc"
 VMAJOR=${PV:0:4}
 REVISION=$((${PV:5}%5))
-SRC_URI="https://github.com/gordonb3/bubbagen/archive/${VMAJOR}.tar.gz -> ${PF}.tgz"
+SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VMAJOR}.tar.gz -> ${PF}.tgz"
 LICENSE="GPL-3+"
-SLOT="0/${VMAJOR}.5"
+SLOT="0/${VMAJOR}"
+IUSE=""
 RESTRICT="mirror"
-IUSE="systemd"
-
-REQUIRED_USE="systemd"
 
 # Conflicts/replaces Sakaki's b3-init-scripts
 DEPEND="
@@ -28,11 +26,9 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	app-admin/bubba-frontend[systemd]
-	app-admin/bubba-backend[systemd]
+	app-admin/bubba-frontend
 	app-admin/bubba-manual
-	sys-power/bubba-buttond[systemd]
-	sys-apps/systemd
+	arm? ( sys-power/bubba-buttond )
 "
 
 src_unpack() {
@@ -45,7 +41,11 @@ src_prepare() {
 	# Git does not support empty folders
 	# clean up the bogus content here.
 	find ${S} -name ~nofiles~ -exec rm {} \;
-	cp -a ${S}/systemd/* ${S}/
+
+	# correct for different settings between B2 and B3
+	if use ppc; then
+		rm etc/portage/package.use/sysvinit
+	fi
 }
 
 

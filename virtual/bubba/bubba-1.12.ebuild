@@ -5,15 +5,15 @@
 EAPI="6"
 
 DESCRIPTION="Virtual for Bubba Version"
-SLOT="0/1.10"
+SLOT="0/${PV}"
 KEYWORDS="~arm ~ppc"
 IUSE="systemd"
 
 RDEPEND="
 	!systemd? (
-		app-admin/bubbagen:0/1.10
+		app-admin/bubbagen:0/${PV}
 	)
 	systemd? (
-		app-admin/bubbagen:0/1.10.5
+		app-admin/bubbagen:0/${PV}.5
 	)
 "
