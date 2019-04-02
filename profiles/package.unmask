@@ -1,0 +1,4 @@
+# Gordon Bos <gordon@bosvangennip.nl> (1 Apr 2019)
+# override mask from main profile
+>=media-sound/forked-daapd-26
+
