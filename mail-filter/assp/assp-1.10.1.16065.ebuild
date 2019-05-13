@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
+EAPI="5"
+
 inherit eutils user
 
 DESCRIPTION="Anti-Spam SMTP Proxy written in Perl"
@@ -85,8 +87,8 @@ src_prepare() {
 		assp.pl || die
 
 	# remove windows stuff
-	rm "${S}/addservice.pl" || die "Could not remove ${S}/addservice.pl"
-	rm -f "${S}/Win32-quickstart-guide.txt" || die "Could not remove ${S}/Win32-quickstart-guide.txt"
+	rm "addservice.pl"
+	rm -f "Win32-quickstart-guide.txt"
 }
 
 src_install() {
