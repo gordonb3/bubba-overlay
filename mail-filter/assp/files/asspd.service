@@ -1,0 +1,14 @@
+# unit file for mail-filter/assp
+
+
+[Unit]
+Description=Anti-Spam SMTP Proxy
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/assp
+ExecStart=/opt/assp/assp.pl /var/lib/assp/  2<&1 >> /var/log/assp/assp.log
+
+[Install]
+WantedBy=network.target
+
