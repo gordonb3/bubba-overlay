@@ -76,12 +76,12 @@ src_prepare() {
 		-e 's|"$base/$file",$sub,"$this|"/var/lib/assp/conf/$file",$sub,"$this|' \
 		-e 's|"$base/$file",'\'''\'',"$this|"/var/lib/assp/conf/$file",'\'''\'',"$this|' \
 		-e 's|my $fil=$1; $fil="$base/$fil" if $fil!~/^\\Q$base\\E/i;|my $fil=$1;|' \
-		-e 's|$fil="$base/$fil" if $fil!~/^\\Q$base\\E/i;|$fil="/var/lib/assp/conf/$fil" if $fil!~/^\\/etc\\/assp\\/\|\\/var\\/lib\\/assp\\/\/i;|' \
+		-e 's|$fil="$base/$fil" if $fil!~/^\\Q$base\\E/i;|$fil="/var/lib/assp/$fil" if $fil!~/^\\/var\\/lib\\/assp\\/conf\\/\|\\/var\\/lib\\/assp\\/\/i;|' \
 		-e 's|$fil="$base/$fil" if $fil!~/^((\[a-z\]:)?\[\\/\\\\\]\|\\Q$base\\E)/;||' \
-		-e 's|if ($fil !~ /^\\Q$base\\E/i) {|if ($fil !~ /^\\/usr\\/share\\/assp\\//i) {|' \
+		-e 's|if ($fil !~ /^\\Q$base\\E/i) {|if ($fil !~ /^\\/opt\\/assp\\//i) {|' \
 		-e 's|$fil = "$base/$fil";|$fil = "/opt/assp/$fil";|' \
-		-e 's|Q$base\\E|Q\\/etc\\/assp\\/\\E|' \
-		-e 's|$fil="$base/$fil"|$fil="/var/lib/assp/conf/$fil"|' \
+		-e 's|Q$base\\E|Q\\/var\\/lib\\/assp\\/\\E|' \
+		-e 's|$fil="$base/$fil"|$fil="/var/lib/assp/$fil"|' \
 		-e 's|$base/$bf|/var/lib/assp/conf/$bf|g' \
 		-e 's|rebuildrun.txt|/var/lib/assp/rebuildrun.txt|' \
 		assp.pl || die
@@ -93,15 +93,13 @@ src_prepare() {
 
 src_install() {
 	# Configuration directory
-	dodir /var/lib/assp/conf/notes
-
 	insinto /var/lib/assp/conf
 	# Installs files that are used by assp for black/gray lists,
 	# and domain country lookup. To be changed by admin as needed.
 	doins files/*.txt
 
 	fowners assp:assp /var/lib/assp/conf -R
-	fperms 770 /var/lib/assp/conf /var/lib/assp/conf/notes
+	fperms 770 /var/lib/assp/conf
 
 	# Setup directories for mail to be stored for filter
 	keepdir /var/lib/assp/spam /var/lib/assp/notspam
