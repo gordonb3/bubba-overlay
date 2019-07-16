@@ -1,0 +1,10 @@
+[Unit]
+Description=domoticz - Home Automation System
+
+[Service]
+ExecStart=$APPROOT/domoticz -wwwroot $WWWROOT -log $LOGFILE -dbase $DBASE -approot $APPROOT  $EXTRAPARMS
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target
+
