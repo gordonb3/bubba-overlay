@@ -7,8 +7,8 @@ EAPI="5"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
-COMMIT="8a31185d"
-CTIME="2019-08-22 11:29:10 +0200"
+COMMIT="fc60703c"
+CTIME="2019-08-22 16:24:46 +0200"
 
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
@@ -105,6 +105,7 @@ src_configure() {
 		-DUSE_BUILTIN_LUA=$(usex static-libs)
 		-DUSE_BUILTIN_MQTT=$(usex static-libs)
 		-DUSE_BUILTIN_SQLITE=$(usex static-libs)
+		-DWITHOUT_OLDDB_SUPPORT=yes
 	)
 
 	cmake-utils_src_configure
@@ -131,33 +132,18 @@ src_install() {
 	dodoc History.txt License.txt
 
 	# compress static web content
-	find ${ED} -name "*.css" -exec gzip -9 {} \;
-	find ${ED} -name "*.js" -exec gzip -9 {} \;
-	find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
+	find ${ED}/opt/${PN}/www -name "*.css" -exec gzip -9 {} \;
+	find ${ED}/opt/${PN}/www -name "*.js" -exec gzip -9 {} \;
+	find ${ED}/opt/${PN}/www -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
 
 	# cleanup examples and non functional scripts
-	rm -rf ${ED}/opt/${PN}/{updatedomo,server_cert.pem,License.txt}
-	rm -rf ${ED}/opt/${PN}/scripts/{update_domoticz,restart_domoticz,download_update.sh,_domoticz_main*,logrotate}
+	rm -rf ${ED}/opt/${PN}/{server_cert.pem,License.txt}
+	rm -rf ${ED}/var/lib/${PN}/scripts/{_oikomaticz_main*,logrotate}
 	use examples || {
-		rm -rf ${ED}/opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
-		rm -rf ${ED}/opt/${PN}/plugins/examples
+		rm -rf ${ED}/var/lib/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
+		rm -rf ${ED}/var/lib/${PN}/plugins/examples
 	}
-	rm -rf ${ED}/opt/${PN}/dzVents/.gitignore
-	find ${ED}/opt/${PN}/scripts -empty -type d -exec rmdir {} \;
-
-	use openzwave || {
-		rm -rf ${ED}/opt/${PN}/Config
-	}
-	use python || {
-		rm -rf ${ED}/opt/${PN}/plugins
-	}
-
-	# move scripts to /var/lib/oikomaticz
-	mv ${ED}/opt/${PN}/scripts ${ED}/var/lib/${PN}/
-
-	# move History text to /var/lib/oikomaticz
-	mv ${ED}/opt/${PN}/History.txt ${ED}/var/lib/${PN}/
-
+	find ${ED}/var/lib/${PN}/scripts -empty -type d -exec rm -rf {} \;
 }
 
 
@@ -167,6 +153,8 @@ pkg_postinst() {
 		mv /opt/${PN}/scripts/* /var/lib/${PN}/scripts/
 		rmdir /opt/${PN}/scripts
 	fi
+
+	# backward compatibility
 	ln -s /var/lib/${PN}/scripts /opt/${PN}/scripts
 }
 
