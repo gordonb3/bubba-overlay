@@ -1,0 +1,17 @@
+# /etc/conf.d/bubba-firewall
+
+# Do not save state on stopping the firewall
+# Note that if you enable this and you make a mistake that causes
+# you to be disconnected from your B3, the only way to get back in
+# is to pull the power cord while the B3 is still running, boot a 
+# rescue system or have access to the serial console.
+SAVE_ON_STOP="no"
+
+# If you have optional modules that should be loaded when starting
+# the firewall, uncomment the next line end list them in there.
+# Example: 
+# MODULES="nf_conntrack_ftp ip_nat_ftp"
+#MODULES=""
+
+
+

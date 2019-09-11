@@ -8,10 +8,10 @@
 extra_commands="check save panic"
 extra_started_commands="reload"
 
-iptables_bin="/sbin/iptables"
-iptables_proc="/proc/net/ip_tables_names"
-iptables_save="/etc/bubba/firewall.conf"
-iptables_down="/etc/bubba/firewall_down.conf"
+nftables_bin="/sbin/nft"
+nftables_proc="/proc/net/netfilter"
+nftables_save="/etc/bubba/firewall.nft"
+nftables_stopped="/etc/bubba/firewall.nft.stopped"
 
 depend() {
 	need localmount #434774
@@ -22,29 +22,29 @@ depend() {
 flush_rules() {
 	local table policy=$1
 	if [ -z "$policy" ]; then
-		policy="ACCEPT"
+		policy="accept"
 	fi
-	for table in $(cat ${iptables_proc}) ; do
+
+	nft flush ruleset
+	tables="filter nat"
+	for table in ${tables} ; do
+		${nftables_bin} add table ip ${table}
 		local chains
 		case ${table} in
-			nat)    chains="PREROUTING POSTROUTING OUTPUT";;
-			mangle) chains="PREROUTING INPUT FORWARD OUTPUT POSTROUTING";;
+			nat)    chains="PREROUTING POSTROUTING INPUT OUTPUT";;
 			filter) chains="INPUT FORWARD OUTPUT";;
 			*)      chains="";;
 		esac
 		local chain
 		for chain in ${chains} ; do
-			${iptables_bin} -t ${table} -P ${chain} ${policy}
+			${nftables_bin} add chain ip ${table} ${chain} \{ type nat hook prerouting priority 0\; policy ${policy}\; \}
 		done
-
-		${iptables_bin} -F -t ${table}
-		${iptables_bin} -X -t ${table}
 	done
 }
 
 checkkernel() {
-	if [ ! -e ${iptables_proc} ] ; then
-		eerror "Your kernel lacks iptables support, please load"
+	if [ ! -e ${nftables_proc} ] ; then
+		eerror "Your kernel lacks nftables support, please load"
 		eerror "appropriate modules and try again."
 		return 1
 	fi
@@ -52,7 +52,7 @@ checkkernel() {
 }
 
 checkconfig() {
-	if [ ! -f ${iptables_save} ] ; then
+	if [ ! -f ${nftables_save} ] ; then
 		eerror "Not starting firewall.  First create some rules then run:"
 		eerror "/etc/init.d/${SVCNAME} save"
 		return 1
@@ -70,7 +70,8 @@ start() {
 		done
 	fi
 	echo "1" > /proc/sys/net/ipv4/ip_forward
-	${iptables_bin}-restore ${SAVE_RESTORE_OPTIONS} < "${iptables_save}"
+	${nftables_bin} flush ruleset
+	${nftables_bin} -f "${nftables_save}"
 	eend $?
 }
 
@@ -82,9 +83,9 @@ stop() {
 	ebegin "Stopping firewall"
 	flush_rules
 	eend $?
-	if [ -r  "${iptables_down}" ]; then
+	if [ -r  "${nftables_stopped}" ]; then
 		ebegin "Loading 'stopped' rules"
-		${iptables_bin}-restore "${iptables_down}"
+		${nftables_bin} -f "${nftables_stopped}"
 		eend $?
 	else
 		echo "0" > /proc/sys/net/ipv4/ip_forward
@@ -105,7 +106,7 @@ reload() {
 
 checkrules() {
 	ebegin "Checking rules"
-	${iptables_bin}-restore --test ${SAVE_RESTORE_OPTIONS} < "${iptables_save}"
+	${nftables_bin} -c -f "${nftables_save}"
 	eend $?
 }
 
@@ -116,9 +117,9 @@ check() {
 
 save() {
 	ebegin "Saving firewall state"
-	checkpath -q -d "$(dirname "${iptables_save}")"
-	checkpath -q -m 0600 -f "${iptables_save}"
-	${iptables_bin}-save ${SAVE_RESTORE_OPTIONS} > "${iptables_save}"
+	checkpath -q -d "$(dirname "${nftables_save}")"
+	checkpath -q -m 0600 -f "${nftables_save}"
+	${nftables_bin} -nn list ruleset > "${nftables_save}"
 	eend $?
 }
 
@@ -130,7 +131,7 @@ panic() {
 
 	ebegin "Dropping all packets"
 	flush_rules DROP
-	${iptables_bin} -A INPUT -i ${LAN_if} -j ACCEPT
-	${iptables_bin} -A OUTPUT -d ${LAN_net} -j ACCEPT
+	${nftables_bin} add rule ip filter INPUT iifname ${LAN_if} accept
+	${nftables_bin} add rule ip filter OUTPUT ip daddr ${LAN_net} accept
 	eend $?
 }

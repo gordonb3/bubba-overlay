@@ -1,4 +1,4 @@
-# /etc/conf.d/iptables
+# /etc/conf.d/bubba-firewall
 
 # Save-restore option '-c' will preserve counters
 SAVE_RESTORE_OPTIONS="-c"

@@ -1,0 +1,59 @@
+table ip nat {
+	chain PREROUTING {
+		type nat hook prerouting priority 0; policy accept;
+		jump Bubba_DNAT
+	}
+
+	chain INPUT {
+		type nat hook input priority 0; policy accept;
+	}
+
+	chain OUTPUT {
+		type nat hook output priority 0; policy accept;
+	}
+
+	chain POSTROUTING {
+		type nat hook postrouting priority 0; policy accept;
+		jump Bubba_SNAT
+		oifname "eth0" masquerade
+	}
+
+	chain Bubba_DNAT {
+	}
+
+	chain Bubba_SNAT {
+	}
+}
+table ip filter {
+	chain INPUT {
+		type filter hook input priority 0; policy drop;
+		tcp flags & (syn | ack) == syn | ack ct state new reject with tcp reset
+		tcp flags & (fin | syn | rst | ack) != syn ct state new drop
+		iifname "lo" accept
+		iifname "eth1" accept
+		ct state invalid drop
+		icmp type time-exceeded accept
+		ct state established,related accept
+		jump Bubba_IN
+	}
+
+	chain FORWARD {
+		type filter hook forward priority 0; policy drop;
+		iifname "eth1" accept
+		ct state invalid drop
+		ct state established,related accept
+		jump Bubba_FWD
+	}
+
+	chain OUTPUT {
+		type filter hook output priority 0; policy accept;
+	}
+
+	chain Bubba_FWD {
+	}
+
+	chain Bubba_IN {
+		iifname "eth0" tcp dport ssh accept
+	}
+}
+
