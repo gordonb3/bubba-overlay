@@ -40,7 +40,7 @@ DEPEND="
 
 RDEPEND="${DEPEND}
 	app-admin/hddtemp
-	dev-lang/php[cgi,fpm,sockets,json,xml,gd,pdo,imap]
+	dev-lang/php[fpm,sockets,json,xml,gd,pdo,imap]
 	dev-php/PEAR-HTTP_Request2
 	sys-apps/bubba-info[php]
 	www-apps/codeigniter-bin
