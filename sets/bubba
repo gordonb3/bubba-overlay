@@ -2,7 +2,6 @@ mail-client/bubba-roundcube
 mail-mta/postfix
 media-gfx/singapore
 net-dns/dnsmasq
-net-firewall/iptables
 net-fs/davfs2
 net-fs/netatalk
 net-fs/samba
