@@ -59,6 +59,11 @@ src_prepare() {
 	epatch ${FILESDIR}/bubba-firewall.patch
 	epatch ${FILESDIR}/change-tz.patch
 	if use systemd; then
+		if use nftables; then
+			cp -a ${FILESDIR}/bubba-nft.initd ${S}/bubba-firewall.sh
+		else
+			cp -a ${FILESDIR}/bubba-firewall.initd ${S}/bubba-firewall.sh
+		fi
 		epatch ${FILESDIR}/systemd.patch
 	fi
 
@@ -110,7 +115,7 @@ src_install() {
 		if use systemd; then
 			systemd_dounit "${FILESDIR}/bubba-firewall.service"
 			exeinto /opt/bubba/sbin
-			newexe ${FILESDIR}/bubba-firewall.initd bubba-firewall.sh
+			doexe bubba-firewall.sh
 		else
 			newinitd ${FILESDIR}/bubba-firewall.initd  bubba-firewall
 		fi
@@ -120,14 +125,12 @@ src_install() {
 		if use systemd; then
 			systemd_dounit "${FILESDIR}/bubba-firewall.service"
 			exeinto /opt/bubba/sbin
-			newexe ${FILESDIR}/bubba-nft.initd bubba-firewall.sh
+			doexe bubba-firewall.sh
 		else
 			newinitd ${FILESDIR}/bubba-nft.initd  bubba-firewall
 		fi
 		newconfd ${FILESDIR}/bubba-nft.confd  bubba-firewall
 	fi
-
-
 
 	# documentation
 	dodoc "${S}/debian/copyright" ${FILESDIR}/Changelog
