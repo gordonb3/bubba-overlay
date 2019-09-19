@@ -94,8 +94,6 @@ stop() {
 reload() {
 	checkkernel || return 1
 	checkrules || return 1
-	local LAN_if=$(/opt/bubba/bin/bubba-networkmanager-cli getlanif)
-	local LAN_net=$(ip route show dev ${LAN_if} scope link | cut -d ' ' -f1)
 	ebegin "Flushing firewall"
 	flush_rules
 	eend $?
@@ -130,6 +128,8 @@ panic() {
 
 	ebegin "Dropping all packets"
 	flush_rules DROP
+	local LAN_if=$(/opt/bubba/bin/bubba-networkmanager-cli getlanif)
+	local LAN_net=$(ip route show dev ${LAN_if} scope link | cut -d ' ' -f1)
 	${iptables_bin} -A INPUT -i ${LAN_if} -j ACCEPT
 	${iptables_bin} -A OUTPUT -d ${LAN_net} -j ACCEPT
 	eend $?
