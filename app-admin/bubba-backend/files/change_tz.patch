@@ -1,4 +1,6 @@
+When changing timezone, also update the timezone info in php
 
+Patch by Gordon Bos
 
 --- a/web-admin/lib/Bubba.pm
 +++ b/web-admin/lib/Bubba.pm

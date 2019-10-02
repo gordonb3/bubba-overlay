@@ -1,3 +1,9 @@
+2019-10-02
+
+  * Use hardcoded paths when calling external binaries
+    trusting on search path caused some GUI calls to backend.pl to fail
+
+-------------------------------------------------------------------
 2018-01-22
 
   * Dependency move: dev-libs/libbubba-info-php -> sys-apps/bubba-info

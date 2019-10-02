@@ -1,0 +1,336 @@
+The web front-end appears to mess when the system search path, so
+we need to use fixed paths when calling external programs.
+
+Patch by Gordon Bos
+
+diff -ru a/web-admin/lib/Bubba.pm b/web-admin/lib/Bubba.pm
+--- a/web-admin/lib/Bubba.pm	2019-10-02 10:06:17.637661642 +0200
++++ b/web-admin/lib/Bubba.pm	2019-10-02 10:29:01.356427048 +0200
+@@ -63,7 +63,7 @@
+ 	my $string;
+ 
+ 	if(-x "/usr/sbin/hddtemp"){
+-		$string=`hddtemp $disk`;
++		$string=`/usr/sbin/hddtemp $disk`;
+ 		if($string =~ /:\s(\d\d.+C)/) {
+ 			print "$1\n";
+ 			return 0;
+@@ -79,7 +79,7 @@
+ 
+ #return system uptime
+ sub uptime{
+-        my $string=`uptime`;
++        my $string=`/usr/bin/uptime`;
+ 	if ($string =~ /up\s+(\d+:\d+),/) {
+ 		print "$1\n";
+ 		return 0;
+@@ -109,7 +109,7 @@
+ 		print "Error in parsing data\n";
+ 		return 1;
+ 	} else {
+-		system("date $datecode");
++		system("/bin/date $datecode");
+ 	}
+ 	#print $? ."\n";
+ 	return $?;  
+@@ -118,7 +118,7 @@
+ sub rm{
+    my ($file,$user) = @_;
+    su($user,"users");
+-   system("rm", "-rf", $file);
++   system("/bin/rm", "-rf", $file);
+    $ret=$?;
+    unsu();
+    return $ret;
+@@ -178,7 +178,7 @@
+   
+   su($user,"users");
+   print("mv -f \"$srcfile\" \"$dstfile\"\n");
+-  system("mv","-f",$srcfile,$dstfile);
++  system("/bin/mv","-f",$srcfile,$dstfile);
+   $res=$?;
+   unsu();
+ 
+@@ -186,7 +186,7 @@
+      return $res;
+   }
+ 
+-  system("chown", "$user:users",$dstfile);
++  system("/bin/chown", "$user:users",$dstfile);
+   return $?;
+ 
+ }
+@@ -199,7 +199,7 @@
+   
+   su($user,"users");
+   print("cp -rf \"$srcfile\" \"$dstfile\"\n");
+-  system("cp","-rf",$srcfile,$dstfile);
++  system("/bin/cp","-rf",$srcfile,$dstfile);
+   $res=$?;
+   unsu();
+ 
+@@ -207,7 +207,7 @@
+      return $res;
+   }
+ 
+-  system("chown", "$user:users",$dstfile);
++  system("/bin/chown", "$user:users",$dstfile);
+   return $?;
+ 
+ }
+@@ -216,7 +216,7 @@
+ sub get_filesize{
+ 	my ($file, $user)=@_;
+ 	su($user,"users");
+-	print system("stat","-c","%s",$file);
++	print system("/usr/bin/stat","-c","%s",$file);
+ 	$res=$?;
+ 	unsu();
+ 	return $res;
+@@ -357,7 +357,7 @@
+    my ($name,$pwd)=@_;
+    use Crypt::PasswdMD5;
+    $pwd=unix_md5_crypt($pwd);
+-   system("usermod", "-p", $pwd, $name);
++   system("/usr/sbin/usermod", "-p", $pwd, $name);
+ 
+    return $?;
+ }
+@@ -416,7 +416,7 @@
+    my ($name)=@_;
+    my $ret=0;
+ 
+-   system("smbpasswd -x $name &>/dev/null && userdel $name");
++   system("/usr/bin/smbpasswd -x $name &>/dev/null && userdel $name");
+    $ret=$?;
+    
+    return $ret;
+@@ -435,9 +435,9 @@
+    my ($rname, $shell, $uname)=@_;
+ 
+    if($shell eq ""){
+-      system("usermod -c \"$rname\" $uname");
++      system("/usr/sbin/usermod -c \"$rname\" $uname");
+    }else{
+-      system("usermod -c \"$rname\" -s $shell $uname");
++      system("/usr/sbin/usermod -c \"$rname\" -s $shell $uname");
+    }
+    return $?;
+ }
+@@ -461,16 +461,16 @@
+ 	use Crypt::PasswdMD5;
+ 	my $c_pwd=quotemeta unix_md5_crypt($pwd);
+ 
+-	$ret=system("useradd -m -c \"$rname\" -g \"$group\" -s $shell -p $c_pwd $uname");
++	$ret=system("/usr/sbin/useradd -m -c \"$rname\" -g \"$group\" -s $shell -p $c_pwd $uname");
+ 	if ($ret==0) {
+ 		my $qpwd = quotemeta($pwd);
+-		$ret=system("(echo $qpwd; echo $qpwd) | smbpasswd -s -a $uname");
++		$ret=system("(/bin/echo $qpwd; /bin/echo $qpwd) | /usr/bin/smbpasswd -s -a $uname");
+ 	}
+ 
+ 	# if user existed before, make sure his directory is left accessible to new user
+ 	# This is however a security risk. But we trust the admin to do the right thing.   
+ 	if($ret==0){
+-		$ret=system("chown -R $uname:$group /home/$uname");
++		$ret=system("/bin/chown -R $uname:$group /home/$uname");
+ 	}
+ 
+ 	return $ret;
+@@ -561,7 +561,7 @@
+ sub change_hostname {
+ 	my ($name)=@_;
+ 
+-	system("echo $name > /proc/sys/kernel/hostname");
++	system("/bin/echo $name > /proc/sys/kernel/hostname");
+ 	system("/bin/sed -i \"s/\s*\(hostname=\).*$/\\1\\\"$name\\\"/\"   /etc/conf.d/hostname");
+ #	system("echo $name.localdomain > /etc/mailname");
+ 
+@@ -579,11 +579,11 @@
+ 	}
+ 
+ 
+-	system("grep -v \"send host-name\" /etc/dhcp/dhclient.conf > /etc/dhcp/dhclient.conf.new");
+-	system("echo send host-name \\\"$name\\\"\\\; >> /etc/dhcp/dhclient.conf.new");
+-	system("mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
++	system("/bin/grep -v \"send host-name\" /etc/dhcp/dhclient.conf > /etc/dhcp/dhclient.conf.new");
++	system("/bin/echo send host-name \\\"$name\\\"\\\; >> /etc/dhcp/dhclient.conf.new");
++	system("/bin/mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
+ 	$lan = _get_lanif;
+-	system("/usr/bin/rc-config restart `rc-config list default | grep "^\s*net\."`");
++	system("/usr/bin/rc-config restart `/usr/bin/rc-config list default | /bin/grep "^\s*net\."`");
+ 
+ 	if(change_ftp_servername($name)){
+ 		system("/usr/bin/rc-config restart proftpd");
+@@ -644,7 +644,7 @@
+ # Return : Status of operation
+ sub dump_file {
+ 	my ($file)=@_;
+-	return system("cat $file");
++	return system("/bin/cat $file");
+ }
+ 
+ # Restart network
+@@ -760,7 +760,7 @@
+ 	#if(-e "/var/run/dhclient.$iface.pid"){
+ 	if(service_running(dhclient.$iface)) {
+ 		print "KILL service";
+-		system("kill -INT `cat /var/run/dhclient.$iface.pid`");
++		system("/bin/kill -INT `/bin/cat /var/run/dhclient.$iface.pid`");
+ 	}
+ 	$lan = _get_lanif;
+ 	if($iface eq $lan) { # rewrite host file for local network
+@@ -834,7 +834,7 @@
+ 	}
+ 
+ 	if(-e $pidfile){
+-		$pid=`cat $pidfile`;
++		$pid=`/bin/cat $pidfile`;
+ 		my @ln=split(/ /,$pid);
+ 		chomp(@ln);
+ 		$pid=@ln[0];
+@@ -861,7 +861,7 @@
+ 
+ sub package_is_installed{
+ 	my($package)=@_;
+-	return system("dpkg-query -W -f='\${Status}\n' $package 2>&- | grep 'install ok installed'")>>8;
++	return system("/usr/bin/dpkg-query -W -f='\${Status}\n' $package 2>&- | /bin/grep 'install ok installed'")>>8;
+ }
+ 
+ 
+@@ -1420,15 +1420,15 @@
+ 	# We gather user data from /etc/shadow and /etc/passwd, we'll only remember groups which 
+ 	# specific users belong to.
+ 	my @bubba_users = map { 
+-		my(undef,undef,$uid,$gid,$comment,$homedir,$shell) = split ':', `getent passwd $_->{username}`; 
++		my(undef,undef,$uid,$gid,$comment,$homedir,$shell) = split ':', `/usr/bin/getent passwd $_->{username}`; 
+ 		$_->{uid} = $uid; 
+ 		$_->{gid} = $gid; 
+ 		$_->{comment} = $comment; 
+ 		$_->{homedir} = $homedir; 
+ 		chomp( $_->{shell} = $shell); 
+-		chomp (my $groups = `id -Gn $_->{username}`);
++		chomp (my $groups = `/usr/bin/id -Gn $_->{username}`);
+ 		@{$_->{groups}} = split ' ', $groups;
+-		chomp( $_->{main_group} = `id -gn $_->{username}` );
++		chomp( $_->{main_group} = `/usr/bin/id -gn $_->{username}` );
+ 		$_->{has_bubbacfg} =  -f "/home/$_->{username}/.bubbacfg" ? 1 : 0;
+ 		$_->{has_backup} =  -d "/home/$_->{username}/.backup" ? 1 : 0;
+ 		\%$_;
+@@ -1457,7 +1457,7 @@
+ 	write_file( "$tempdir/meta.json", to_json( $meta, {utf8 => 1, pretty => 1}));
+ 
+ 	my $ret = system(
+-		"tar", 
++		"/bin/tar", 
+ 		'--directory', '/',
+ 		"--create", 
+ 		"--file", "$tempdir/system.tar.gz", 
+@@ -1473,7 +1473,7 @@
+ 	) >> 8;
+ 
+ 	$ret |= system(
+-		"tar", 
++		"/bin/tar", 
+ 		'--directory', '/',
+ 		"--create", 
+ 		"--file", "$tempdir/user.tar.gz",
+@@ -1495,7 +1495,7 @@
+ 
+ 	# We combine the above files into an tar file
+ 	$ret |= system(	
+-		"tar", 
++		"/bin/tar", 
+ 		"--create",
+ 		'--directory', $tempdir,
+ 		"--file", "$filename",
+@@ -1527,7 +1527,7 @@
+ 		my $tempdir = tempdir( CLEANUP => 1 );
+ 
+ 		system(
+-			'tar', 
++			'/bin/tar', 
+ 			'--extract',
+ 			'--directory', $tempdir,
+ 			'--file', $latest_archive
+@@ -1571,7 +1571,7 @@
+ 			foreach my $group( @{$user->{groups}} ) {
+ 				unless( system("/usr/bin/getent group $group &>/dev/null") >> 8 == 0 ) {
+ 					system(
+-						'groupadd',
++						'/usr/sbin/groupadd',
+ 						'--force',
+ 						$group
+ 					);
+@@ -1606,7 +1606,7 @@
+ 
+             # chown the user dir
+             system(
+-                "chown",
++                "/bin/chown",
+                 "--from", $user->{uid},
+                 "--recursive",
+                 "--silent",
+@@ -1719,7 +1719,7 @@
+ 			write_file( $tempfile, join( "\n", '/etc/passwd', '/etc/shadow', '/etc/group' ) );
+ 
+ 			system(
+-				'tar',
++				'/bin/tar',
+ 				'--directory', $tempdir,
+ 				'--extract',
+ 				'--gzip',
+@@ -1937,7 +1937,7 @@
+ 	my $iface=shift;
+ 	my $link=0;
+ 		
+-	my @lines=`ethtool $iface 2>/dev/null`;
++	my @lines=`/usr/sbin/ethtool $iface 2>/dev/null`;
+ 	foreach $line (@lines){
+ 		if( $line =~ /\s*Speed: (\d+)Mb\/s/){
+ 			$link=$1;
+@@ -2013,7 +2013,7 @@
+ sub do_get_timezone {
+ 
+ 	my $tz_path;
+-	$tz_path = `ls -l /etc/localtime`;
++	$tz_path = `/bin/ls -l /etc/localtime`;
+ 	$tz_path =~ m/\/usr\/share\/zoneinfo\/(\w+)\/(\w+)$/;
+ 	if(!($1 && $2)) {
+ 		print "UTC";
+@@ -2028,13 +2028,13 @@
+ 	my $ret;
+ 	my $cmd;
+ 	
+-	$cmd = "ln -sf '/usr/share/zoneinfo/$timezone' '/etc/localtime'";
++	$cmd = "/bin/ln -sf '/usr/share/zoneinfo/$timezone' '/etc/localtime'";
+ 	$ret = system($cmd);
+-	$cmd = "echo '$timezone' > '/etc/timezone'";
++	$cmd = "/bin/echo '$timezone' > '/etc/timezone'";
+ 	$ret = system($cmd);
+-	$cmd="sed -e '/date\.timezone/d' -e '$a\' -i /etc/php/*/ext/bubba-admin.ini";
++	$cmd="/bin/sed -e '/date\.timezone/d' -e '$a\' -i /etc/php/*/ext/bubba-admin.ini";
+ 	$ret = system($cmd);
+-	my @filelist= `ls -1 /etc/php/*/ext/bubba-admin.ini`;
++	my @filelist= `/bin/ls -1 /etc/php/*/ext/bubba-admin.ini`;
+ 	foreach $file (@filelist) {
+ 		open(my $fd, ">>$file");
+ 		print $fd "date.timezone=\"$timezone\"\n";
+@@ -2077,7 +2077,7 @@
+ 		unlink "/etc/bubba-notify/enabled/$type";
+ 	}
+ 
+-	system( 'ln', '-s', "/etc/bubba-notify/available/$type" , "/etc/bubba-notify/enabled/$type" );
++	system( '/bin/ln', '-s', "/etc/bubba-notify/available/$type" , "/etc/bubba-notify/enabled/$type" );
+ }
+ 
+ sub _notify_disable {
+@@ -2160,7 +2160,7 @@
+ 		_notify_disable( $notify );
+ 	}
+ 
+-	system( 'rm', '-f', glob('/var/spool/bubba-notify/*') );
++	system( '/bin/rm', '-f', glob('/var/spool/bubba-notify/*') );
+ 
+ 	&_notify_write_config( $conf );
+ }

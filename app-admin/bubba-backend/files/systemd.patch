@@ -166,23 +166,23 @@ Patch by Gordon Bos
 @@ -562,7 +562,7 @@
  	my ($name)=@_;
  
- 	system("echo $name > /proc/sys/kernel/hostname");
--	system("sed -i \"s/\s*\(hostname=\).*$/\\1\\\"$name\\\"/\"   /etc/conf.d/hostname");
+ 	system("/bin/echo $name > /proc/sys/kernel/hostname");
+-	system("/bin/sed -i \"s/\s*\(hostname=\).*$/\\1\\\"$name\\\"/\"   /etc/conf.d/hostname");
 +	system("/usr/bin/hostnamectl","set-hostname","$name");
  #	system("echo $name.localdomain > /etc/mailname");
  
  	%ifs = read_interfaces();
 @@ -583,10 +583,11 @@
- 	system("echo send host-name \\\"$name\\\"\\\; >> /etc/dhcp/dhclient.conf.new");
- 	system("mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
+ 	system("/bin/echo send host-name \\\"$name\\\"\\\; >> /etc/dhcp/dhclient.conf.new");
+ 	system("/bin/mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
  	$lan = _get_lanif;
--	system("rc-config restart `rc-config list default | grep "^\s*net\."`");
+-	system("/usr/bin/rc-config restart `/usr/bin/rc-config list default | /bin/grep "^\s*net\."`");
 +	system("/usr/bin/nmcli networking off");
 +	system("/usr/bin/nmcli networking on");
  
  	if(change_ftp_servername($name)){
--		system("rc-config restart proftpd");
-+		system("systemctl restart proftpd");
+-		system("/usr/bin/rc-config restart proftpd");
++		system("/usr/bin/systemctl restart proftpd");
  	}
  
  	restart_avahi();
@@ -190,11 +190,11 @@ Patch by Gordon Bos
     my ($if)=@_;
     my $ret;
  
--   $ret=system("rc-config stop net.$if");
+-   $ret=system("/usr/bin/rc-config stop net.$if");
 -   if ($ret==0) {
--      $ret=system("rc-config start net.$if");
+-      $ret=system("/usr/bin/rc-config start net.$if");
 -   }
-+   $ret=system("nmcli con up ifname $if");
++   $ret=system("/usr/bin/nmcli con up ifname $if");
     return $ret;
  }
  
@@ -216,10 +216,10 @@ Patch by Gordon Bos
 -	} else {
 -		$pidfile = "/var/run/$service.pid";
 -	}
-+	system("systemctl is-active $service >/dev/null");
++	system("/usr/bin/systemctl is-active $service >/dev/null");
  
 -	if(-e $pidfile){
--		$pid=`cat $pidfile`;
+-		$pid=`/bin/cat $pidfile`;
 -		my @ln=split(/ /,$pid);
 -		chomp(@ln);
 -		$pid=@ln[0];
@@ -300,7 +300,7 @@ Patch by Gordon Bos
  sub query_service{
     my ($service)=@_;
  
--   return system("ls /etc/runlevels/default/$service 1>/dev/null 2>/dev/null");
+-   return system("/bin/ls /etc/runlevels/default/$service 1>/dev/null 2>/dev/null");
 +   return system("/usr/bin/systemctl is-enabled $service");
  
  }
@@ -311,7 +311,7 @@ Patch by Gordon Bos
  	my %services = map {
 -		$_ => (defined -e "/etc/runlevels/default/$_");
 -	} qw(proftpd forked-daapd ntpd filetransferdaemon cupsd postfix dovecot fetchmail minidlna dnsmasq logitechmediaserver hostapd netatalk net.br0 samba);
-+		$_ => (system("systemctl is-enabled $_")==0);
++		$_ => (system("/usr/bin/systemctl is-enabled $_")==0);
 +	} qw(proftpd forked-daapd ntpd filetransferdaemon cupsd postfix dovecot fetchmail minidlna dnsmasq logitechmediaserver hostapd netatalk smbd);
  
  	my $meta = {

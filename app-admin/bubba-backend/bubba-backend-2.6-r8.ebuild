@@ -55,6 +55,7 @@ src_prepare() {
 	epatch ${FILESDIR}/gentoo.patch
 	epatch ${FILESDIR}/bubba-firewall.patch
 	epatch ${FILESDIR}/change_tz.patch
+	epatch ${FILESDIR}/use_fixed_paths.patch
 	if use systemd; then
 		cp -a ${FILESDIR}/bubba-firewall.initd ${S}/bubba-firewall.sh
 		epatch ${FILESDIR}/systemd.patch

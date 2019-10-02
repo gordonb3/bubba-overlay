@@ -333,7 +333,7 @@ Patch by Gordon Bos
  	system("echo $name > /proc/sys/kernel/hostname");
 -	system("echo $name > /etc/hostname");
 -	system("echo $name.localdomain > /etc/mailname");
-+	system("sed -i \"s/\s*\(hostname=\).*$/\\1\\\"$name\\\"/\"   /etc/conf.d/hostname");
++	system("/bin/sed -i \"s/\s*\(hostname=\).*$/\\1\\\"$name\\\"/\"   /etc/conf.d/hostname");
 +#	system("echo $name.localdomain > /etc/mailname");
  
  	%ifs = read_interfaces();
@@ -351,11 +351,11 @@ Patch by Gordon Bos
  	system("mv /etc/dhcp/dhclient.conf.new /etc/dhcp/dhclient.conf");
  	$lan = _get_lanif;
 -	system("/sbin/ifup --force eth0 $lan");
-+	system("rc-config restart `rc-config list default | grep "^\s*net\."`");
++	system("/usr/bin/rc-config restart `rc-config list default | grep "^\s*net\."`");
  
  	if(change_ftp_servername($name)){
 -		system("/etc/init.d/proftpd restart");
-+		system("rc-config restart proftpd");
++		system("/usr/bin/rc-config restart proftpd");
  	}
  
  	restart_avahi();
@@ -373,10 +373,10 @@ Patch by Gordon Bos
     my $ret;
  
 -   $ret=system("/sbin/ifdown $if");
-+   $ret=system("rc-config stop net.$if");
++   $ret=system("/usr/bin/rc-config stop net.$if");
     if ($ret==0) {
 -      $ret=system("/sbin/ifup $if");
-+      $ret=system("rc-config start net.$if");
++      $ret=system("/usr/bin/rc-config start net.$if");
     }
     return $ret;
  }
@@ -456,7 +456,7 @@ Patch by Gordon Bos
     my ($service)=@_;
  
 -   return system("ls /etc/rc2.d/S??$service 1>/dev/null 2>/dev/null");
-+   return system("ls /etc/runlevels/default/$service 1>/dev/null 2>/dev/null");
++   return system("/bin/ls /etc/runlevels/default/$service 1>/dev/null 2>/dev/null");
  
  }
  

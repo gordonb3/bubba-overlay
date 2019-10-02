@@ -57,9 +57,11 @@ S=${WORKDIR}/${PN}
 src_prepare() {
 	epatch ${FILESDIR}/gentoo.patch
 	epatch ${FILESDIR}/bubba-firewall.patch
-	epatch ${FILESDIR}/change-tz.patch
+	epatch ${FILESDIR}/change_tz.patch
+	epatch ${FILESDIR}/use_fixed_paths.patch
 	if use systemd; then
 		if use nftables; then
+			# this will cause a fuzz with the next patch, but it will pass
 			cp -a ${FILESDIR}/bubba-nft.initd ${S}/bubba-firewall.sh
 		else
 			cp -a ${FILESDIR}/bubba-firewall.initd ${S}/bubba-firewall.sh
