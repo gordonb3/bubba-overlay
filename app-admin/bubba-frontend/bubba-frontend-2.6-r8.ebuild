@@ -86,6 +86,7 @@ src_prepare() {
 	epatch ${FILESDIR}/php7.patch
 	epatch ${FILESDIR}/gentoo-logo.patch
 	epatch ${FILESDIR}/wifi-no-dhcp.patch
+	epatch ${FILESDIR}/ignore-empty-postdata.patch
 
 	# debug USE flag enables extra logging in web UI
 	if use debug; then

@@ -1,3 +1,14 @@
+2019-10-04
+
+  * Correct for systemd binaries having moved from /usr/bin to /bin
+  * Do not accept empty postdata on lanupdate and wanupdate: when revisiting
+    these pages after changing the IP address this would reset the NIC to use
+    a DHCP assigned address
+  * GUI would show the session stored value for AllowRemote rather than the
+    saved value
+  * GUI did not correctly show status of samba service in systemd version
+
+-------------------------------------------------------------------
 2018-01-22
 
   * Fix "Strict Standards: Only variables should be passed by reference" 

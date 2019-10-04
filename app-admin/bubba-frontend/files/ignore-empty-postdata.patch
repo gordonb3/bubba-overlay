@@ -1,0 +1,43 @@
+Disallow calling `lanupdate` and `wanupdate` with empty postdata as this would cause
+the GUI to reset the NIC to dynamic when revisiting this page after an IP change.
+
+Also correct a tiny nuisance with user control panel showing the session stored value
+for `AllowRemote` rather than the actual saved value.
+
+Patch by Gordon Bos
+
+
+diff -ru a/web-admin/admin/controllers/network.php b/web-admin/admin/controllers/network.php
+--- a/web-admin/admin/controllers/network.php	2019-08-30 22:59:45.610446481 +0200
++++ b/web-admin/admin/controllers/network.php	2019-10-03 11:30:06.385255000 +0200
+@@ -32,6 +32,9 @@
+ 
+ 	function wanupdate($strip=""){
+ 
++		if (!$this->input->post("update")) {
++			redirect('/network/wan');
++		}
+ 		if ($this->session->userdata("network_profile") == "router") {
+ 			$data["disable_gw"] = 0;
+ 		} else {
+@@ -141,6 +144,9 @@
+ 
+ 	function lanupdate($strip=""){
+ 
++		if (!$this->input->post("update")) {
++			redirect('/network/lan');
++		}
+ 		if ($this->session->userdata("network_profile") == "server") {
+ 			$data["disable_gw"] = 0;
+ 		} else {
+diff -ru a/web-admin/admin/controllers/users.php b/web-admin/admin/controllers/users.php
+--- a/web-admin/admin/controllers/users.php	2019-08-30 22:59:45.630448917 +0200
++++ b/web-admin/admin/controllers/users.php	2019-10-02 12:03:23.902399000 +0200
+@@ -237,6 +237,7 @@
+ 					&& $this->Auth_model->policy("userdata","disable_remote", $username)
+ 				) {
+ 					$this->update_cfg("AllowRemote",$remote ? 'yes': 'no',"admin" );
++					$this->session->set_userdata("AllowRemote",$remote ? 'yes': 'no');
+ 				}
+ 				
+ 				if( !$error ) {

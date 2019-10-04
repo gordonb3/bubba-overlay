@@ -1,3 +1,8 @@
+2019-10-04
+
+  * Correct for systemd binaries having moved from /usr/bin to /bin
+
+-------------------------------------------------------------------
 2019-10-02
 
   * Use hardcoded paths when calling external binaries
