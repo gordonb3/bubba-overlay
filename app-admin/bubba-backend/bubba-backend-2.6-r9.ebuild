@@ -71,6 +71,14 @@ src_prepare() {
 		sed -i "s/forked-daapd/daapd/" web-admin/bin/diskdaemon.pl
 		sed -i "s/forked-daapd/daapd/" web-admin/bin/adminfunctions.php
 	fi
+
+	# systemd binaries have moved from /usr/bin to /bin with later versions
+	if use systemd; then
+		SYSTEMCTL=$(equery f systemd | grep "bin/systemctl$")
+		sed -e "s#/usr/bin/systemctl#${SYSTEMCTL}#g" -i web-admin/bin/diskdaemon.pl
+		sed -e "s#/usr/bin/systemctl#${SYSTEMCTL}#g" -i web-admin/bin/adminfunctions.php
+		sed -e "s#/usr/bin/systemctl#${SYSTEMCTL}#g" -i web-admin/lib/Bubba.pm
+	fi
 }
 
 
