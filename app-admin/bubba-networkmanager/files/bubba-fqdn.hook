@@ -25,7 +25,7 @@ sed -i "s/$//" /etc/resolv.conf
 # add loopback entry if missing
 localhost_entry=$(grep "^127.0.0.1" /etc/hosts)
 if [ "x${localhost_entry}" = "x" ]; then
-	echo "127.0.0.1\tlocalhost" >> /etc/hosts
+	echo -e "127.0.0.1\tlocalhost" >> /etc/hosts
 fi
 
 
