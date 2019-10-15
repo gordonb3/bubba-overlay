@@ -1,8 +1,8 @@
 [Unit]
-Description=domoticz - Home Automation System
+Description=Oikomaticz - Home Automation System
 
 [Service]
-ExecStart=$APPROOT/domoticz -wwwroot $WWWROOT -log $LOGFILE -dbase $DBASE -approot $APPROOT  $EXTRAPARMS
+ExecStart=$APPROOT/oikomaticz -wwwroot $WWWROOT -log $LOGFILE -dbase $DBASE -approot $APPROOT  $EXTRAPARMS
 StandardOutput=null
 
 [Install]

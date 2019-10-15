@@ -1,6 +1,6 @@
 #!/sbin/openrc-run
 
-NAME=domoticz
+NAME=oikomaticz
 DAEMON=$NAME
 PIDFILE=/var/run/$NAME.pid
 DOMOTICZ_USER=root
@@ -39,13 +39,13 @@ checkconfig() {
 
 start() {
 	checkconfig
-        ebegin "Starting Domoticz"
+        ebegin "Starting Oikomaticz"
 		start-stop-daemon --start --quiet --user ${DOMOTICZ_USER} --make-pidfile --pidfile ${PIDFILE} --background --exec ${APPROOT}/${DAEMON} --  -dbase ${DBASE} -wwwroot ${WWWROOT} -log ${LOGFILE} -approot ${APPROOT} ${EXTRAPARMS}
         eend $?
 }
 
 stop() {
-        ebegin "Stopping Domoticz"
+        ebegin "Stopping Oikomaticz"
         start-stop-daemon --stop --quiet --pidfile ${PIDFILE}
         eend $?
 }

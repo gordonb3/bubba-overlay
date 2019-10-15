@@ -1,8 +1,8 @@
-# /etc/conf.d/domoticz
+# /etc/conf.d/oikomaticz
 
-WWWROOT="/opt/domoticz/www/"
-LOGFILE="/var/log/domoticz.log"
-DBASE="/var/lib/domoticz/domoticz.db"
-APPROOT="/opt/domoticz/"
+WWWROOT="/opt/oikomaticz/www/"
+LOGFILE="/var/log/oikomaticz.log"
+DBASE="/var/lib/oikomaticz/oikomaticz.db"
+APPROOT="/opt/oikomaticz/"
 
-EXTRAPARMS="-www 8080 -nowwwpwd -sslwww 443 -loglevel normal,status,error -userdata /var/lib/domoticz/ -wwwcompress static"
+EXTRAPARMS="-www 8080 -nowwwpwd -sslwww 0 -loglevel normal,status,error -userdata /var/lib/oikomaticz/ -wwwcompress static"
