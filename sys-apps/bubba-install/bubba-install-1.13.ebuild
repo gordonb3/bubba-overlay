@@ -19,10 +19,18 @@ S="${WORKDIR}"
 DEPEND="virtual/bubba"
 RDEPEND="${DEPEND}"
 
+pkg_preinst() {
+	# remove install.ini if it was unchanged from the previous installation,
+	# however do not touch it if we are installing the exact same file
+	diff -q ${FILESDIR}/install.ini ${ROOT}/root/install.ini 2&>/dev/null && return
+	diff -q ${ROOT}/usr/share/doc/${PN}*/install.ini ${ROOT}/root/install.ini 2&>/dev/null && rm -f ${ROOT}/root/install.ini 2>/dev/null
+}
+
 src_install() {
-	exeinto "/usr/local/sbin"
+	exeinto "/opt/bubba/sbin"
 	newexe "${FILESDIR}/install_on_sda-1.13.sh" "install_on_sda.sh"
-	insinto "/root"
+	insinto /usr/share/doc/${PF}
+	docompress -x /usr/share/doc/${PF}
 	doins "${FILESDIR}/fstab-on-b3" "${FILESDIR}/install.ini"
 }
 
@@ -40,13 +48,23 @@ pkg_postinst() {
 	fix_old_install_scripts_if_present
 
 	if [ ! -x ${ROOT}/root/install_on_sda.sh ]; then
-		ln -s "../usr/local/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
+		ln -s "../opt/bubba/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
 	fi
 
 	if [ -n $(readlink ${ROOT}/root/install_on_sda.sh | grep "^/") ]; then
 		rm -f "${ROOT}/root/install_on_sda.sh"
-		ln -s "../usr/local/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
+		ln -s "../opt/bubba/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
 	fi
+
+	if [ -n $(readlink ${ROOT}/root/install_on_sda.sh | grep "^../usr") ]; then
+		rm -f "${ROOT}/root/install_on_sda.sh"
+		ln -s "../opt/bubba/sbin/install_on_sda.sh" "${ROOT}/root/install_on_sda.sh"
+	fi
+
+	# Gentoo throws a QA warning when installing to folders that are not part
+	# of their policy, but I really want these files to end up in /root
+	cp -a ${ROOT}/usr/share/doc/${PF}/fstab-on-b3 ${ROOT}/root/
+	[[ -f ${ROOT}/root/install.ini ]] || cp -a ${ROOT}/usr/share/doc/${PF}/install.ini ${ROOT}/root/
 
 	local OPTS="FORCEINSTALL"
 
@@ -66,4 +84,6 @@ pkg_postinst() {
 
 pkg_postrm() {
 	rm -f ${ROOT}/root/install_on_sd*.sh 2>/dev/null
+	rm -f ${ROOT}/root/fstab-on-b3 2>/dev/null
+	diff -q ${FILESDIR}/install.ini ${ROOT}/root/install.ini 2&>/dev/null && rm -f ${ROOT}/root/install.ini 2>/dev/null
 }
