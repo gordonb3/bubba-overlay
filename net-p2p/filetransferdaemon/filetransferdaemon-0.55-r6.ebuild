@@ -30,7 +30,10 @@ DEPEND="
 	dev-tcltk/expect
 	dev-util/cppunit
 	dev-util/cmake
-	libtorrent? ( <net-libs/libtorrent-rasterbar-1.1 )
+	libtorrent? (
+	    <net-libs/libtorrent-rasterbar-1.1
+	    <dev-libs/boost-1.70
+	)
 	sys-devel/libtool
 	sys-devel/m4
 "
