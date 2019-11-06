@@ -15,7 +15,7 @@ SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VMAJOR}.tar.gz -> ${PF}
 LICENSE="GPL-3+"
 SLOT="0/${VMAJOR}.5"
 RESTRICT="mirror"
-IUSE="systemd"
+IUSE="systemd bindist"
 
 REQUIRED_USE="systemd"
 
@@ -74,10 +74,10 @@ src_prepare() {
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
 	# revision 5 and higher: combine systemd specific files with the regular openrc tree
-	[[ ${PV:5} -gt 4 ]] && cp -al ${S}/systemd/* ${S}/
+	[[ ${PV:5} -gt 4 ]] && cp -a ${S}/systemd/* ${S}/
 
 	# if enabled, include config files required to prevent bindist conflicts
-	use bindist && [[ -d ${S}/bindist ]] && cp -al ${S}/bindist/* ${S}/
+	use bindist && [[ -d ${S}/bindist ]] && cp -a ${S}/bindist/* ${S}/
 
 	# correct for different settings between B2 and B3
 	use ppc && rm etc/portage/package.use/sysvinit

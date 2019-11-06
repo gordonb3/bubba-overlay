@@ -6,7 +6,7 @@ EAPI="5"
 
 inherit eutils git-r3
 
-EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
+EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
 
 DESCRIPTION="The Bubba main package"
 HOMEPAGE="https://github.com/gordonb3/bubbagen"
@@ -61,22 +61,16 @@ pkg_setup() {
 	KERNEL_MINOR=$(uname -r | cut -d. -f2)
 }
 
-src_unpack() {
-	default
-
-	mv ${WORKDIR}/${PN}* ${S}
-}
-
 src_prepare() {
 	# Git does not support empty folders
 	# clean up the bogus content here.
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
 	# revision 5 and higher: combine systemd specific files with the regular openrc tree
-	[[ ${PV:5} -gt 4 ]] && cp -al ${S}/systemd/* ${S}/
+	[[ ${PV:5} -gt 4 ]] && cp -a ${S}/systemd/* ${S}/
 
 	# if enabled, include config files required to prevent bindist conflicts
-	use bindist && [[ -d ${S}/bindist ]] && cp -al ${S}/bindist/* ${S}/
+	use bindist && [[ -d ${S}/bindist ]] && cp -a ${S}/bindist/* ${S}/
 
 	# correct for different settings between B2 and B3
 	use ppc && rm etc/portage/package.use/sysvinit
