@@ -20,17 +20,27 @@ DEPEND="htmldoc? ( app-doc/doxygen  media-gfx/graphviz )"
 
 RDEPEND=""
 
-
 src_prepare() {
 	if ! use examples; then
 		sed -i -e "/examples/d" ${S}/Makefile
 	fi
+
+	if ! use htmldoc; then
+		sed -e "/^DOT /d" \
+		sed -e "/^DOXYGEN /d" \
+		    -i ${S}/cpp/build/support.mk
+	fi
+
+	# Portage does not set CROSS_COMPILE env var - use CHOST instead
+	sed -e "s/CROSS_COMPILE)/CHOST)-/g" \
+	    -i ${S}/cpp/build/support.mk
+}
+
+src_compile() {
+	emake DESTDIR="${D}" PREFIX="/usr"
 }
 
 src_install() {
-	if use htmldoc; then
-		emake DESTDIR="${D}" PREFIX="/usr" install
-	else
-		emake DESTDIR="${D}" PREFIX="/usr" DOXYGEN='' install
-	fi
+	emake DESTDIR="${D}" PREFIX="/usr" install
 }
+
