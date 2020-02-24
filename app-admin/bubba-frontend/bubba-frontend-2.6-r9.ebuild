@@ -31,7 +31,7 @@ IUSE="+apache2 nginx systemd debug"
 REQUIRED_USE="^^ ( apache2 nginx )"
 
 DEPEND="
-	net-libs/nodejs
+	<net-libs/nodejs-0.11
 	dev-ruby/coffee-script
 	dev-perl/Locale-PO
 	dev-perl/Getopt-Long-Descriptive
