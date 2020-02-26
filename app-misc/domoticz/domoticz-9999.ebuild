@@ -6,7 +6,8 @@ EAPI="5"
 
 inherit cmake-utils eutils git-r3 systemd
 
-EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
+EGIT_REPO_URI="https://github.com/domoticz/domoticz.git"
+EGIT_BRANCH="development"
 
 DESCRIPTION="Home automation system"
 HOMEPAGE="http://domoticz.com/"
