@@ -6,7 +6,7 @@ EAPI="5"
 
 inherit cmake-utils eutils git-r3 systemd
 
-EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
+EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
 
 DESCRIPTION="Home automation system"
 
@@ -56,6 +56,7 @@ src_prepare() {
 		-i CMakeLists.txt
 	}
 
+	cmake-utils_src_prepare
 }
 
 src_configure() {

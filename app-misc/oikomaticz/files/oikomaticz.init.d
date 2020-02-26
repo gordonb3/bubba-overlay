@@ -3,7 +3,7 @@
 NAME=oikomaticz
 DAEMON=$NAME
 PIDFILE=/var/run/$NAME.pid
-DOMOTICZ_USER=root
+DZ_USER=root
 
 depend() {
         need net
@@ -40,7 +40,7 @@ checkconfig() {
 start() {
 	checkconfig
         ebegin "Starting Oikomaticz"
-		start-stop-daemon --start --quiet --user ${DOMOTICZ_USER} --make-pidfile --pidfile ${PIDFILE} --background --exec ${APPROOT}/${DAEMON} --  -dbase ${DBASE} -wwwroot ${WWWROOT} -log ${LOGFILE} -approot ${APPROOT} ${EXTRAPARMS}
+		start-stop-daemon --start --quiet --user ${DZ_USER} --make-pidfile --pidfile ${PIDFILE} --background --exec ${APPROOT}/${DAEMON} --  -dbase ${DBASE} -wwwroot ${WWWROOT} -log ${LOGFILE} -approot ${APPROOT} ${EXTRAPARMS}
         eend $?
 }
 
