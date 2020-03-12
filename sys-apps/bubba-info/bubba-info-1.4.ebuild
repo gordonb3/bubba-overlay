@@ -126,7 +126,8 @@ src_install() {
 		docompress -x /usr/share/doc/${PF}/phpsample
 		doins bubbainfo.ini
 
-		find /etc/php -name ext | while read extension_dir; do
+		php_versions=$(eselect php list | grep "\[.\]" | awk '{printf ",*%s",$2}' | sed "s/^,//")
+		eval find /etc/php/{$php_versions}/ -name ext | while read extension_dir; do
 			insinto ${extension_dir}
 			doins bubbainfo.ini
 			if [[ ${extension_dir} =~ fpm* ]]; then
