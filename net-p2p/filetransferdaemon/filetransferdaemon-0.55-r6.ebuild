@@ -22,7 +22,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="+apache2 +upload +libtorrent systemd"
+IUSE="+apache2 +upload libtorrent systemd"
 
 DEPEND="
 	dev-libs/popt
