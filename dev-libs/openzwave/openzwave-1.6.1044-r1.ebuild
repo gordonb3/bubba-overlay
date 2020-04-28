@@ -9,7 +9,7 @@ inherit eutils
 DESCRIPTION="Free software library that interfaces with selected Z-Wave PC controllers"
 HOMEPAGE="http://www.openzwave.net/"
 
-SRC_URI="http://old.openzwave.com/downloads/${PF}.tar.gz"
+SRC_URI="http://old.openzwave.com/downloads/${P}.tar.gz"
 RESTRICT="mirror"
 LICENSE="GPL-3 Apache-2.0"
 SLOT="0"
@@ -22,12 +22,12 @@ RDEPEND=""
 
 src_prepare() {
 	if ! use examples; then
-		sed -i -e "/examples/d" ${S}/Makefile
+		sed -e "/examples/d" -i ${S}/Makefile
 	fi
 
 	if ! use htmldoc; then
 		sed -e "/^DOT /d" \
-		sed -e "/^DOXYGEN /d" \
+		    -e "/^DOXYGEN /d" \
 		    -i ${S}/cpp/build/support.mk
 	fi
 
@@ -37,10 +37,10 @@ src_prepare() {
 }
 
 src_compile() {
-	emake DESTDIR="${D}" PREFIX="/usr"
+	emake DESTDIR="${D}" PREFIX="/usr" sysconfdir="/var/lib/openzwave"
 }
 
 src_install() {
-	emake DESTDIR="${D}" PREFIX="/usr" install
+	emake DESTDIR="${D}" PREFIX="/usr" sysconfdir="/var/lib/openzwave" install
 }
 
