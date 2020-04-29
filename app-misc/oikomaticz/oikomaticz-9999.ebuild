@@ -13,7 +13,7 @@ DESCRIPTION="Home automation system"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="systemd telldus openzwave python i2c +spi static-libs examples"
+IUSE="systemd telldus openzwave python i2c +spi gpio static-libs examples"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -23,8 +23,9 @@ RDEPEND="net-misc/curl
 	dev-libs/boost[static-libs=]
 	!static-libs?
 	( sys-libs/zlib[minizip]
-	  dev-lang/lua:5.2
-	  app-misc/mosquitto
+	  >=dev-lang/lua-5.2
+	  app-misc/mosquitto[srv]
+	  net-dns/c-ares
 	  dev-db/sqlite
 	)
 	telldus? ( app-misc/telldus-core )
@@ -68,6 +69,8 @@ src_configure() {
 		-DWITH_PYTHON=$(usex python)
 		-DWITH_LINUX_I2C=$(usex i2c)
 		-DWITH_SPI=$(usex spi)
+		-DWITH_GPIO=$(usex gpio)
+		-DWITH_OPENZWAVE=$(usex openzwave)
 		-DUSE_STATIC_BOOST=$(usex static-libs)
 		-DUSE_STATIC_OPENZWAVE=$(usex static-libs)
 		-DUSE_STATIC_OPENSSL=$(usex static-libs)

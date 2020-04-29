@@ -7,8 +7,8 @@ EAPI="5"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
-COMMIT="f8a7e1d0"
-CTIME="2020-02-12 13:55:55 +0100"
+COMMIT="f71fbb94"
+CTIME="2020-04-30 16:39:30 +0200"
 
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
@@ -16,7 +16,7 @@ DESCRIPTION="Home automation system"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
-IUSE="systemd telldus openzwave python i2c +spi static-libs examples"
+IUSE="systemd telldus openzwave python i2c +spi gpio static-libs examples"
 
 VMAJOR=${PV:0:1}
 SLOT="0/${VMAJOR}"
@@ -29,7 +29,7 @@ RDEPEND="net-misc/curl
 	dev-libs/boost[static-libs=]
 	!static-libs?
 	( sys-libs/zlib[minizip]
-	  dev-lang/lua:5.2
+	  >=dev-lang/lua-5.2
 	  app-misc/mosquitto[srv]
 	  net-dns/c-ares
 	  dev-db/sqlite
@@ -78,13 +78,6 @@ src_prepare() {
 		-i CMakeLists.txt
 	}
 
-	use openzwave || {
-		sed \
-		-e "/pkg_check_modules(OPENZWAVE/cset(OPENZWAVE_FOUND NO)" \
-		-e "s/==== OpenZWave.*!/OpenZWave support disabled/" \
-		-i CMakeLists.txt
-	}
-
 	cmake-utils_src_prepare
 }
 
@@ -96,6 +89,8 @@ src_configure() {
 		-DWITH_PYTHON=$(usex python)
 		-DWITH_LINUX_I2C=$(usex i2c)
 		-DWITH_SPI=$(usex spi)
+		-DWITH_GPIO=$(usex gpio)
+		-DWITH_OPENZWAVE=$(usex openzwave)
 		-DUSE_STATIC_BOOST=$(usex static-libs)
 		-DUSE_STATIC_OPENZWAVE=$(usex static-libs)
 		-DUSE_STATIC_OPENSSL=$(usex static-libs)
