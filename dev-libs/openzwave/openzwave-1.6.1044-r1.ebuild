@@ -42,5 +42,8 @@ src_compile() {
 
 src_install() {
 	emake DESTDIR="${D}" PREFIX="/usr" sysconfdir="/var/lib/openzwave" install
+
+	# fix doc location
+	mv ${D}/usr/share/doc/${P} ${D}/usr/share/doc/${PF}
 }
 
