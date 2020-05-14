@@ -39,12 +39,12 @@ KERNEL_MAJOR=""
 KERNEL_MINOR=""
 
 pkg_setup() {
-	[[ -e /var/lib/bubba/bubba-default-config.tgz ]] || return
+	[[ -e ${ROOT}/var/lib/bubba/bubba-default-config.tgz ]] || return
 
 	# find unaltered portage config files from a previous bubbagen release
 	mkdir -p ${WORKDIR}/oldconfig
 	cd ${WORKDIR}/oldconfig
-	tar -xzf /var/lib/bubba/bubba-default-config.tgz
+	tar -xzf ${ROOT}/var/lib/bubba/bubba-default-config.tgz
 	find etc/portage -type f | while read FILE; do
 		if ( ! diff -q ${FILE} /${FILE} 2&> /dev/null ); then
 			# file has been altered from default

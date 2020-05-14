@@ -42,12 +42,12 @@ KERNEL_MAJOR=""
 KERNEL_MINOR=""
 
 pkg_setup() {
-	[[ -e /var/lib/bubba/bubba-default-config.tgz ]] || return
+	[[ -e ${ROOT}/var/lib/bubba/bubba-default-config.tgz ]] || return
 
 	# find unaltered portage config files from a previous bubbagen release
 	mkdir -p ${WORKDIR}/oldconfig
 	cd ${WORKDIR}/oldconfig
-	tar -xzf /var/lib/bubba/bubba-default-config.tgz
+	tar -xzf ${ROOT}/var/lib/bubba/bubba-default-config.tgz
 	find etc/portage -type f | while read FILE; do
 		if ( ! diff -q ${FILE} /${FILE} 2&> /dev/null ); then
 			# file has been altered from default
@@ -132,39 +132,39 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [[ ! -z "${REMOVELIST}" ]]; then
+	if [[ -n "${REMOVELIST}" ]]; then
 		elog "Removed obsolete portage config files from previous version"
 		rm -f ${REMOVELIST}
 	fi
 
 	if use bindist; then
-		CONF_BINDIST=$(grep "^USE=" /etc/portage/make.conf | cut -d# -f1 | grep bindist)
+		CONF_BINDIST=$(grep "^USE=" ${ROOT}/etc/portage/make.conf | cut -d# -f1 | grep bindist)
 		if [[ -z "${CONF_BINDIST}" ]]; then
-			EMPTYUSELINE=$(grep -m1 -n "^USE=\"\"" /etc/portage/make.conf | cut -d: -f1)
+			EMPTYUSELINE=$(grep -m1 -n "^USE=\"\"" ${ROOT}/etc/portage/make.conf | cut -d: -f1)
 			if [[ -z "${EMPTYUSELINE}" ]]; then
-				sed -e "${EMPTYUSELINE} s/^USE=\"\"/USE=\"bindist\"/" -i /etc/portage/make.conf
+				sed -e "${EMPTYUSELINE} s/^USE=\"\"/USE=\"bindist\"/" -i ${ROOT}/etc/portage/make.conf
 			else
-				LINENUMBER=$(grep -m1 -n "^USE=\"" /etc/portage/make.conf | cut -d: -f1)
-				sed -e "${LINENUMBER} s/^USE=\"/USE=\"bindist\"\nUSE=\"\${USE} /" -i /etc/portage/make.conf
+				LINENUMBER=$(grep -m1 -n "^USE=\"" ${ROOT}/etc/portage/make.conf | cut -d: -f1)
+				sed -e "${LINENUMBER} s/^USE=\"/USE=\"bindist\"\nUSE=\"\${USE} /" -i ${ROOT}/etc/portage/make.conf
 			fi
 			elog "Added bindist USE flag to your global make.conf"
 		fi
 
 		# enforce overwrite of bindist conf files
-		find /etc/portage/ -name ._cfg*bindist* | while read FILE; do
+		find ${ROOT}/etc/portage/ -name ._cfg*bindist* | while read FILE; do
 			CONFFILE=$(echo ${FILE} | sed "s/\._cfg[0-9]*_//")
 			rm -f ${CONFFILE}
 			mv ${FILE} ${CONFFILE}
 		done
 	else
-		grep -q "^USE=\"[^#]*bindist" /etc/portage/make.conf && elog "Removed bindist USE flag from your global make.conf"
-		sed -e "s/^\(USE=\"[^#]*\)bindist\(.*\)$/\1\2/" -e "s/ *\" */\"/g" -e "s/   */ /g" -i /etc/portage/make.conf
+		grep -q "^USE=\"[^#]*bindist" ${ROOT}/etc/portage/make.conf && elog "Removed bindist USE flag from your global make.conf"
+		sed -e "s/^\(USE=\"[^#]*\)bindist\(.*\)$/\1\2/" -e "s/ *\" */\"/g" -e "s/   */ /g" -i ${ROOT}/etc/portage/make.conf
 
-		BINDIST_CONFS=$(find /etc/portage -name *bindist*)
-		[[ ! -z "${BINDIST_CONFS}" ]] && elog "Removed package specific restrictions only required for bindist"
+		BINDIST_CONFS=$(find ${ROOT}/etc/portage -name *bindist*)
+		[[ -n "${BINDIST_CONFS}" ]] && elog "Removed package specific restrictions only required for bindist"
 		rm -f ${BINDIST_CONFS}
 	fi
 
 	# cleanup distcc-fix in /usr/local/sbin (not a package file in previous releases)
-	[[ -e /usr/local/sbin/distcc-fix ]] && rm -f /usr/local/sbin/distcc-fix
+	[[ -e ${ROOT}/usr/local/sbin/distcc-fix ]] && rm -f ${ROOT}/usr/local/sbin/distcc-fix
 }
