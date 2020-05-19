@@ -1,0 +1,45 @@
+Title: networkmanager-1.0.12-r1 end of life
+Author: gordonb3 <gordon@bosvangennip.nl>
+Content-Type: text/plain
+Posted: 2020-05-19
+Revision: 1
+News-Item-Format: 2.0
+Display-If-Keyword: arm
+Display-If-Installed: =net-misc/networkmanager-1.0.12-r1
+
+Introduction
+------------
+
+Due to the Live-USB requirement of having a fallback address in case that
+no DHCP server is present on the network, `net-misc/networkmanager` has
+been deliberately held back on version 1.0.12 since the very first release
+of the systemd edition of Bubbagen back in 2016. Latest changes to the main
+tree make it impossible to maintain this version and thus the time has come
+to upgrade to a newer version.
+
+Luckily the original issue with newer versions of networkmanager has since
+been resolved, but a user patch is still required for accepting the fallback
+address in case that no DHCP server is present.
+
+
+Action Required
+---------------
+
+To prevent your updates, whether you use genup or manual, failing
+on `net-misc/networkmanager`, you will need to delete the following
+files:
+
+  /etc/portage/package.mask/networkmanager
+  /etc/portage/patches/net-misc/networkmanager/dhcpcd-static-profile.patch
+
+Should you however wish to maintain the functionality of the fallback
+address, rather then deleting the patch file you should make the following
+changes inside it:
+
+  On lines 7 and 8 change `/dhcp-manager/` to `/dhcp/`
+  On line 9 change both instances of `202` to `311`
+
+The corrected patch will also be part of the next update of
+`app-admin/bubbagen`
+
+
