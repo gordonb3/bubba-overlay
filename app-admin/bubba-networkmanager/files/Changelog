@@ -1,3 +1,13 @@
+2020-05-23
+
+  * fix deadlock in bubba-fqdn hook script causing dhcpcd to stall
+    Querying bubba-networkmanager for the current lan interface
+    caused a deadlock as bubba-networkmanager is running single
+    threaded AND is waiting for net start to complete.
+  * review netifrc management code
+  * add block for newly added `iw` module that overrides AP mode
+
+-------------------------------------------------------------------
 2018-01-19
 
   * static linking of withheld libsigc++ version 2.4.1

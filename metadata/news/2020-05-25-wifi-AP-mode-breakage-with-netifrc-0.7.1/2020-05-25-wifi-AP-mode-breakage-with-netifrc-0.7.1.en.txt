@@ -1,0 +1,29 @@
+Title: wifi AP mode breakage with >=netifrc-0.7.1
+Author: gordonb3 <gordon@bosvangennip.nl>
+Content-Type: text/plain
+Posted: 2020-05-25
+Revision: 1
+News-Item-Format: 2.0
+Display-If-Keyword: arm
+Display-If-Installed: app-admin/bubba-networkmanager[wifi,-systemd]
+
+Introduction
+------------
+
+The latest stable netifrc 0.7.1 introduces a new module named `iw` for
+configuring wifi adapters in client mode. Sadly this intervenes with the
+Access Point mode that is managed through the Bubba B3 GUI and the result
+is that your LAN interface will not become active.
+
+
+Action Required
+---------------
+
+To prevent network failure on your wifi enabled B3, you will need to add
+the following line to `/etc/conf.d/net`
+
+  modules_wlan0="!iw !iwconfig !wpa_supplicant"
+
+A new revision of app-admin/bubba-networkmanager has been released to
+control this required entry in future.
+

@@ -1,9 +1,25 @@
-Change network settings directly in systemd NetworkManager
-
-Patch by Gordon Bos
-
---- a/Dispatcher.cpp
-+++ b/Dispatcher.cpp
+diff -ru a/controllers/InterfaceController.cpp b/controllers/InterfaceController.cpp
+--- a/controllers/InterfaceController.cpp	2020-05-25 11:14:56.204654267 +0200
++++ b/controllers/InterfaceController.cpp	2020-05-25 11:16:24.624376615 +0200
+@@ -628,13 +628,12 @@
+ }
+ 
+ bool InterfaceController::Up(const string& ifname){
+-	return do_call("initd=$(/sbin/rc-service -ir net."+ifname+") && ${initd} start")==0;
++	return do_call("/usr/bin/nmcli con up $(grep -rl \""+ifname+"$\" /etc/NetworkManager/system-connections/ | awk -F/ '{print $NF}')")==0;
+ }
+ 
+ bool InterfaceController::Down(const string& ifname){
+-	return do_call("initd=$(/sbin/rc-service -ir net."+ifname+") && ${initd} -D stop")==0;
++	return do_call("/usr/bin/nmcli con down $(/usr/bin/nmcli dev | grep \"^"+ifname+" \" | awk '{print $4}')")==0;
+ }
+ 
+-
+ InterfaceController::~InterfaceController(){
+ }
+diff -ru a/Dispatcher.cpp b/Dispatcher.cpp
+--- a/Dispatcher.cpp	2010-06-09 15:24:27.000000000 +0200
++++ b/Dispatcher.cpp	2020-05-25 11:16:20.606298703 +0200
 @@ -335,6 +335,7 @@
  				// Pick up new if
  				InterfaceController::Up(newif);
@@ -32,8 +48,9 @@ Patch by Gordon Bos
  
  			res["status"]=true;
  		}else{
---- a/Makefile
-+++ b/Makefile
+diff -ru a/Makefile b/Makefile
+--- a/Makefile	2020-05-25 11:14:41.853373607 +0200
++++ b/Makefile	2020-05-25 11:16:20.606298703 +0200
 @@ -40,8 +40,8 @@
  SOURCES = $(APP_SRC) $(DATAMODEL_SRC) $(CONTROLLER_SRC) $(UTIL_SRC)
  OBJS = $(SOURCES:%.cpp=%.o)
@@ -45,30 +62,9 @@ Patch by Gordon Bos
  
  APP_OBJS=$(APP_SRC:%.cpp=%.o)
  DATAMODEL_OBJS=$(DATAMODEL_SRC:%.cpp=%.o)
---- a/controllers/InterfaceController.cpp
-+++ b/controllers/InterfaceController.cpp
-@@ -628,13 +628,16 @@
- }
- 
- bool InterfaceController::Up(const string& ifname){
--	return do_call("initd=$(/sbin/rc-service -ir net."+ifname+") && ${initd} start")==0;
-+	if (ifname != "br0") {
-+		return do_call("/usr/bin/nmcli con up $(/usr/bin/nmcli dev | grep \"^"+ifname+" \" | awk '{print $4}')")==0;
-+	}else{
-+		return do_call("/usr/bin/nmcli con up $(grep -rl \"br0$\" /etc/NetworkManager/system-connections/ | awk -F/ '{print $NF}')")==0;
-+	}
- }
- 
- bool InterfaceController::Down(const string& ifname){
--	return do_call("initd=$(/sbin/rc-service -ir net."+ifname+") && ${initd} -D stop")==0;
-+	return do_call("/usr/bin/nmcli con down $(/usr/bin/nmcli dev | grep \"^"+ifname+" \" | awk '{print $4}')")==0;
- }
- 
--
- InterfaceController::~InterfaceController(){
- }
---- a/utils/InterfacesCfg.cpp
-+++ b/utils/InterfacesCfg.cpp
+diff -ru a/utils/InterfacesCfg.cpp b/utils/InterfacesCfg.cpp
+--- a/utils/InterfacesCfg.cpp	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.cpp	2020-05-25 11:16:24.624376615 +0200
 @@ -26,7 +26,15 @@
  #include <sstream>
  using namespace std;
@@ -185,7 +181,7 @@ Patch by Gordon Bos
  Json::Value InterfacesCfg::GetCFG(){
  	return this->cfg;
  }
-@@ -81,34 +135,319 @@
+@@ -81,34 +135,321 @@
  	return true;
  }
  
@@ -219,14 +215,13 @@ Patch by Gordon Bos
 +	string curif;
 +	string con_name;
 +	string uuid;
-+	const char* c_uuid;
-+
+ 
+-	Json::Value::Members mem=this->cfg.getMemberNames();
 +#if !GLIB_CHECK_VERSION (2, 35, 0)
 +	/* Initialize GType system */
 +	g_type_init ();
 +#endif
- 
--	Json::Value::Members mem=this->cfg.getMemberNames();
++
 +	Json::Value devs=this->cfg;
 +	Json::Value::Members mem;
  	stringstream ss;
@@ -251,8 +246,7 @@ Patch by Gordon Bos
 -			ss.str("");
 -;		}
 +	int prefix;
- 
--		res.push_back("\n");
++
 +	if ( (devs.isMember("br0")) && (!devs.isMember("eth1")) )
 +		devs["eth1"]["type"]="bridge-slave";
 +
@@ -298,11 +292,12 @@ Patch by Gordon Bos
 +				}
 +			}
 +		}
-+
+ 
+-		res.push_back("\n");
 +		// WiFi is handled by hostapd and NetworkManager should not intervene
 +		if ( (devs.isMember("br0")) && (devs.isMember("wlan0")) && (devs["wlan0"].isMember("UUID")) ){
-+			c_uuid = devs["wlan0"]["UUID"].asString().c_str();
-+			nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++			uuid = devs["wlan0"]["UUID"].asString();
++			nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, uuid.c_str()), NULL, NULL);
 + 			const char* wlmac = nm_device_get_hw_address(nm_client_get_device_by_iface (client, "wlan0"));
 +			if (wlmac) {
 +				list<string> fil=FileUtils::GetContent(NMCFILE);
@@ -367,24 +362,24 @@ Patch by Gordon Bos
 +		// remove br0 connection when switching from br0 to eth1
 +		if ( (devs.isMember("br0")) && (devs.isMember("eth1")) && (devs["eth1"].isMember("addressing")) ){
 +			if (devs["br0"].isMember("UUID")) {
-+				c_uuid = devs["br0"]["UUID"].asString().c_str();
-+				nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++				uuid = devs["br0"]["UUID"].asString();
++				nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, uuid.c_str()), NULL, NULL);
 +			}
 +			devs.removeMember("br0");
 +		}
 +
 +		// remove eth1 connection whem switching from eth1 to br0
 +		if ( (devs.isMember("br0")) && (devs.isMember("eth1")) && (devs["eth1"]["type"]=="bridge-slave") && (devs["eth1"]["con_name"]=="LAN") ){
-+			c_uuid = devs["eth1"]["UUID"].asString().c_str();
-+			nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++			uuid = devs["eth1"]["UUID"].asString();
++			nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, uuid.c_str()), NULL, NULL);
 +			devs["eth1"].removeMember("UUID");
 +		}
 +
 +		// verify slave connection, delete if invalid
 +		if ( (devs.isMember("eth1")) && (devs["eth1"].isMember("master")) ){
 +			if ( (!devs.isMember("br0")) || devs["eth1"]["master"].asString() != devs["br0"]["UUID"].asString() ){
-+				c_uuid = devs["eth1"]["UUID"].asString().c_str();
-+				nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, c_uuid), NULL, NULL);
++				uuid = devs["eth1"]["UUID"].asString();
++				nm_remote_connection_delete (nm_client_get_connection_by_uuid(client, uuid.c_str()), NULL, NULL);
 +				devs["eth1"].removeMember("UUID");
 +			}
 +		}
@@ -505,9 +500,12 @@ Patch by Gordon Bos
 +				}
 +			}
 +
-+			c_uuid = devs[*mIt]["UUID"].asString().c_str();
-+			connection = (NMConnection*)nm_client_get_connection_by_uuid(client, c_uuid);
-+			if ( connection && (s_con = nm_connection_get_setting_connection (connection)) ) {
++			uuid = devs[*mIt]["UUID"].asString();
++			connection = (NMConnection*)nm_client_get_connection_by_uuid(client, uuid.c_str());
++
++			if ( connection == NULL) {
++				cerr << "Error: connection " << uuid << " does not exist\n";
++			} else if ((s_con = nm_connection_get_setting_connection (connection))) {
 +				g_object_freeze_notify (G_OBJECT (connection));
 +				nm_connection_remove_setting(connection, NM_TYPE_SETTING_IP4_CONFIG);
 +				nm_connection_remove_setting(connection, NM_TYPE_SETTING_IP6_CONFIG);
@@ -515,7 +513,7 @@ Patch by Gordon Bos
 +				nm_connection_add_setting(connection, (NMSetting*) s_ip6);
 +				g_object_thaw_notify (G_OBJECT (connection));
 +				if (!nm_remote_connection_commit_changes ((NMRemoteConnection*) connection, TRUE, NULL, &error)) {
-+					cerr << "Error updating connection " << c_uuid << " => " << error->message << endl;
++					cerr << "Error updating connection " << uuid << " => " << error->message << endl;
 +					g_error_free (error);
 +				}
 +			}
@@ -528,14 +526,15 @@ Patch by Gordon Bos
  	return true;
  }
  
-@@ -118,5 +457,3 @@
+@@ -118,5 +459,3 @@
  }
  
  }
 -
 -
---- a/utils/InterfacesCfg.h
-+++ b/utils/InterfacesCfg.h
+diff -ru a/utils/InterfacesCfg.h b/utils/InterfacesCfg.h
+--- a/utils/InterfacesCfg.h	2010-06-09 15:24:26.000000000 +0200
++++ b/utils/InterfacesCfg.h	2020-05-25 11:16:20.607298722 +0200
 @@ -26,7 +26,8 @@
  #define INTERFACESCFG_H_
  

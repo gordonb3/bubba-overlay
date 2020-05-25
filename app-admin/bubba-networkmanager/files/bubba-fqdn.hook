@@ -1,69 +1,25 @@
 #!/bin/bash
 
-#initialize variables
-my_hostname=$(hostname)
-if [ "x$new_domain_name" != x ]; then
-	my_domain=${new_domain_name}
-elif [ "x$old_domain_name" != x ]; then
-	my_domain=${old_domain_name}
-else
-	my_domain=localdomain
-fi
-old_fqdn_name=${my_hostname}.${old_domain_name}
-new_fqdn_name=${my_hostname}.${my_domain}
-new_hostnames="${new_fqdn_name}\t${my_hostname}"
-altnames=""
-old_hostentry=""
-lanif=$(/opt/bubba/bin/bubba-networkmanager-cli getlanif)
-
-
-#sanitize files accessed by this script
-sed -i "s/$//" /etc/hosts
-sed -i "s/$//" /etc/resolv.conf
-
-
-# add loopback entry if missing
-localhost_entry=$(grep "^127.0.0.1" /etc/hosts)
-if [ "x${localhost_entry}" = "x" ]; then
-	echo -e "127.0.0.1\tlocalhost" >> /etc/hosts
-fi
-
-
-# add search entry to resolv.conf
-if [ "x$new_domain_search" != x ]; then
-	search_entry=$(grep "^search" /etc/resolv.conf)
-	if [ "x${search_entry}" != "x" ]; then
-		sed -i "/^search/csearch ${new_domain_search}" /etc/resolv.conf
-	else
-		echo  "search ${new_domain_search}" >> /etc/resolv.conf
-	fi
-elif [ "x$new_domain_name" != x ]; then
-	search_entry=$(grep "^search" /etc/resolv.conf)
-	if [ "x${search_entry}" != "x" ]; then
-		sed -i "/^search/csearch ${new_domain_name}" /etc/resolv.conf
-	else
-		echo "search ${new_domain_name}" >> /etc/resolv.conf
-	fi
-fi
-
-
-# update hosts file with new ip address for my name
-if [ "${interface}" = "${lanif}" ]; then
+fix_fqdn_static_host()
+{
 	# locate entry created by bubba-networkmanager when switching from static assignment to dhcp
-	bubbadynamic_entry=$(grep "^256.0.0.1" /etc/hosts)
+	local bubbadynamic_entry=$(grep "^256.0.0.1" /etc/hosts)
 	if [ "x${bubbadynamic_entry}" != "x" ]; then
+		echo "bubba-fqdn: update static hosts entry for my name"
 		if [ "x${new_ip_address}" != "x" ]; then
-			sed -i "s/^${bubbadynamic_entry}/${new_ip_address}/" /etc/hosts
-			new_ip_address=""
+			sed -i "s/^256.0.0.1/${new_ip_address}/" /etc/hosts
 		fi
 	fi
+}
 
-	if [ "x${old_ip_address}" != "x" ]; then 
-		old_hostentry=$(grep "^${old_ip_address}\s" /etc/hosts)
+fix_fqdn_dynamic_host()
+{
+	if [ "x${old_ip_address}" != "x" ]; then
+		local old_hostentry=$(grep "^${old_ip_address}\s" /etc/hosts)
 		if [ "x${old_hostentry}" != "x" ]; then
 			#keep alternate names if defined
-			needle=$(echo "^${old_ip_address}\$|${my_hostname}\$|${old_fqdn_name}\$|${new_fqdn_name}\$|localhost|^\$"| sed "s/\./\\\./g")
-			altnames=$(echo $(echo ${old_hostentry} | sed "s/\s\s*/\n/g" | eval "grep -vP \"${needle}\"") | sed "s/\s\s*/\t/")
+			local needle=$(echo "^${old_ip_address}\$|${my_hostname}\$|${old_fqdn_name}\$|${new_fqdn_name}\$|localhost|^\$"| sed "s/\./\\\./g")
+			local altnames=$(echo $(echo ${old_hostentry} | sed "s/\s\s*/\n/g" | eval "grep -vP \"${needle}\"") | sed "s/\s\s*/\t/")
 			if [ "x${altnames}" != "x" ]; then
 				echo -n $(echo -n ${altnames}) >> /tmp/.dhclient-keepaltnames
 			fi
@@ -72,11 +28,13 @@ if [ "${interface}" = "${lanif}" ]; then
 	fi
 
 	if [ "x${new_ip_address}" != "x" ]; then
-		old_hostentry=$(grep "^${new_ip_address}\s" /etc/hosts)
+		echo "bubba-fqdn: update dynamic hosts entry for my name"
+		local old_hostentry=$(grep "^${new_ip_address}\s" /etc/hosts)
+		local new_hostnames
 		if [ "x${old_hostentry}" != "x" ]; then
 			#keep alternate names if defined
-			needle=$(echo "^${new_ip_address}\$|${my_hostname}\$|${old_fqdn_name}\$|${new_fqdn_name}\$|localhost|^\$"| sed "s/\./\\\./g")
-			altnames=$(echo $(echo ${old_hostentry} | sed "s/\s\s*/\n/g" | eval "grep -vP \"${needle}\"") | sed "s/\s\s*/\t/")
+			local needle=$(echo "^${new_ip_address}\$|${my_hostname}\$|${old_fqdn_name}\$|${new_fqdn_name}\$|localhost|^\$"| sed "s/\./\\\./g")
+			local altnames=$(echo $(echo ${old_hostentry} | sed "s/\s\s*/\n/g" | eval "grep -vP \"${needle}\"") | sed "s/\s\s*/\t/")
 			if [ "x${altnames}" != "x" ]; then
 				new_hostnames="${new_fqdn_name}\t${my_hostname}\t${altnames}"
 			fi
@@ -89,4 +47,78 @@ if [ "${interface}" = "${lanif}" ]; then
 			echo -e "${new_ip_address}\t${new_hostnames}" >> /etc/hosts
 		fi
 	fi
+}
+
+fix_fqdn()
+{
+	#initialize variables
+	local my_hostname=$(hostname)
+	local my_domain
+
+	if [ "x$new_domain_name" != x ]; then
+		my_domain=${new_domain_name}
+	elif [ "x$old_domain_name" != x ]; then
+		my_domain=${old_domain_name}
+	else
+		my_domain=localdomain
+	fi
+
+	local old_fqdn_name=${my_hostname}.${old_domain_name}
+	local new_fqdn_name=${my_hostname}.${my_domain}
+
+	# get value for lanif
+	# because calling on bubba-networkmanager causes a deadlock we use the second
+	# best option to query its config file. This gives us the PREVIOUS value but
+	# because the GUI does not allow changing the lan interface and the addressing
+	# method at the same time, this is acceptable
+	eval $(grep ^lanif /etc/bubba/networkmanager.conf)
+
+
+	#sanitize files accessed by this script
+	sed -i "s/$//" /etc/hosts
+	sed -i "s/$//" /etc/resolv.conf
+
+
+	# add loopback entry if missing
+	localhost_entry=$(grep "^127.0.0.1" /etc/hosts)
+	if [ "x${localhost_entry}" = "x" ]; then
+		echo "bubba-fqdn: correct missing loopback entry"
+		echo -e "127.0.0.1\tlocalhost" >> /etc/hosts
+	fi
+
+
+	# add search entry to resolv.conf
+	local my_domain_search=$new_domain_search
+	if [ "x$my_domain_search" != x ]; then
+		my_domain_search=$new_domain_name
+	fi
+	if [ "x$my_domain_search" != x ]; then
+		echo "bubba-fqdn: update domain search entry"
+		local search_entry=$(grep "^search" /etc/resolv.conf)
+		if [ "x${search_entry}" != "x" ]; then
+			sed -i "/^search/csearch ${my_domain_search}" /etc/resolv.conf
+		else
+			echo  "search ${my_domain_search}" >> /etc/resolv.conf
+		fi
+	fi
+
+
+	# update hosts file with new ip address for my name
+	if [ "${interface}" = "${lanif}" ]; then
+		if (grep -q "^256.0.0.1" /etc/hosts); then
+			fix_fqdn_static_host
+		else
+			fix_fqdn_dynamic_host
+		fi
+	fi
+}
+
+
+if [ "$reason" = "BOUND" ] || [ "$reason" = "RENEW" ] || [ "$reason" = "REBIND" ]
+then
+	if [ "$interface" = "eth0" ] || [ "$interface" = "eth1" ] || [ "$interface" = "br0" ]
+	then
+		fix_fqdn
+	fi
 fi
+

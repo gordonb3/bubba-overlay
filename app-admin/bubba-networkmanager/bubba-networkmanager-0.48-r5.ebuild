@@ -137,10 +137,8 @@ src_prepare() {
 	epatch ${FILESDIR}/fqdn-compliancy.patch
 	if use systemd; then
 		epatch ${FILESDIR}/systemd-networkmanager.patch
-		epatch ${FILESDIR}/systemd-cpp5.patch
 	else
 		epatch ${FILESDIR}/netifrc.patch
-		epatch ${FILESDIR}/netifrc-sysfs.patch
 	fi
 
 	# static linking of libsigc++ and libeutils
