@@ -14,8 +14,11 @@ KEYWORDS="alpha amd64 ~arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
 HOMEPAGE="https://dev.gentoo.org/~mpagano/genpatches"
 IUSE="experimental"
 
+GENPATCHES_ARCHIVE_URI=${GENPATCHES_URI//dist\/genpatches\//genpatches\/tarballs\/}
+
+
 DESCRIPTION="Full sources including the Gentoo patchset for the ${KV_MAJOR}.${KV_MINOR} kernel tree"
-SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
+SRC_URI="${KERNEL_URI} ${GENPATCHES_ARCHIVE_URI} ${ARCH_URI}"
 
 pkg_postinst() {
 	kernel-2_pkg_postinst
