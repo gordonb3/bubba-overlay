@@ -1,14 +1,14 @@
 diff -ru a/src/shutdown.c b/src/shutdown.c
 --- a/src/shutdown.c	2019-03-13 17:35:06.109262657 +0100
 +++ b/src/shutdown.c	2019-03-13 17:35:32.229951872 +0100
-@@ -60,7 +60,17 @@
+@@ -64,6 +64,17 @@
  #include "reboot.h"
  #include "initreq.h"
  #include "init.h"
 +#include <mtd/mtd-user.h>
 +#include <stddef.h>
 +#include <sys/ioctl.h>
- 
++
 +#ifndef MTD_PART
 +#define MTD_PART	"/dev/mtd2"
 +#endif
@@ -17,9 +17,9 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
 +#define BLOCK_SIZE	0x10000
 +#define B3_HALT_MAGIC	0xdeadbeef
  
- #define MESSAGELEN	256
- 
-@@ -71,6 +81,7 @@
+ #ifdef __FreeBSD__
+ extern char **environ;
+@@ -80,6 +91,7 @@
  
  int dontshut = 0;	/* Don't shutdown, only warn	*/
  char down_level[2];	/* What runlevel to go to.	*/
@@ -27,7 +27,7 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  int dosync = 1;		/* Sync before reboot or halt	*/
  int fastboot = 0;	/* Do a 'fast' reboot		*/
  int forcefsck = 0;	/* Force fsck on reboot		*/
-@@ -154,6 +165,40 @@
+@@ -163,6 +175,40 @@
  }
  
  
@@ -68,7 +68,7 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  /*
   *	Set environment variables in the init process.
   */
-@@ -414,6 +459,11 @@
+@@ -423,6 +469,11 @@
  	char	*args[8];
  	int	argp = 0;
  	int	do_halt = (down_level[0] == '0');
@@ -80,7 +80,7 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  
  	/* Warn for the last time */
  	issue_warn(0);
-@@ -422,10 +472,19 @@
+@@ -431,10 +482,19 @@
  		stopit(0);
  	}
  	openlog("shutdown", LOG_PID, LOG_USER);
@@ -103,7 +103,7 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  	closelog();
  
  	/* See if we have to do it ourself. */
-@@ -437,7 +496,7 @@
+@@ -446,7 +506,7 @@
  		args[argp++] = "-t";
  		args[argp++] = sltime;
  	}
@@ -112,7 +112,7 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  	args[argp]   = (char *)NULL;
  
  	unlink(SDPID);
-@@ -445,7 +504,7 @@
+@@ -454,7 +514,7 @@
  
  	/* Now execute init to change runlevel. */
  	sync();
@@ -121,7 +121,7 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  	execv(INIT, args);
  
  	/* Oops - failed. */
-@@ -455,6 +514,13 @@
+@@ -464,6 +524,13 @@
  	init_setenv("INIT_HALT", NULL);
  	openlog("shutdown", LOG_PID, LOG_USER);
  	syslog(LOG_NOTICE, "shutdown failed");
@@ -135,12 +135,12 @@ diff -ru a/src/shutdown.c b/src/shutdown.c
  	closelog();
  	exit(1);
  }
-@@ -537,6 +603,7 @@
+@@ -546,6 +613,7 @@
    		exit(1);
  	}
  	strcpy(down_level, "S");
 +	strcpy(B3_down_level, "S");
  	halttype = NULL;
+         memset(when, '\0', WHEN_SIZE);
  
- 	/* Process the options. */
 

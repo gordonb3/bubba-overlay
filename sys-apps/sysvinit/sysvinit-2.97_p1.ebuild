@@ -1,7 +1,7 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 MY_P=${P/_*/}
 S="${WORKDIR}/${MY_P}"
@@ -29,12 +29,12 @@ RDEPEND="${CDEPEND}
 	!<sys-apps/openrc-0.13
 "
 
-S="${WORKDIR}/${P/_*}"
+#S="${WORKDIR}/${P/_*}"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-2.86-kexec.patch" #80220
-	"${FILESDIR}/${PN}-2.86-shutdown-single.patch" #158615
-	"${FILESDIR}/${PN}-2.92_beta-shutdown-h.patch" #449354
+	"${FILESDIR}/${PN}-2.94_beta-shutdown-single.patch" #158615
+	"${FILESDIR}/${PN}-2.95_beta-shutdown-h.patch" #449354
 )
 
 pkg_pretend() {
@@ -69,7 +69,11 @@ no_bubba() {
 
 src_prepare() {
 	default
-	sed -i '/^CPPFLAGS =$/d' src/Makefile || die
+
+	sed -i \
+		-e '/^CPPFLAGS =$/d' \
+		-e '/^override CFLAGS +=/s/ -fstack-protector-strong//' \
+		src/Makefile || die
 
 	# last/lastb/mesg/mountpoint/sulogin/utmpdump/wall have moved to util-linux
 	sed -i -r \
@@ -83,9 +87,15 @@ src_prepare() {
 		-e '/^MAN8/s:\<pidof.8\>::g' \
 		src/Makefile || die
 
+	# logsave is already in e2fsprogs
+	sed -i -r \
+		-e '/^(USR)?S?BIN/s:\<logsave\>::g' \
+		-e '/^MAN8/s:\<logsave.8\>::g' \
+		src/Makefile || die
+
 	# Mung inittab for specific architectures
 	cd "${WORKDIR}" || die
-	cp "${FILESDIR}"/inittab-2.91 inittab || die "cp inittab"
+	cp "${FILESDIR}"/inittab-2.95 inittab || die "cp inittab"
 	local insert=()
 	use ppc && insert=( '#psc0:12345:respawn:/sbin/agetty 115200 ttyPSC0 linux' )
 	use arm && insert=( '#f0:12345:respawn:/sbin/agetty 9600 ttyFB0 vt100' )
@@ -98,7 +108,7 @@ src_prepare() {
 			'#hvsi:2345:respawn:/sbin/agetty -L 19200 hvsi0'
 		)
 	fi
-	(use arm || use mips || use sh || use sparc) && sed -i '/ttyS0/s:#::' inittab
+	(use arm || use mips || use sparc) && sed -i '/ttyS0/s:#::' inittab
 	if use kernel_FreeBSD ; then
 		sed -i \
 			-e 's/linux/cons25/g' \
@@ -123,7 +133,7 @@ src_prepare() {
 
 	if use feroceon ; then
 		cd "${S}"
-		epatch "${FILESDIR}"/${MY_P}-write-magic.patch
+		eapply "${FILESDIR}"/${MY_P}-write-magic.patch
 	fi
 }
 
@@ -144,9 +154,15 @@ src_install() {
 	doins "${WORKDIR}"/inittab
 
 	# dead symlink
-	rm "${ED%/}"/usr/bin/lastb || die
+	rm "${ED}"/usr/bin/lastb || die
 
 	newinitd "${FILESDIR}"/bootlogd.initd bootlogd
+	into /
+	dosbin "${FILESDIR}"/halt.sh
+
+	keepdir /etc/inittab.d
+
+	find "${ED}" -type d -empty -delete || die
 }
 
 pkg_postinst() {
@@ -154,8 +170,9 @@ pkg_postinst() {
 	# This is really needed, as without the new version of init cause init
 	# not to quit properly on reboot, and causes a fsck of / on next reboot.
 	if [[ ${ROOT} == / ]] ; then
-		if [[ -e /dev/initctl && ! -e /run/initctl ]]; then
-			ln -s /dev/initctl /run/initctl
+		if [[ -e /dev/initctl ]] && [[ ! -e /run/initctl ]] ; then
+			ln -s /dev/initctl /run/initctl \
+				|| ewarn "Failed to set /run/initctl symlink!"
 		fi
 		# Do not return an error if this fails
 		/sbin/telinit U &>/dev/null
@@ -165,7 +182,7 @@ pkg_postinst() {
 	elog "sys-apps/util-linux. The pidof tool has been moved to sys-process/procps."
 
 	# Required for new bootlogd service
-	if [[ ! -e "${EROOT%/}/var/log/boot" ]] ; then
-		touch "${EROOT%/}/var/log/boot"
+	if [[ ! -e "${EROOT}/var/log/boot" ]] ; then
+		touch "${EROOT}/var/log/boot"
 	fi
 }
