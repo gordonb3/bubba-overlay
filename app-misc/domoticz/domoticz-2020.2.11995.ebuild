@@ -1,21 +1,28 @@
-# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2018 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
 EAPI="5"
 
-inherit cmake-utils eutils git-r3 systemd
+inherit cmake-utils eutils systemd toolchain-funcs
 
-EGIT_REPO_URI="https://github.com/domoticz/domoticz.git"
-EGIT_BRANCH="development"
+#EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
+COMMIT="aad6500"
+CTIME="2020-04-26 15:49:25 +0200"
 
+SRC_URI="https://github.com/domoticz/domoticz/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
+
+#	"https://github.com/domoticz/jsoncpp/archive/2a6e163.zip -> jsoncpp-2a6e163.zip"
+
+RESTRICT="mirror"
 DESCRIPTION="Home automation system"
 HOMEPAGE="http://domoticz.com/"
-
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 IUSE="systemd telldus openzwave python i2c +spi static-libs examples"
+
+
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -26,23 +33,43 @@ RDEPEND="net-misc/curl
 	!static-libs?
 	( sys-libs/zlib[minizip]
 	  dev-lang/lua:5.2
-	  app-misc/mosquitto
+	  app-misc/mosquitto[srv]
+	  net-dns/c-ares
 	  dev-db/sqlite
 	)
 	telldus? ( app-misc/telldus-core )
-	openzwave? ( dev-libs/openzwave[static-libs=] )
+	openzwave? ( dev-libs/openzwave )
 	python? ( dev-lang/python )
 	dev-libs/openssl[static-libs=]
-	dev-libs/cereal
-	dev-libs/jsoncpp
 "
 
 DEPEND="${RDEPEND}
-	dev-util/cmake"
+	dev-util/cmake
+"
+
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/${PN}-* ${S}
+}
 
 src_prepare() {
 	# link build directory
 	ln -s ${S} ${WORKDIR}/${PF}_build
+
+	# the project cmake file takes the application version from the Git project revision
+	# we can't use that here because the snapshot does not contain the Git header files
+	ProjectHash=${COMMIT:0:7}
+	ProjectRevision=${PV/*./}
+	ProjectDate=$(date -d "${CTIME}" +"%s")
+	elog "building ${PN} version ${ProjectRevision}, using Git commit \"${ProjectHash}\" from ${CTIME}"
+	echo -e "#define APPVERSION ${ProjectRevision}\n#define APPHASH \"${ProjectHash}\"\n#define APPDATE ${ProjectDate}\n" > appversion.h
+	echo 'execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different appversion.h appversion.h.txt)' > getgit.cmake
+	sed \
+		-e "/^Gitversion_GET_REVISION/cset(ProjectRevision ${ProjectRevision})" \
+		-e "/^MATH(EXPR ProjectRevision/d" \
+		-e "s/+2107/+0/" \
+		-i ${S}/CMakeLists.txt
+
 
 	use telldus || {
 		sed \
@@ -71,22 +98,23 @@ src_prepare() {
 	# domoticz does not build subdirectories by default
 	sed -e "s/EXCLUDE_FROM_ALL//" -i ${S}/CMakeLists.txt
 
-	# fix placeholder ambiguation in beta code
-	sed -e "s/c++11/c++14/" -i ${S}/CMakeLists.txt
-	grep -r -m1 "using namespace std::placeholders" | cut -d: -f1 | while read FILE; do
-		grep -q -m1 "BOOST_BIND_NO_PLACEHOLDERS" "${FILE}" || sed -e "1s/^/#define BOOST_BIND_NO_PLACEHOLDERS\n/" -i "${FILE}"
-	done
+	# plugin code unconditionally links Python which causes an error if USE python is disabled
+	use python || {
+		sed \
+		-e "/#include \"PythonObjects.h\"/d" \
+		-e "/PyObject/d" \
+		-i ${S}/hardware/plugins/Plugins.h
+	}
 
 	cmake-utils_src_prepare
 }
 
 src_configure() {
-	# linking of `builtin` submodules is broken in the CMake file
 	local mycmakeargs=(
+		# linking of `builtin` submodules is broken in the CMake file
 		-DCMAKE_BUILD_TYPE="Release"
 		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
-		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
-		-DBoost_INCLUDE_DIR="OFF"
+		-DCMAKE_INSTALL_PREFIX="/opt/${PN}"
 		-DUSE_STATIC_BOOST=$(usex static-libs)
 		-DUSE_PYTHON=$(usex python)
 		-DINCLUDE_LINUX_I2C=$(usex i2c)
@@ -157,3 +185,4 @@ pkg_postinst() {
 pkg_prerm() {
 	find /opt/${PN} -type l -exec rm {} \;
 }
+

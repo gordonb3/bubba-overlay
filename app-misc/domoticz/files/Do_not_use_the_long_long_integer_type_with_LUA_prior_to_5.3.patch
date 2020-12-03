@@ -1,0 +1,76 @@
+Although Lua 5.2 (and possibly 5.1 as well) do define the function
+lua_pushinteger() it does not produce correct results.
+
+=> convert to double and use legacy lua_pushnumber() function instead
+
+
+Patch by Gordon Bos
+
+
+diff -ru a/main/LuaHandler.cpp b/main/LuaHandler.cpp
+--- a/main/LuaHandler.cpp	2020-11-19 15:42:38.477297083 +0100
++++ b/main/LuaHandler.cpp	2020-11-19 15:44:13.368095462 +0100
+@@ -152,7 +156,11 @@
+ 	lua_pushcfunction(lua_state, l_domoticz_applyXPath);
+ 	lua_setglobal(lua_state, "domoticz_applyXPath");
+ 
+-	lua_pushinteger(lua_state, m_HwdID);
++#ifdef WITH_LUA53
++	lua_pushinteger(lua_state, static_cast<long long>(m_HwdID));
++#else
++	lua_pushnumber(lua_state, static_cast<double>(m_HwdID));
++#endif
+ 	lua_setglobal(lua_state, "hwdId");
+ 
+ 	lua_createtable(lua_state, 1, 0);
+diff -ru a/main/LuaTable.cpp b/main/LuaTable.cpp
+--- a/main/LuaTable.cpp	2020-11-19 15:42:33.886210076 +0100
++++ b/main/LuaTable.cpp	2020-11-19 15:44:13.368095462 +0100
+@@ -153,7 +157,16 @@
+ void CLuaTable::PushRow(std::vector<_tEntry>::iterator itt)
+ {
+ 	if (itt->label_type == TYPE_VALUE_INDEX)
++	{
++#ifdef WITH_LUA53
+ 		lua_pushinteger(m_lua_state, (lua_Integer)itt->index);
++#else
++		{
++			double dValue = static_cast<double>(itt->index);
++			lua_pushnumber(m_lua_state, (lua_Number)dValue);
++		}
++#endif
++	}
+ 	else
+ 		lua_pushstring(m_lua_state, itt->label.c_str());
+ 
+@@ -163,7 +176,14 @@
+ 		lua_pushboolean(m_lua_state, itt->bValue);
+ 		break;
+ 	case TYPE_INTEGER:
++#ifdef WITH_LUA53
+ 		lua_pushinteger(m_lua_state, (lua_Integer)itt->iValue);
++#else
++		{
++			double dValue = static_cast<double>(itt->iValue);
++			lua_pushnumber(m_lua_state, (lua_Number)dValue);
++		}
++#endif
+ 		break;
+ 	case TYPE_NUMBER:
+ 		lua_pushnumber(m_lua_state, (lua_Number)itt->dValue);
+@@ -193,7 +213,14 @@
+ 				lua_createtable(m_lua_state, itt->nrCols, itt->nrRows);
+ 				break;
+ 			case TYPE_SUBTABLE_OPEN_INDEX:
++#ifdef WITH_LUA53
+ 				lua_pushinteger(m_lua_state, (lua_Integer)itt->index);
++#else
++				{
++					double dValue = static_cast<double>(itt->index);
++					lua_pushnumber(m_lua_state, (lua_Number)dValue);
++				}
++#endif
+ 				lua_createtable(m_lua_state, itt->nrCols, itt->nrRows);
+ 				break;
+ 			case TYPE_SUBTABLE_CLOSE:
+
