@@ -30,7 +30,7 @@ RDEPEND="net-misc/curl
 	  dev-db/sqlite
 	)
 	telldus? ( app-misc/telldus-core )
-	openzwave? ( dev-libs/openzwave[static-libs=] )
+	openzwave? ( dev-libs/openzwave )
 	python? ( dev-lang/python )
 	dev-libs/openssl[static-libs=]
 	dev-libs/cereal
