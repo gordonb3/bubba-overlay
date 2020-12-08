@@ -1,20 +1,25 @@
-# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2018 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="5"
 
-inherit cmake-utils eutils git-r3 systemd
+inherit cmake-utils eutils systemd toolchain-funcs
 
-EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
-EGIT_BRANCH="master"
+#EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
+COMMIT="bcdc9682"
+CTIME="2020-12-08 13:33:31 +0100"
 
+SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
+RESTRICT="mirror"
 DESCRIPTION="Home automation system"
-
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 IUSE="systemd telldus openzwave python i2c +spi gpio +internal-lua examples"
+
+VMAJOR=${PV:0:1}
+SLOT="0/${VMAJOR}"
 
 RDEPEND="net-misc/curl
 	dev-libs/libusb
@@ -34,12 +39,32 @@ RDEPEND="net-misc/curl
 "
 
 DEPEND="${RDEPEND}
-	dev-util/cmake"
+	dev-util/cmake
+"
 
 CMAKE_IN_SOURCE_BUILD=yes
 
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/${PN}-* ${S}
+}
 
 src_prepare() {
+	# the project cmake file takes the application version from the Git project revision
+	# we can't use that here because the snapshot does not contain the Git header files
+	ProjectHash=${COMMIT:0:7}
+	ProjectRevision=${PV:2}
+	ProjectDate=$(date -d "${CTIME}" +"%s")
+	elog "building ${PN} version ${PV}, using Git commit \"${ProjectHash}\" from ${CTIME}"
+	echo -e "#pragma once\n#define VERSION_STRING \"${VMAJOR}.\"\n#define APPVERSION \"${ProjectRevision}\"\n#define APPHASH \"${ProjectHash}\"\n#define APPDATE ${ProjectDate}\n" > appversion.h
+	echo 'execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different appversion.h appversion.h.txt)' > getgit.cmake
+	sed \
+	  -e "/^Gitversion_GET_REVISION/cset(ProjectRevision ${ProjectRevision})" \
+	  -e "/^MATH(EXPR ProjectRevision/d" \
+	  -e "s/^.*+2107.*$/#/" \
+	  -i CMakeLists.txt
+
+
 	# reset all static and runtime folder dynamic linking to off
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/CMakeLists.txt
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/libs/CMakeLists.txt
@@ -47,11 +72,11 @@ src_prepare() {
 	# disable automatic scanning for Telldus
 	use telldus || {
 		sed \
-		-e "s/libtelldus-core.so/libtelldus-core.so.invalid/" \
-		-e "/Found telldus/d" \
-		-e "/find_path(TELLDUSCORE_INCLUDE/c  set(TELLDUSCORE_INCLUDE NO)" \
-		-e "/Not found telldus-core/c  message(STATUS \"tellstick support disbled\")" \
-		-i CMakeLists.txt
+		  -e "s/libtelldus-core.so/libtelldus-core.so.invalid/" \
+		  -e "/Found telldus/d" \
+		  -e "/find_path(TELLDUSCORE_INCLUDE/c  set(TELLDUSCORE_INCLUDE NO)" \
+		  -e "/Not found telldus-core/c  message(STATUS \"tellstick support disbled\")" \
+		  -i CMakeLists.txt
 	}
 
 	cmake-utils_src_prepare
@@ -107,10 +132,10 @@ src_install() {
 	rm -rf ${ED}/opt/${PN}/{server_cert.pem,License.txt}
 	rm -rf ${ED}/var/lib/${PN}/scripts/{_oikomaticz_main*,logrotate}
 	use examples || {
-		rm -rf ${ED}/opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
-		rm -rf ${ED}/opt/${PN}/plugins/examples
+		rm -rf ${ED}/var/lib/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
+		rm -rf ${ED}/var/lib/${PN}/plugins/examples
 	}
-	find ${ED}/opt/${PN}/scripts -empty -type d -exec rm -rf {} \;
+	find ${ED}/var/lib/${PN}/scripts -empty -type d -exec rm -rf {} \;
 }
 
 
@@ -128,3 +153,4 @@ pkg_postinst() {
 pkg_prerm() {
 	find /opt/${PN} -type l -exec rm {} \;
 }
+
