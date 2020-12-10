@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <use>
+    <flag name="telldus">Add support for Telldus stick</flag>
+    <flag name="openzwave">Add support for OpenZWave</flag>
+    <flag name="spi">Add support for Serial Peripheral Interface</flag>
+    <flag name="i2c">Add support for Inter-Integrated Circuit (e.g. on Raspberry Pi)</flag>
+    <flag name="internal-lua">Integrate preferred version of Lua</flag>
+  </use>
+</pkgmetadata>
