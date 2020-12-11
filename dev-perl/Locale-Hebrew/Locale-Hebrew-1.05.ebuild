@@ -15,6 +15,7 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 BDEPEND="
+	dev-perl/Module-Install
 	virtual/perl-ExtUtils-MakeMaker
 	test? (
 		dev-perl/Test-Warn
