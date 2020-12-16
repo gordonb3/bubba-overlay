@@ -140,17 +140,17 @@ src_install() {
 
 
 pkg_postinst() {
-	havescripts=$(find /opt/${PN} -maxdepth 1 -type d -name scripts)
+	havescripts=$(find ${EROOT}/opt/${PN} -maxdepth 1 -type d -name scripts)
 	if [ ! -z "${havescripts}" ]; then
-		mv /opt/${PN}/scripts/* /var/lib/${PN}/scripts/
-		rmdir /opt/${PN}/scripts
+		mv ${EROOT}/opt/${PN}/scripts/* ${EROOT}/var/lib/${PN}/scripts/
+		rmdir ${EROOT}/opt/${PN}/scripts
 	fi
 
 	# backward compatibility
-	ln -s /var/lib/${PN}/scripts /opt/${PN}/scripts
+	ln -s ${EROOT}/var/lib/${PN}/scripts ${EROOT}/opt/${PN}/scripts
 }
 
 pkg_prerm() {
-	find /opt/${PN} -type l -exec rm {} \;
+	find ${EROOT}/opt/${PN} -type l -exec rm {} \;
 }
 
