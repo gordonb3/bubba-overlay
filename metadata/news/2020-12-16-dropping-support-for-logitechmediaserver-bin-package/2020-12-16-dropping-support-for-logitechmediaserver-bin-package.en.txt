@@ -1,0 +1,19 @@
+Title: Dropping bin package for LogitechMediaServer
+Author: gordonb3 <gordon@bosvangennip.nl>
+Content-Type: text/plain
+Posted: 2020-12-16
+Revision: 1
+News-Item-Format: 2.0
+Display-If-Keyword: arm
+Display-If-Installed: media-sound/logitechmediaserver-bin
+
+
+With the upgrade to LogitechMediaServer 8.0 a less time consuming install method
+has been found which makes creating a bin package obsolete. For now the older
+LMS 7.8 bin package will remain inside the repository, but no further updates to
+perl 5.32 and higher will be made available.
+
+Note that to upgrade to LMS 8.0 you must first uninstall the bin package. If one
+of your Squeezebox devices is a Squeezebox Radio continue reading the next news item
+for vital information to continue using the Radio after upgrade to LMS 8.0
+

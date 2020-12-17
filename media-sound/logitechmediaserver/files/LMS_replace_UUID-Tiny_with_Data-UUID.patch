@@ -2,10 +2,10 @@ UUID::Tiny is only marked to support amd64 on Gentoo. Use Data::UUID instead
 
 
 
---- a/slimserver.pl	2012-05-29 13:43:52.700212318 +0100
-+++ b/slimserver.pl	2012-04-01 22:00:00.111597353 +0100
-@@ -440,8 +440,9 @@
- 	
+--- a/slimserver.pl
++++ b/slimserver.pl
+@@ -475,8 +475,9 @@
+ 
  	# Generate a UUID for this SC instance on first-run
  	if ( !$prefs->get('server_uuid') ) {
 -		require UUID::Tiny;

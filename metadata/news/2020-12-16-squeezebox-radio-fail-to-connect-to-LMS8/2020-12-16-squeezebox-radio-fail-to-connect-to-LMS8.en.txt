@@ -1,0 +1,30 @@
+Title: Squeezebox Radio version comparison bug causes fail to connect to LMS 8.x
+Author: gordonb3 <gordon@bosvangennip.nl>
+Content-Type: text/plain
+Posted: 2020-12-16
+Revision: 1
+News-Item-Format: 2.0
+Display-If-Keyword: arm
+Display-If-Installed: media-sound/logitechmediaserver
+Display-If-Installed: media-sound/logitechmediaserver-bin
+
+Introduction
+------------
+
+Unfortunately the latest Squeezebox Radio firmware (7.7.3) comes with a
+bug which prevents it from connecting to Logitech Media Server 8+. A patch
+is available, but the Radio must still be connected to LMS 7.8 to be able
+to install it.
+
+Action Required
+---------------
+
+On the Radio go to `Settings/Advanced/Applet Installer`, install the Patch Installer.
+The Radio will re-boot.
+
+Once it's back, go to `Settings/Advanced/Patch Installer`, install the "Version Comparison Fix".
+
+
+
+No other Squeezebox devices are affected
+

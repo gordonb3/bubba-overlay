@@ -9,10 +9,10 @@ lms=logitechmediaserver
 rundir=/run/${lms}
 logdir=/var/log/${lms}
 bindir=/opt/${lms}
-vardir=/var/lib/${lms}
+datadir=/var/lib/${lms}
 pidfile=${rundir}/${lms}.pid
-cachedir=${vardir}/cache
-prefsdir=${vardir}/preferences
+cachedir=${datadir}/cache
+prefsdir=${datadir}/preferences
 lmsuser=${lms}
 lmsbin=${bindir}/slimserver.pl
 
