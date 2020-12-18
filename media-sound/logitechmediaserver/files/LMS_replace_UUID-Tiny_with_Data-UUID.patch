@@ -16,3 +16,25 @@ UUID::Tiny is only marked to support amd64 on Gentoo. Use Data::UUID instead
  	}
  
  	main::INFOLOG && $log->info("Server binary search path init...");
+--- a/Slim/Plugin/UPnP/Events.pm
++++ b/Slim/Plugin/UPnP/Events.pm
+@@ -13,7 +13,6 @@ use HTTP::Daemon;
+ use HTTP::Date;
+ use URI;
+ use URI::QueryParam;
+-use UUID::Tiny ();
+ 
+ use Slim::Networking::Async;
+ use Slim::Networking::Select;
+@@ -235,7 +234,9 @@ sub subscribe {
+ 		$service =~ s{/}{::}g;
+ 		my $serviceClass = "Slim::Plugin::UPnP::$service";
+ 		
+-		$uuid = uc( UUID::Tiny::create_UUID_as_string( UUID::Tiny::UUID_V4() ) );
++		require Data::UUID;
++		my $ug = new Data::UUID;
++		$uuid = uc $ug->create_str();
+ 		
+ 		$SUBS{ $uuid } = {
+ 			active    => 0, # Sub is not active until we send it to the subscriber
+
