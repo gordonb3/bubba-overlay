@@ -4,6 +4,7 @@
 EAPI=7
 
 DIST_AUTHOR=AGRUNDMA
+# Note: 1.02 was never officially marked `release`, so we are grabbing 1.01 and patch it to reach 1.02
 DIST_VERSION=1.01
 inherit perl-module
 
