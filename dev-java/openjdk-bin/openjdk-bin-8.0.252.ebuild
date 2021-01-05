@@ -1,4 +1,4 @@
-# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2015-2021 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -23,8 +23,8 @@ MY_PV="$(get_version_component_range 2)${MY_PV_EXT}"
 AT_arm="ejdk-${MY_PV}-linux-arm-sflt.tar.gz"
 
 DEB_DIST="http://ftp.nl.debian.org/debian/pool/main/o"
-DEB_VERSION="8u171-b11-1~deb9u1"
-DEB_PKGS=( jre-headless jre jdk )
+DEB_VERSION="8u252-b09-1~deb9u1"
+DEB_PKGS=( jre-headless jdk-headless )
 DEB_ARCH="armel" 
 
 DESCRIPTION="Debian precompile Java SE Development Kit"
@@ -38,7 +38,7 @@ done
 
 LICENSE="GPL-2-with-linking-exception"
 KEYWORDS="~arm"
-IUSE="alsa cups cjk +headless-awt nss selinux"
+IUSE=""
 REQUIRED_USE=""
 
 RESTRICT="preserve-libs strip mirror"
@@ -64,26 +64,15 @@ RDEPEND=">=dev-libs/glib-2.42:2
 	>=sys-libs/glibc-2.22
 	>=sys-libs/zlib-1.2.8-r1
 	virtual/jpeg:62
-	alsa? ( >=media-libs/alsa-lib-1.0 )
-	!headless-awt? (
-		>=media-libs/giflib-4.1.6-r1
-		media-libs/libpng:0/16
-		>=x11-libs/libX11-1.6
-		>=x11-libs/libXcomposite-0.4
-		>=x11-libs/libXext-1.3
-		>=x11-libs/libXi-1.7
-		>=x11-libs/libXrender-0.9.8
-		>=x11-libs/libXtst-1.2
-	)
-	cjk? (
-		media-fonts/arphicfonts
-		media-fonts/baekmuk-fonts
-		media-fonts/lklug
-		media-fonts/lohit-fonts
-		media-fonts/sazanami
-	)
-	cups? ( >=net-print/cups-2.0 )
-	selinux? ( sec-policy/selinux-java )"
+	sys-apps/pcsc-lite
+	x11-base/xorg-proto
+	x11-libs/libX11
+	x11-libs/libXext
+	x11-libs/libXi
+	x11-libs/libXrender
+	x11-libs/libXt
+	x11-libs/libXtst
+"
 
 DEPEND="!arm? ( dev-util/patchelf )"
 
@@ -105,15 +94,6 @@ src_unpack() {
 
 src_prepare() {
 	cd usr/lib/jvm/java-${SLOT}-openjdk-${DEB_ARCH}
-
-	if ! use alsa; then
-		rm -v jre/lib/$(get_system_arch)/libjsoundalsa.* || die
-	fi
-
-	if use headless-awt; then
-		rm -vr jre/lib/$(get_system_arch)/libsplashscreen.* \
-		   {,jre/}bin/policytool bin/appletviewer || die
-	fi
 
 	if [ -d ../java-${SLOT}-openjdk-common ]; then
 		echo "dereference links to ${MY_PN}-${SLOT}-jre-lib_${DEB_VERSION}_all"
@@ -138,7 +118,7 @@ src_prepare() {
 		fi
 	done
 
-	rm -r ${S}/usr/share/doc/openjdk-${SLOT}-jdk/test-armel
+	rm -rf ${S}/usr/share/doc/openjdk-${SLOT}-jdk*/test-armel
 
 	echo "remove broken links"
 	find -type l | while read file; do 
@@ -163,8 +143,9 @@ src_install() {
 	cp -pRP bin include jre lib man etc "${ddest}" || die
 
 
-	dodoc ${S}/usr/share/doc/openjdk-${SLOT}-jdk/*
-
+	dodoc ${S}/usr/share/doc/openjdk-${SLOT}-jdk*/*
+	docompress -x /usr/share/doc/${PF}
+	
 	# Both icedtea itself and the icedtea ebuild set PAX markings but we
 	# disable them for the icedtea-bin build because the line below will
 	# respect end-user settings when icedtea-bin is actually installed.
