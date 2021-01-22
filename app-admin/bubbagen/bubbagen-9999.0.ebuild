@@ -28,7 +28,7 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	app-admin/bubba-frontend
+	app-admin/bubba-admin
 	app-admin/bubba-manual
 	arm? ( sys-power/bubba-buttond )
 "

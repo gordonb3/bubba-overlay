@@ -1,0 +1,4 @@
+move app-admin/bubba-backend app-admin/bubba-admin
+move app-admin/bubba-frontend app-admin/bubba-admin
+move app-admin/bubba-diskmanager app-admin/bubba-admin
+move app-admin/bubba-networkmanager app-admin/bubba-admin

@@ -1,0 +1,389 @@
+2021-01-22
+
+  * combined individual packages into one
+
+-------------------------------------------------------------------
+2020-05-23
+
+  Networkmanager:
+  * fix deadlock in bubba-fqdn hook script causing dhcpcd to stall
+    Querying bubba-networkmanager for the current lan interface
+    caused a deadlock as bubba-networkmanager is running single
+    threaded AND is waiting for net start to complete.
+  * review netifrc management code
+  * add block for newly added `iw` module that overrides AP mode
+
+-------------------------------------------------------------------
+2019-10-04
+
+  Frontend:
+  * Do not accept empty postdata on lanupdate and wanupdate: when revisiting
+    these pages after changing the IP address this would reset the NIC to use
+    a DHCP assigned address
+  * GUI would show the session stored value for AllowRemote rather than the
+    saved value
+  * GUI did not correctly show status of samba service in systemd version
+
+  Backend + Frontend:
+  * Correct for systemd binaries having moved from /usr/bin to /bin
+
+-------------------------------------------------------------------
+2019-10-02
+
+  Backend:
+  * Use hardcoded paths when calling external binaries
+    trusting on search path caused some GUI calls to backend.pl to fail
+
+-------------------------------------------------------------------
+2018-01-22
+
+  Frontend:
+  * Fix "Strict Standards: Only variables should be passed by reference" 
+    message when accessing disk view in developer mode
+
+  Backend + Frontend:
+  * Dependency move: dev-libs/libbubba-info-php -> sys-apps/bubba-info
+  * Reorganize patches
+
+-------------------------------------------------------------------
+2018-01-19
+
+  Networkmanager + Diskmanager:
+  * static linking of withheld libsigc++ version 2.4.1
+  * fix build method to support cross-compile
+
+-------------------------------------------------------------------
+2018-01-15
+
+  Networkmanager:
+  * code fixes for C++11 ABI
+
+-------------------------------------------------------------------
+2018-01-12
+
+  Frontend:
+  * Add Gentoo logo to bubba frontend
+  * Prohibit enabling the WiFi AP when LAN is set to receive a DHCP address
+
+-------------------------------------------------------------------
+2018-01-09
+
+  Networkmanager:
+  * Netifrc/Brctl migration to sysfs
+
+-------------------------------------------------------------------
+2017-04-13
+
+  Backend:
+  * Fix dependency: Perl is also required at build time
+
+-------------------------------------------------------------------
+2017-03-29
+
+  Frontend:
+  * Fix warnings when running with php7
+
+-------------------------------------------------------------------
+2017-02-07
+
+  Backend:
+  * Fix non working restriction for admin login on WAN interface
+
+-------------------------------------------------------------------
+2016-12-14
+
+  Backend:
+  * Remove twisted-core from dependency list
+    this was a left behind requirement for the old easyfind scripts
+
+-------------------------------------------------------------------
+2016-07-08
+
+  Networkmanager:
+  * Revert switch from dhcpcd to dhclient on systemd:
+    dhclient does not properly support a fallback IP, causing an
+    undefined network if the Live-USB is used in a network without
+    an existing DHCP server.
+
+-------------------------------------------------------------------
+2016-07-01
+
+  Networkmanager:
+  * Remove dependency on dhcpcd when on systemd
+
+-------------------------------------------------------------------
+2016-06-30
+
+  Networkmanager:
+  * Add NetworkManager dispatcher scripts to replace dhcpcd hooks
+
+-------------------------------------------------------------------
+2016-06-29
+
+  Networkmanager:
+  * Add support for systemd (gnome NetworkManager)
+
+-------------------------------------------------------------------
+2016-06-16
+
+  Backend + Frontend:
+  * Allow building for systemd platform
+
+-------------------------------------------------------------------
+2016-05-27
+
+  Networkmanager + Diskmanager:
+  * change dependencies to withhold libsigc++ version 2.6
+    using the newer library causes compile time errors
+
+-------------------------------------------------------------------
+2016-05-09
+
+  Backend:
+  * Fix backup routines and missing cron entries
+
+  Frontend:
+  * Let bubba-adminphp initd script verify existence of the php session dir
+    and create if needed
+
+  Backend + Frontend:
+  * Upgrade package status to 'release'
+
+-------------------------------------------------------------------
+2015-12-18
+
+  Networkmanager:
+  * Add dependencies for supporting wifi in bubba-networkmanager
+
+-------------------------------------------------------------------
+2015-12-14
+
+  Networkmanager:
+  * Fix dhcpcd hook script - remove debug lines
+  * Upgrade package status to release
+
+-------------------------------------------------------------------
+2015-12-20
+
+  Backend:
+  * Clean up patch files and add comment section to them
+
+-------------------------------------------------------------------
+2015-12-10
+
+  Backend:
+  * Fixed backup and restore of system settings
+    This procedure is provided as is. Files and/or folders to include
+    as well can be added to /var/lib/bubba/personal-setting-files.txt
+
+-------------------------------------------------------------------
+2015-12-06
+
+  Backend:
+  * Fixed incorrect management of fetchmail service:
+     - incorrect name for pid file
+     - wrong owner and rights on resource file
+
+-------------------------------------------------------------------
+2015-11-27
+
+  Networkmanager:
+  * Fix FQDN compliancy
+     - set correct order of full name and short name in /etc/hosts
+     - add dhcpcd hook script
+
+-------------------------------------------------------------------
+2015-11-16
+
+  Frontend:
+  * Changed paths for File Transfer Daemon
+  * Remove reference to Horde in userdel procedure
+  * Let installer add and start bubba-adminphp service
+  * Fixed wlanupdate page always timing out. The only time out that is still
+    occurring is when wifi is switched on or off. This is unavoidable and
+    will thus remain.
+
+  Networkmanager + Diskmanager:
+  * Clean up code - remove unneeded symbols
+
+  Backend + Frontend + Networkmanager + Diskmanager:
+  * Move installation to /opt/bubba tree (commands changed)
+
+-------------------------------------------------------------------
+2015-11-13
+
+  Backend:
+  * Identify pid file for filetransferdaemon (ftd.pid) in code
+
+  Frontend:
+  * Fixed an issue with enabling/disabling automatic time updates
+    (service renamed)
+
+-------------------------------------------------------------------
+2015-11-09
+
+  Backend:
+  * Fixed dependency issue with libbubba-info
+
+  Networkmanager:
+  * Fix hosts file corruption while switching wifi on/off through web admin 
+
+-------------------------------------------------------------------
+2015-11-07
+
+  Networkmanager:
+  * Procedure for switching the lan interface now working with the
+    Gentoo config files
+
+-------------------------------------------------------------------
+2015-09-12
+
+  Frontend:
+  * Sanitized handling of "null" configured NICs (i.e. NICs that do need to
+    be initialized because they are part of a bridge or a PPPoE connection
+    but should not receive address for themselves). The web UI will now
+    display these as having address 0.0.0.0 rather than "automatic" and you
+    can also set a NIC to "null" configuration by setting this address in
+    the web UI 
+
+-------------------------------------------------------------------
+2015-09-07
+
+  Backend:
+  * Fixed incorrect display of firewall settings due to missing paths
+
+  Frontend:
+  * Fixed creation of incorrect network conf entries when adapter is set
+    to use dhcp or "null"
+  * Fixed race condition during changing of network parameters
+  * Fixed incorrect display of firewall settings due to missing paths
+
+  Networkmanager:
+  * Fix incorrect editing of non-static NICs in bubba-networkmanager 
+
+-------------------------------------------------------------------
+2015-09-02
+
+  Frontend:
+  * Added debug USE flag to bubba-frontend to control whether php errors
+    should be shown to the user - as of now the default without this USE
+    flag is "not"
+  * Fixed Tor service page
+
+  Networkmanager:
+  * Add new policies to allow showing WAN properties when using a
+    different device than eth0
+
+-------------------------------------------------------------------
+2015-08-31
+
+  Frontend:
+  * Fixed issue with apache vhost conf file
+  * Added HDD temperature to the stat page, which I only discovered to be
+    missing today because it was originally added as an optional element
+    and thus did not throw any error or display invalid data.
+
+-------------------------------------------------------------------
+2015-08-25
+
+  Frontend:
+  * Fixed issue with latest release of timezone-data (2015e) dropping the
+    part of the database that was referenced by bubba-backend.
+
+  Networkmanager + Diskmanager:
+  * Add "~ppc" to keywords to allow install on Bubba|2
+
+-------------------------------------------------------------------
+2015-08-23
+
+  Backend:
+  * Fixed last references towards mybubba.org domain
+
+  Networkmanager + Diskmanager:
+  * Correct description field in ebuild file
+
+-------------------------------------------------------------------
+2015-08-11
+
+  Frontend:
+  * Fixed dnsmasq service tracker. Now properly showing service running
+    status and display of DHCP leases if applicable.
+
+-------------------------------------------------------------------
+2015-07-31
+
+  Frontend:
+  * Fixed the wireless settings being blocked by interfaces not hardcoded in
+    bubba-networkmanager. Wireless interface still must be named according
+    to the old standards (i.e. wlan0)
+
+  Networkmanager:
+  * Fix wifi channel listing
+
+-------------------------------------------------------------------
+2015-07-24
+
+  Frontend:
+  * Log file listing is now dynamically determined. Added some color scheming
+    to the list as well, so it gets easier to identify what service a log file
+    belongs to.
+  * Fixed an issue with PHP 5.6 and HTTP_RAW_POST_DATA
+
+-------------------------------------------------------------------
+2015-07-23
+
+  Backend + Frontend:
+  * Fixed an issue with the delete user routine - you can't delete a samba
+    user if you already deleted the unix user.
+  * Fixed the problem with the obsolete bubba-igd service
+  * Printer service can now also be controlled - it was renamed from 'cups'
+    to 'cupsd'
+
+-------------------------------------------------------------------
+2015-07-22
+
+  Frontend:
+  * We're moving to fpm because the old cgi method no longer works
+    with apache 2.4. Set requirement for apache to >=2.4.9, because we
+    want to use a unix socket rather than a tcp port.
+
+-------------------------------------------------------------------
+2015-07-21
+
+  Backend:
+  * Added identify_box script
+  * Removed easyfind.pl from this install, it conflicts with the
+    bubba-easyfind package
+  * Fix MakeMaker warnings
+
+  Frontend:
+  * Fix entries in php include ini file
+
+  Networkmanager:
+  * Change file locations
+
+-------------------------------------------------------------------
+2015-07-16
+
+  Backend:
+  * Fixed editing advanced firewall editing 
+
+  Frontend:
+  * Fixed disk information view. Now properly recognizing system
+    partitions rather than rely on hardcoded Excito standards.
+
+  Networkmanager:
+  * Now also write the Gentoo 'net' conf file
+
+-------------------------------------------------------------------
+2015-07-12
+
+  Networkmanager:
+  * Fix code to correctly parse Gentoo 'net' conf file
+  * Adapt old netlink 1 references to work with current netlink 3
+
+-------------------------------------------------------------------
+2015-07-07
+
+  * first Gentoo release
+

@@ -13,9 +13,11 @@ VMAJOR=${PV:0:4}
 REVISION=$((${PV:5}%5))
 SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VMAJOR}.tar.gz -> ${PF}.tgz"
 LICENSE="GPL-3+"
-SLOT="0/${VMAJOR}"
+SLOT="0/${VMAJOR}.5"
 RESTRICT="mirror"
-IUSE="bindist"
+IUSE="systemd bindist"
+
+REQUIRED_USE="systemd"
 
 # Conflicts/replaces Sakaki's b3-init-scripts
 DEPEND="
@@ -26,9 +28,10 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	app-admin/bubba-frontend
+	app-admin/bubba-admin[systemd]
 	app-admin/bubba-manual
-	arm? ( sys-power/bubba-buttond )
+	arm? ( sys-power/bubba-buttond[systemd] )
+	sys-apps/systemd
 "
 
 REMOVELIST=""
@@ -71,10 +74,10 @@ src_prepare() {
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
 	# revision 5 and higher: combine systemd specific files with the regular openrc tree
-	[[ ${PV:5} -gt 4 ]] && cp -al ${S}/systemd/* ${S}/
+	[[ ${PV:5} -gt 4 ]] && cp -a ${S}/systemd/* ${S}/
 
 	# if enabled, include config files required to prevent bindist conflicts
-	use bindist && [[ -d ${S}/bindist ]] && cp -al ${S}/bindist/* ${S}/
+	use bindist && [[ -d ${S}/bindist ]] && cp -a ${S}/bindist/* ${S}/
 
 	# correct for different settings between B2 and B3
 	use ppc && rm etc/portage/package.use/sysvinit

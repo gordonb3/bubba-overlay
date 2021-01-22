@@ -30,7 +30,7 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	app-admin/bubba-frontend[systemd]
+	app-admin/bubba-admin[systemd]
 	app-admin/bubba-manual
 	arm? ( sys-power/bubba-buttond[systemd] )
 	sys-apps/systemd
