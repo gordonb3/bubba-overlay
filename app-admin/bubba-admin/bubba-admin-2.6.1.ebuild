@@ -199,7 +199,7 @@ bubba_admin_install_GUI() {
 	insinto ${PHP_FPM_INI_PATH}/ext
 	newins bubba-frontend/php-cgi.conf bubba-admin.ini
 	echo "date.timezone=\"${SYSTEM_TIMEZONE}\"" >> ${ED}/${PHP_FPM_INI_PATH}/ext/bubba-admin.ini
-	dosym ${PHP_FPM_INI_PATH}/ext/bubba-admin.ini ${PHP_FPM_INI_PATH}/ext-active/bubba-adm in.ini
+	dosym ${PHP_FPM_INI_PATH}/ext/bubba-admin.ini ${PHP_FPM_INI_PATH}/ext-active/bubba-admin.ini
 
 	if use apache2; then
 		insinto ${PHP_APACHE_INI_PATH}/ext
@@ -391,3 +391,4 @@ pkg_postinst() {
 	# cleanup old sessions
 	[[ -d "/var/lib/php5" ]] && rm -rf /var/lib/php5
 }
+
