@@ -6,7 +6,6 @@ EAPI="7"
 
 inherit eutils cmake-utils systemd tmpfiles
 
-MY_PV=${PV/_*/}
 DESCRIPTION="Excito B3 administration tools and GUI"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${PV}.tar.gz -> $PF.tar.gz"
