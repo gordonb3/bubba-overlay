@@ -8,7 +8,7 @@ inherit eutils cmake-utils systemd tmpfiles
 
 DESCRIPTION="Excito B3 administration tools and GUI"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="https://github.com/gordonb3/${PN}/archive/${PV}.tar.gz -> $PF.tar.gz"
+SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PF}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
@@ -104,6 +104,8 @@ RDEPEND="
 
 # cmake requires access to included `external` project sources
 CMAKE_IN_SOURCE_BUILD=yes
+
+S=${WORKDIR}/${PF}
 
 src_prepare() {
 	cmake-utils_src_prepare
