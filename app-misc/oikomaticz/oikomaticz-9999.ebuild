@@ -40,6 +40,8 @@ CMAKE_IN_SOURCE_BUILD=yes
 
 
 src_prepare() {
+	eapply_user
+
 	# reset all static and runtime folder dynamic linking to off
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/CMakeLists.txt
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/libs/CMakeLists.txt

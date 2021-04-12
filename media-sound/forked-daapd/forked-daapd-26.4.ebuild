@@ -4,7 +4,7 @@
 # TODO:
 # Add --enable-spotify when it works
 
-EAPI=5
+EAPI="6"
 
 inherit autotools eutils user
 
@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/ejurgensen/forked-daapd"
 SRC_URI="https://github.com/ejurgensen/forked-daapd/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~arm"
 IUSE="alsa itunes lastfm mpd webinterface"
 
 # Note: mpd support appears to be standalone, e.g. --enable-mpd doesn't
@@ -47,6 +47,7 @@ pkg_setup() {
 }
 
 src_prepare() {
+	eapply_user
 	eautoreconf
 }
 

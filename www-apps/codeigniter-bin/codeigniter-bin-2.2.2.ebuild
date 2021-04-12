@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="4"
+EAPI="6"
 
 inherit eutils user
 
@@ -10,7 +10,7 @@ DESCRIPTION="CodeIgniter PHP framework for full-featured web applications"
 SRC_URI="https://github.com/bcit-ci/CodeIgniter/archive/${PV}.zip"
 RESTRICT="mirror"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
+KEYWORDS="~arm ~ppc"
 IUSE=""
 
 
@@ -30,6 +30,5 @@ src_install() {
 	dodir /opt/codeigniter
 	find ${S} -maxdepth 2 -type d -name system -exec cp -a {} ${D}/opt/codeigniter/ \;
 	dodoc license.txt
-	
 }
 

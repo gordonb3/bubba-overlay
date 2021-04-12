@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit cmake-utils eutils systemd toolchain-funcs
 
@@ -50,6 +50,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	eapply_user
+
 	# the project cmake file takes the application version from the Git project revision
 	# we can't use that here because the snapshot does not contain the Git header files
 	ProjectHash=${COMMIT:0:7}

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/dev-libs/openssl/openssl-1.0.2-r1.ebuild,v 1.2 2015/01/28 19:35:28 mgorny Exp $
 
-EAPI="4"
+EAPI="6"
 
 inherit eutils flag-o-matic toolchain-funcs multilib multilib-minimal
 
@@ -45,6 +45,7 @@ MULTILIB_WRAPPED_HEADERS=(
 )
 
 src_prepare() {
+	eapply_user
 	SSL_CNF_DIR="/etc/ssl"
 	sed \
 		-e "/^DIR=/s:=.*:=${EPREFIX}${SSL_CNF_DIR}:" \

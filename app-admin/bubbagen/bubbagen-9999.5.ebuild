@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils git-r3
 
@@ -64,13 +64,9 @@ pkg_setup() {
 	KERNEL_MINOR=$(uname -r | cut -d. -f2)
 }
 
-#src_unpack() {
-#	default
-#
-#	mv ${WORKDIR}/${PN}* ${S}
-#}
-
 src_prepare() {
+	eapply_user
+
 	# Git does not support empty folders
 	# clean up the bogus content here.
 	find ${S} -name ~nofiles~ -exec rm {} \;

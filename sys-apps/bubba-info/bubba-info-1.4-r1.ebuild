@@ -2,8 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
-PYTHON_COMPAT=( python3_8 )
+EAPI="6"
+PYTHON_COMPAT=( python3_8 python3_9 )
 inherit eutils distutils-r1
 
 MY_PN=lib${PN}
@@ -52,6 +52,7 @@ src_unpack() {
 
 
 src_prepare() {
+	eapply_user
 	sed -e "s/libtool --mode/libtool --tag=CC --mode/" -i Makefile
 	use perl && sed -e "s/^\(\s*.ABSTRACT\)_FROM.*$/\1       => 'Perl extension for querying Bubba platform information',/" -i perl/Makefile.PL
 	use php && sed -e "s/^static function_entry/zend_function_entry/" -i php/bubba_info.c

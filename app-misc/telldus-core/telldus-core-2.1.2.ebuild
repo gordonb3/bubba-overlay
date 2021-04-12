@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit cmake-utils eutils
 
@@ -12,7 +12,7 @@ SRC_URI="http://download.telldus.com/TellStick/Software/${PN}/${PF}.tar.gz"
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
+KEYWORDS="~arm ~ppc"
 IUSE=""
 
 DEPEND="dev-libs/confuse
@@ -25,6 +25,8 @@ RDEPEND="${DEPEND}"
 S=${WORKDIR}/${PF}
 
 src_prepare() {
+	eapply_user
+
 	ln -s ${S} ${S}_build
 
 	# Fix missing pthread link flag in tdtool and tdadmin targets
@@ -34,6 +36,7 @@ src_prepare() {
 	sed -i \
 		-e "s/libtelldus-core\.so/libtelldus-core.so\n\t\tpthread/" \
 		${S}/tdadmin/CMakeLists.txt
+	cmake-utils_src_configure
 }
 
 
