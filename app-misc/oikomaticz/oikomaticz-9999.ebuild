@@ -17,20 +17,20 @@ KEYWORDS=""
 IUSE="systemd telldus openzwave python i2c +spi gpio +internal-lua examples"
 
 RDEPEND="net-misc/curl
-	dev-libs/libusb
-	dev-libs/libusb-compat
-	dev-embedded/libftdi
-	dev-db/sqlite
-	dev-libs/boost
-	sys-libs/zlib[minizip]
-	!internal-lua? ( dev-lang/lua:5.3 )
-	app-misc/mosquitto[srv]
-	net-dns/c-ares
-	dev-db/sqlite
-	telldus? ( app-misc/telldus-core )
-	openzwave? ( dev-libs/openzwave )
-	python? ( >=dev-lang/python-3.4 )
-	dev-libs/openssl
+	 dev-libs/libusb
+	 dev-libs/libusb-compat
+	 dev-embedded/libftdi
+	 dev-db/sqlite
+	 dev-libs/boost
+	 sys-libs/zlib[minizip]
+	 !internal-lua? ( dev-lang/lua:5.3 )
+	 app-misc/mosquitto[srv]
+	 net-dns/c-ares
+	 dev-db/sqlite
+	 telldus? ( app-misc/telldus-core )
+	 openzwave? ( dev-libs/openzwave )
+	 python? ( >=dev-lang/python-3.4 )
+	 dev-libs/openssl
 "
 
 DEPEND="${RDEPEND}
