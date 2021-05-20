@@ -19,6 +19,8 @@ IUSE="alsa itunes lastfm mpd webinterface"
 # Note: mpd support appears to be standalone, e.g. --enable-mpd doesn't
 # result in additional linkage.
 RDEPEND="
+	acct-user/daapd
+	acct-group/daapd
 	dev-db/sqlite:3
 	dev-libs/antlr-c:0
 	dev-libs/confuse
@@ -40,11 +42,6 @@ DEPEND="
 	dev-java/antlr:3.5
 	${RDEPEND}
 "
-
-pkg_setup() {
-	enewuser daapd
-	enewgroup daapd
-}
 
 src_prepare() {
 	eapply_user

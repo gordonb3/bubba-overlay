@@ -9,10 +9,9 @@ inherit eutils user systemd
 
 
 MY_PN="${PN/-bin}"
-MY_SHORT_PV="${PV/.0}"
 MY_PV="${PV/_*}"
 MY_PF="${MY_PN}-${MY_PV}"
-S="${WORKDIR}/${MY_PN}-${MY_PV}-noCPAN"
+S="${WORKDIR}/${MY_PF}-noCPAN"
 
 SRC_DIR="LogitechMediaServer_v${MY_PV}"
 SRC_URI="http://downloads.slimdevices.com/${SRC_DIR}/${MY_PF}-noCPAN.tgz"
@@ -32,9 +31,11 @@ done
 
 # Installation dependencies.
 DEPEND="
+	acct-user/${MY_PN}
+	acct-group/${MY_PN}
 	!media-sound/squeezecenter
 	!media-sound/squeezeboxserver
-	!media-sound/logitechmediaserver-bin
+	!media-sound/${MY_PN}-bin
 	app-arch/unzip
 	dev-lang/nasm
 "
@@ -78,8 +79,8 @@ RDEPEND="
 	mac? ( media-sound/mac )
 "
 
-RUN_UID=logitechmediaserver
-RUN_GID=logitechmediaserver
+RUN_UID=${MY_PN}
+RUN_GID=${MY_PN}
 
 # Installation target locations
 BINDIR="/opt/${MY_PN}"
@@ -206,17 +207,11 @@ OBSOLETEFILES=(
 	"Template.pm"
 )
 
-pkg_setup() {
-	# Create the user and group if not already present
-	enewgroup ${RUN_GID}
-	enewuser ${RUN_UID} -1 -1 "/dev/null" ${RUN_GID}
-}
-
 src_prepare() {
 	default	
 
 	# fix default user name to run as
-	sed -e "s/squeezeboxserver/logitechmediaserver/" -i slimserver.pl
+	sed -e "s/squeezeboxserver/${RUN_UID}/" -i slimserver.pl
 
 	# merge the secondary lib folder into CPAN, keeping track of the various locations
 	# for CPAN modules is hard enough already without it.
@@ -258,9 +253,9 @@ src_install() {
 		systemd_dounit "${S}/../${MY_PN}.service"
 	else
 		# Install init script (OpenRC)
-		newinitd "${FILESDIR}/logitechmediaserver.init.d" "${MY_PN}"
+		newinitd "${FILESDIR}/${MY_PN}.init.d" "${MY_PN}"
 	fi
-	newconfd "${FILESDIR}/logitechmediaserver.conf.d" "${MY_PN}"
+	newconfd "${FILESDIR}/${MY_PN}.conf.d" "${MY_PN}"
 
 	# prepare data and log file locations
 	elog "Set up log and data file locations"
@@ -276,28 +271,28 @@ src_install() {
 
 	# Install logrotate support
 	insinto /etc/logrotate.d
-	newins "${FILESDIR}/logitechmediaserver.logrotate.d" "${MY_PN}"
+	newins "${FILESDIR}/${MY_PN}.logrotate.d" "${MY_PN}"
 }
 
 lms_starting_instr() {
 	elog "Logitech Media Server can be started with the following command:"
 	if use systemd ; then
-		elog "\tsystemctl start logitechmediaserver"
+		elog "\tsystemctl start ${MY_PN}"
 	else
-		elog "\t/etc/init.d/logitechmediaserver start"
+		elog "\t/etc/init.d/${MY_PN} start"
 	fi
 	elog ""
 	elog "Logitech Media Server can be automatically started on each boot"
 	elog "with the following command:"
 	if use systemd ; then
-		elog "\tsystemctl enable logitechmediaserver"
+		elog "\tsystemctl enable ${MY_PN}"
 	else
-		elog "\trc-update add logitechmediaserver default"
+		elog "\trc-update add ${MY_PN} default"
 	fi
 	elog ""
 	elog "You might want to examine and modify the following configuration"
 	elog "file before starting Logitech Media Server:"
-	elog "\t/etc/conf.d/logitechmediaserver"
+	elog "\t/etc/conf.d/${MY_PN}"
 	elog ""
 
 	# Discover the port number from the preferences, but if it isn't there
