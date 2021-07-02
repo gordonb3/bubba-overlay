@@ -101,8 +101,11 @@ src_compile() {
 }
 
 src_install() {
+	# construct version from git info
+	LAST_TAG=$(git describe --abbrev=0 --tags)
+	LAST_COMMIT=$(date -d @$(git show -s --format=%ct) +"%y%m%d")
         dodir /etc/bubba
-	echo ${PV} > ${ED}/etc/bubba/bubba.version
+	echo "${LAST_TAG:0:4}.$((${PV:5}+4))_pre${LAST_COMMIT}" > ${ED}/etc/bubba/bubba.version
 
 	insinto /var/lib/bubba
 	doins bubba-default-config.tgz
