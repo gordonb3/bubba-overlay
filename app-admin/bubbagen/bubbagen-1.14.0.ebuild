@@ -1,4 +1,4 @@
-# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2021 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -13,11 +13,9 @@ VMAJOR=${PV:0:4}
 REVISION=$((${PV:5}%5))
 SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VMAJOR}.tar.gz -> ${PF}.tgz"
 LICENSE="GPL-3+"
-SLOT="0/${VMAJOR}.5"
+SLOT="0/${VMAJOR}"
 RESTRICT="mirror"
-IUSE="systemd bindist"
-
-REQUIRED_USE="systemd"
+IUSE="bindist"
 
 # Conflicts/replaces Sakaki's b3-init-scripts
 DEPEND="
@@ -28,10 +26,9 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	app-admin/bubba-admin[systemd]
+	app-admin/bubba-admin
 	app-admin/bubba-manual
-	arm? ( sys-power/bubba-buttond[systemd] )
-	sys-apps/systemd
+	arm? ( sys-power/bubba-buttond )
 "
 
 REMOVELIST=""
@@ -76,10 +73,10 @@ src_prepare() {
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
 	# revision 5 and higher: combine systemd specific files with the regular openrc tree
-	[[ ${PV:5} -gt 4 ]] && cp -a ${S}/systemd/* ${S}/
+	[[ ${PV:5} -gt 4 ]] && cp -al ${S}/systemd/* ${S}/
 
 	# if enabled, include config files required to prevent bindist conflicts
-	use bindist && [[ -d ${S}/bindist ]] && cp -a ${S}/bindist/* ${S}/
+	use bindist && [[ -d ${S}/bindist ]] && cp -al ${S}/bindist/* ${S}/
 
 	# correct for different settings between B2 and B3
 	use ppc && rm etc/portage/package.use/sysvinit
@@ -167,4 +164,13 @@ pkg_postinst() {
 
 	# cleanup distcc-fix in /usr/local/sbin (not a package file in previous releases)
 	[[ -e ${ROOT}/usr/local/sbin/distcc-fix ]] && rm -f ${ROOT}/usr/local/sbin/distcc-fix
+
+	# cleanup sakaki repositories as packages are throwing errors in emerge
+	if [[ -e /usr/local/portage/gentoo-b3/.git ]]; then
+		rm -v -rf /usr/local/portage/gentoo-b3/{.git,.gitignore,app-portage,dev-libs,dev-python,net-misc,net-wireless,sys-apps,sys-power}
+		rm -v -rf /usr/local/portage/gentoo-b3/sys-kernel/gentoo-b3-kernel-bin
+		rm -v -rf /usr/local/portage/sakaki-tools/{.git,.gitignore,acct-group,acct-user,app-admin,app-crypt,dev-java,dev-python,eclass,media-gfx,net-im,sys-apps,sys-fs}
+		rm -v -rf /usr/local/portage/sakaki-tools/app-portage/{emtee,mvn2ebuild,porthash,porthole}
+		sed -e "s/yes/no/" -i /etc/portage/repos.conf/gentoo-b3.conf -i /etc/portage/repos.conf/sakaki-tools.conf
+	fi
 }

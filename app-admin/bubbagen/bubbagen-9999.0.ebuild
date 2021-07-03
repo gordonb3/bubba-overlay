@@ -163,4 +163,13 @@ pkg_postinst() {
 
 	# cleanup distcc-fix in /usr/local/sbin (not a package file in previous releases)
 	[[ -e /usr/local/sbin/distcc-fix ]] && rm -f /usr/local/sbin/distcc-fix
+
+	# cleanup sakaki repositories as packages are throwing errors in emerge
+	if [[ -e /usr/local/portage/gentoo-b3/.git ]]; then
+		rm -v -rf /usr/local/portage/gentoo-b3/{.git,.gitignore,app-portage,dev-libs,dev-python,net-misc,net-wireless,sys-apps,sys-power}
+		rm -v -rf /usr/local/portage/gentoo-b3/sys-kernel/gentoo-b3-kernel-bin
+		rm -v -rf /usr/local/portage/sakaki-tools/{.git,.gitignore,acct-group,acct-user,app-admin,app-crypt,dev-java,dev-python,eclass,media-gfx,net-im,sys-apps,sys-fs}
+		rm -v -rf /usr/local/portage/sakaki-tools/app-portage/{emtee,mvn2ebuild,porthash,porthole}
+		sed -e "s/yes/no/" -i /etc/portage/repos.conf/gentoo-b3.conf -i /etc/portage/repos.conf/sakaki-tools.conf
+	fi
 }
