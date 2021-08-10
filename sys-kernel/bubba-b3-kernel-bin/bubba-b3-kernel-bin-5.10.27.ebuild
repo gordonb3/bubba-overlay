@@ -30,7 +30,7 @@ src_install() {
 }
 
 pkg_postinst() {
-	ln -snf "/usr/src/linux-${PV}-gentoo" "/usr/src/linux"
+	ln -snf "${ROOT}/usr/src/linux-${PV}-gentoo" "${ROOT}/usr/src/linux"
 }
 
 pkg_prerm() {
@@ -46,12 +46,12 @@ pkg_prerm() {
 			# calling die() in this state appears to be ignored by emerge
 			# we therefore create a backup of the kernel and modules so we
 			# can restore it in the postrm phase
-			MODULES=$(ls -1d /lib/modules/${PV}*)
-			cp -al ${MODULES} /lib/modules/_$(basename ${MODULES})
-			ls -1 /boot/*${PV}-* | while read FILE; do
-				cp -al ${FILE} /boot/_$(basename ${FILE})
+			MODULES=$(ls -1d ${ROOT}/lib/modules/${PV}*)
+			cp -al ${MODULES} ${ROOT}/lib/modules/_$(basename ${MODULES})
+			ls -1 ${ROOT}/boot/*${PV}-* | while read FILE; do
+				cp -al ${FILE} ${ROOT}/boot/_$(basename ${FILE})
 			done
-			cp -a /var/db/pkg/sys-kernel/${PF} /tmp/${PF}.pkgdb
+			cp -a ${ROOT}/var/db/pkg/sys-kernel/${PF} /tmp/${PF}.pkgdb
 			die "Cowardly refusing to uninstall the current running kernel"
 		fi
 		eend 0
@@ -69,24 +69,24 @@ pkg_postrm() {
 			ewarn ""
 			ewarn "  Should you have already installed a newer kernel, please boot into"
 			ewarn "  the new kernel first before re-attempting removal of this package"
-			MODULES=$(ls -1d /lib/modules/_${PV}*)
+			MODULES=$(ls -1d ${ROOT}/lib/modules/_${PV}*)
 			cp -al ${MODULES} $(echo ${MODULES} | sed "s/_//")
 			rm -rf ${MODULES}
-			ls -1 /boot/_*${PV}-* | while read FILE; do
+			ls -1 ${ROOT}/boot/_*${PV}-* | while read FILE; do
 				mv ${FILE} $(echo ${FILE} | sed "s/_//")
 			done
-			sh -c "while [[ -d \"/var/db/pkg/sys-kernel/${PF}\" ]]; do sleep 10; done; cp -a \"/tmp/${PF}.pkgdb\" \"/var/db/pkg/sys-kernel/${PF}\"" &
+			sh -c "while [[ -d \"${ROOT}/var/db/pkg/sys-kernel/${PF}\" ]]; do sleep 10; done; cp -a \"/tmp/${PF}.pkgdb\" \"${ROOT}/var/db/pkg/sys-kernel/${PF}\"" &
 		fi
 	else
 		# forcibly remove the kernel's modules
-		MODULES=$(ls -1d /lib/modules/${PV}*)
-		sh -c "while [[ -d \"/var/db/pkg/sys-kernel/${PF}\" ]]; do sleep 10; done; rm -rf \"${MODULES}\"" &
+		MODULES=$(ls -1d ${ROOT}/lib/modules/${PV}*)
+		sh -c "while [[ -d \"${ROOT}/var/db/pkg/sys-kernel/${PF}\" ]]; do sleep 10; done; rm -rf \"${MODULES}\"" &
 
 		# clean up the system source directory
-		SELVERS=$(readlink "/usr/src/linux" | awk -F- '{print $2}')
+		SELVERS=$(readlink "${ROOT}/usr/src/linux" | awk -F- '{print $2}')
 		if [[ "${SELVERS}" == "${PV}" ]]; then
 			# do not leave a broken symlink behind
-			rm -f "/usr/src/linux"
+			rm -f "${ROOT}/usr/src/linux"
 		fi
 	fi
 }
