@@ -2,7 +2,13 @@
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
   <use>
-    <flag name="alac">Add support for reading Apple Losless container format (m4a)</flag>
-    <flag name="mac">Add support for reading Monkey's Audio container format (ape)</flag>
+    <flag name="mp3">Add support for transcoding mp3 container format (mp3)</flag>
+    <flag name="flac">Add support for transcoding Monkey's Audio container format (flac)</flag>
+    <flag name="ogg">Add support for transcoding Ogg Vorbis container format (ogg)</flag>
+    <flag name="aac">Add support for transcoding MPEG-4 AAC container format (aac)</flag>
+    <flag name="wavpack">Add support for transcoding Wavpack container format (wv)</flag>
+    <flag name="alac">Add support for transcoding Apple Losless container format (m4a)</flag>
+    <flag name="mac">Add support for transcoding Monkey's Audio container format (ape)</flag>
+    <flag name="freetype">Add support for displaying non-Latin characters on old SB devices (Classic, Boom, Transporter)</flag>
   </use>
 </pkgmetadata>
