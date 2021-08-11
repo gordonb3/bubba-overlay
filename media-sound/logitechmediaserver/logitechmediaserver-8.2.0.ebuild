@@ -106,9 +106,9 @@ R1_PREFSDIR="/etc/${MY_PN}"
 
 PATCHES=(
 	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
-	"${FILESDIR}/LMS_move_client_playlist_path.patch"
-	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
 	"${FILESDIR}/LMS-perl-recent.patch"
+	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
+	"${FILESDIR}/LMS-8.2.0_move_client_playlist_path.patch"
 )
 
 
