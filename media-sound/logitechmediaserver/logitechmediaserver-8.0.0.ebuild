@@ -68,14 +68,14 @@ RDEPEND="
 	dev-perl/MP3-Cut-Gapless
 	l10n_he? ( dev-perl/Locale-Hebrew )
 	mp3? ( media-sound/lame )
-	alac? ( media-sound/alac_decoder )
 	wavpack? ( media-sound/wavpack )
 	flac? (
 		media-libs/flac
 		media-sound/sox[flac]
 	)
 	ogg? ( media-sound/sox[ogg] )
-	aac? ( media-libs/faad2 )
+	aac? ( media-libs/slim-faad )
+	alac? ( media-libs/slim-faad )
 	mac? ( media-sound/mac )
 "
 
