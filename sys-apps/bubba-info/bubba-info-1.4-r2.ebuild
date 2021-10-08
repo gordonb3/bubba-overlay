@@ -95,7 +95,7 @@ src_compile() {
 src_install() {
 	einfo "install main library"
 	make DESTDIR=${ED} install
-	dodoc ${FILESDIR}/Changelog ${FILESDIR}/changelog.debian debian/copyright
+	dodoc ${FILESDIR}/Changelog ${FILESDIR}/changelog.debian ${WORKDIR}/${PF}/copyright
 
 	# remove static libs
 	rm ${ED}/usr/lib/*.a ${ED}/usr/lib/*.la
