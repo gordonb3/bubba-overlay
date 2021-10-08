@@ -8,7 +8,7 @@ inherit eutils cmake-utils systemd tmpfiles
 
 DESCRIPTION="Excito B3 administration tools and GUI"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="https://github.com/gordonb3/${PN}/archive/${PV}-r1.tar.gz -> ${PF}.tar.gz"
+SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PF}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
@@ -72,7 +72,7 @@ NETWORKMANAGER_DEPEND="
 
 GUI_DEPEND="
 	app-admin/hddtemp
-	>=dev-lang/php-8.0.0[fpm,sockets,xml,gd,pdo,imap]
+	dev-lang/php[fpm,sockets,json,xml,gd,pdo,imap]
 	dev-php/PEAR-HTTP_Request2
 	sys-apps/bubba-info[php]
 	www-apps/codeigniter-bin
@@ -105,7 +105,7 @@ RDEPEND="
 # cmake requires access to included `external` project sources
 CMAKE_IN_SOURCE_BUILD=yes
 
-S=${WORKDIR}/${PN}-${PV}-r1
+S=${WORKDIR}/${PF}
 
 src_prepare() {
 	cmake-utils_src_prepare
