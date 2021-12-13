@@ -9,7 +9,7 @@
 #
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils user subversion systemd
 
@@ -154,19 +154,20 @@ src_unpack() {
 
 
 src_prepare() {
+	eapply_user
 
 	# Apply patches to make LMS work on Gentoo.
-	epatch "${FILESDIR}/${PN}-bin-${PV}-uuid-gentoo.patch"
-	epatch "${FILESDIR}/${PN}-bin-${PV}-client-playlists-gentoo.patch"
+	eapply "${FILESDIR}/${PN}-bin-${PV}-uuid-gentoo.patch"
+	eapply "${FILESDIR}/${PN}-bin-${PV}-client-playlists-gentoo.patch"
 
 	# Add some enhancement patches of my own.
-	epatch "${FILESDIR}/${PN}-bin-${PV}-fix-transition-sample-rates2.patch"
-	epatch "${FILESDIR}/${PN}-bin-${PV}-remove-softlink-target-check.patch"
+	eapply "${FILESDIR}/${PN}-bin-${PV}-fix-transition-sample-rates2.patch"
+	eapply "${FILESDIR}/${PN}-bin-${PV}-remove-softlink-target-check.patch"
 
 	# Remove conflicting module
 	rm ../CPAN.upstream/Compress-Raw-Zlib-2.033.tar.gz CPAN/Compress/Raw/Zlib.pm
 
-	epatch "${FILESDIR}/${P}-perl-recent.patch"
+	eapply "${FILESDIR}/${P}-perl-recent.patch"
 	MY_PERL_VERSION=$(ls -1d /var/db/pkg/dev-lang/perl* | sed "s/^.*perl-//" | awk -F. '{print $1"."$2}')
 
 	sed \
@@ -189,7 +190,7 @@ src_prepare() {
 	fi
 
 	# fix deprecation warning in Perl 2.4
-	epatch "${FILESDIR}/perl-24.patch"
+	eapply "${FILESDIR}/perl-24.patch"
 
 	# fix default user name to run as
 	sed -e "s/squeezeboxserver/logitechmediaserver/" -i slimserver.pl

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils 
 
@@ -30,9 +30,11 @@ S=${WORKDIR}/${PN}-${COMMIT}
 
 
 src_prepare() {
+	eapply_user
+
 	sed -i "s/\r//" ${S}/includes/singapore.class.php
-	epatch ${FILESDIR}/php5.6.patch
-	epatch ${FILESDIR}/bubba.patch
+	eapply ${FILESDIR}/php5.6.patch
+	eapply ${FILESDIR}/bubba.patch
 }
 
 src_install() {

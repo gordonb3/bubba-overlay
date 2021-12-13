@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils git-r3
 
@@ -21,6 +21,8 @@ DEPEND="htmldoc? ( app-doc/doxygen  media-gfx/graphviz )"
 RDEPEND=""
 
 src_prepare() {
+	eapply_user
+
 	if ! use examples; then
 		sed -i -e "/examples/d" ${S}/Makefile
 	fi

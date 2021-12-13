@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 SLOT="7"
 
 
@@ -119,6 +119,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	eapply_user
+
 	cd usr/lib/jvm/java-${SLOT}-openjdk-${DEB_ARCH}
 
 	if ! use alsa; then

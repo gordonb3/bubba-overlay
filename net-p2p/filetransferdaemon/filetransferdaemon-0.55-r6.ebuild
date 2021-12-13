@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils systemd gnome2 flag-o-matic cmake-utils toolchain-funcs
 
@@ -90,7 +90,7 @@ sigc_compile() {
 utl_prepare() {
 	S=${WORKDIR}/libeutils
 	pushd "${S}" > /dev/null
-	epatch ${FILESDIR}/libeutils-${UTL_PV}.patch
+	eapply ${FILESDIR}/libeutils-${UTL_PV}.patch
 	ln -s ${WORKDIR}/libsigc++-${SIG_PV} include
 	sed -e "s/\$.SIGC++_CFLAGS./-I..\/include/" -i libeutils/CMakeLists.txt
 	sed -e "/SIGC++/d" -e "/TUT/d" -e "s/ on /@@/" -e "s/ off / on /" -e "s/@@/ off /" -i CMakeLists.txt
@@ -123,12 +123,14 @@ utl_compile() {
 
 
 src_prepare() {
+	eapply_user
+
 	# prepare include libraries
 	sigc_prepare
 	utl_prepare
 
-	epatch ${FILESDIR}/libtorrent-rasterbar.patch
-	epatch ${FILESDIR}/gcc5.patch
+	eapply ${FILESDIR}/libtorrent-rasterbar.patch
+	eapply ${FILESDIR}/gcc5.patch
 
 	if ! use libtorrent; then 
 		sed \

@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils user
 
@@ -48,6 +48,8 @@ pkg_setup() {
 }
 
 src_prepare() {
+	eapply_user
+
 	# just being safe
 	for file in $(ls -1 *.pl); do
 		edos2unix ${file}
