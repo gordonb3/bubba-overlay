@@ -2,13 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
 
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
-COMMIT="707934c3"
-CTIME="2021-10-05 10:03:44 +0200"
+COMMIT="27e0c0ab"
+CTIME="2021-12-28 13:48:40 +0100"
 
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
@@ -38,7 +38,9 @@ RDEPEND="net-misc/curl
 	dev-libs/openssl
 "
 
-DEPEND="${RDEPEND}
+DEPEND="${RDEPEND}"
+
+BDEPEND="${RDEPEND}
 	dev-util/cmake
 "
 
