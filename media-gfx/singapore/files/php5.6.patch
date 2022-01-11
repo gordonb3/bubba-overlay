@@ -2,8 +2,8 @@ Fix incompatibilities with php 5.6
 
 Patch by Gordon Bos
 
---- includes/config.class.php
-+++ includes/config.class.php
+--- a/includes/config.class.php
++++ b/includes/config.class.php
 @@ -24,7 +24,7 @@
     * Implements the Singleton design pattern by always returning a reference
     * to the same sgConfig object. Use instead of 'new'.
@@ -13,8 +13,8 @@ Patch by Gordon Bos
    {
      static $instance;
      if(!is_object($instance))
---- includes/io.class.php
-+++ includes/io.class.php
+--- a/includes/io.class.php
++++ b/includes/io.class.php
 @@ -120,7 +120,8 @@
            $gal->images[$i] = $dir->files[$i];
      } else {
@@ -25,8 +25,8 @@ Patch by Gordon Bos
      }
      
      //discover child galleries
---- includes/io_csv.class.php
-+++ includes/io_csv.class.php
+--- a/includes/io_csv.class.php
++++ b/includes/io_csv.class.php
 @@ -208,7 +208,7 @@
     * Fetches hit data from file.
     * @param sgGallery  gallery object to load hits into
@@ -36,8 +36,8 @@ Patch by Gordon Bos
      
      $fp = @fopen($this->config->base_path.$this->config->pathto_galleries.$gal->id."/hits.csv","r");
      
---- includes/singapore.class.php
-+++ includes/singapore.class.php
+--- a/includes/singapore.class.php
++++ b/includes/singapore.class.php
 @@ -124,7 +124,7 @@
      }
      
@@ -74,8 +74,8 @@ Patch by Gordon Bos
    {
      $parentPath = $canonicalise ? realpath($parent) : $parent;
      $childPath = $canonicalise ? realpath($child) : $child;
---- includes/translator.class.php
-+++ includes/translator.class.php
+--- a/includes/translator.class.php
++++ b/includes/translator.class.php
 @@ -4,7 +4,7 @@
   * Translation class.
   * @license http://opensource.org/licenses/gpl-license.php GNU General Public License

@@ -3,8 +3,8 @@ viewing the published photos
 
 Patch by Gordon Bos
 
---- includes/config.class.php
-+++ includes/config.class.php
+--- a/includes/config.class.php
++++ b/includes/config.class.php
 @@ -49,7 +49,13 @@
  
      //import values into object scope
@@ -20,8 +20,8 @@ Patch by Gordon Bos
      return true;
  	}
  }
---- index.php
-+++ index.php
+--- a/index.php
++++ b/index.php
 @@ -12,6 +12,11 @@
   * @version $Id: index.php,v 1.21 2006/08/05 19:56:32 thepavian Exp $
   */
@@ -34,8 +34,8 @@ Patch by Gordon Bos
  //include main class
  require_once "includes/singapore.class.php";
  
---- singapore.ini
-+++ singapore.ini
+--- a/singapore.ini
++++ b/singapore.ini
 @@ -22,7 +22,7 @@
       ;  im  = ImageMagick v5.x
       ;  im6 = ImageMagick v6.x

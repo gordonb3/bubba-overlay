@@ -2,8 +2,8 @@ Fix installer issues and different paths on Gentoo
 
 Patch by Gordon Bos
 
---- CMakeLists.txt
-+++ CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
 @@ -29,9 +29,7 @@
  	message( FATAL_ERROR "tcl was not found" )
  endif()
@@ -24,8 +24,8 @@ Patch by Gordon Bos
  endif( NOT HAVE_POPT_H )
  
  pkg_check_modules ( SIGC++ sigc++-2.0>=2.0 )
---- libeutils/Services.cpp
-+++ libeutils/Services.cpp
+--- a/libeutils/Services.cpp
++++ b/libeutils/Services.cpp
 @@ -70,7 +70,7 @@
  }
  
