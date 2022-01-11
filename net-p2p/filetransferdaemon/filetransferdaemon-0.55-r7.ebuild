@@ -26,7 +26,7 @@ IUSE="+apache2 +upload libtorrent systemd"
 
 DEPEND="
 	dev-libs/popt
-	dev-libs/boost
+	>=dev-libs/boost-1.77
 	dev-tcltk/expect
 	dev-util/cppunit
 	dev-util/cmake
@@ -163,6 +163,12 @@ src_prepare() {
                 -e "s/LDFLAGS_EXTRA =/LDFLAGS_EXTRA = libeutils.a libsigc-2.0.a -lpthread/" \
                 -e "s/libs libeutils sigc++-2.0/libs glib-2.0/" \
                 -i Makefile
+
+	# boost >= 1.77 does no longer provide separate multithread libraries
+        sed \
+                -e "s/\-mt//g" \
+                -i Makefile
+
 }
 
 
