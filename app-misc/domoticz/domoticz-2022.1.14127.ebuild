@@ -1,4 +1,4 @@
-# Copyright 2018-2020 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2022 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -10,8 +10,8 @@ LUA_VR="5.3.6"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-COMMIT="037a4299f"
-CTIME="2021-04-17 17:50:55 +0200"
+COMMIT="c9526851b"
+CTIME="2022-01-31 09:34:32 +0100"
 
 LUA_V="${LUA_VR:0:3}"
 PKG_LUA="lua-${LUA_VR}.tar.gz"

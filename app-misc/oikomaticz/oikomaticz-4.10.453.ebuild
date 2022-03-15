@@ -7,8 +7,8 @@ EAPI="7"
 inherit cmake-utils eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
-COMMIT="27e0c0ab"
-CTIME="2021-12-28 13:48:40 +0100"
+COMMIT="dcf69cfe"
+CTIME="2022-03-14 18:19:45 +0100"
 
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
