@@ -31,7 +31,7 @@ RDEPEND="
 	dev-libs/json-c
 	media-libs/alsa-lib
 	net-dns/avahi[dbus]
-	virtual/ffmpeg
+	media-video/ffmpeg
 
 	itunes? ( app-pda/libplist )
 	lastfm? ( net-misc/curl )
