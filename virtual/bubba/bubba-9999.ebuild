@@ -1,8 +1,8 @@
-# Copyright 2018 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2018-2022 gordonb3 <gordon@bosvangennip.nl>
 #
 # $Id$
 
-EAPI="6"
+EAPI="7"
 
 DESCRIPTION="Virtual for Bubba Version"
 SLOT="0/${PV}"

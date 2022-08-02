@@ -4,7 +4,7 @@
 # TODO:
 # Add --enable-spotify when it works
 
-EAPI="6"
+EAPI="7"
 
 inherit autotools eutils user
 

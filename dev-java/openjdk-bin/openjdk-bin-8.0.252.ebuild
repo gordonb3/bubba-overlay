@@ -2,25 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
+
 SLOT="8"
 
-
-inherit eutils java-vm-2 prefix versionator
+inherit eutils java-vm-2 prefix
 
 
 MY_PN=${PN/-*/}
-
-if [[ "$(get_version_component_range 4)" == 0 ]] ; then
-	S_PV="$(get_version_component_range 1-3)"
-else
-	MY_PV_EXT="u$(get_version_component_range 4)"
-	S_PV="$(get_version_component_range 1-4)"
-fi
-
-MY_PV="$(get_version_component_range 2)${MY_PV_EXT}"
-
-AT_arm="ejdk-${MY_PV}-linux-arm-sflt.tar.gz"
 
 DEB_DIST="http://ftp.nl.debian.org/debian/pool/main/o"
 DEB_VERSION="8u252-b09-1~deb9u1"
@@ -136,7 +125,7 @@ src_install() {
 	cd usr/lib/jvm/java-${SLOT}-openjdk-${DEB_ARCH}
 
 	local dest="/opt/${P}"
-	local ddest="${ED}${dest#/}"
+	local ddest="${ED}${dest}"
 
 
 	dodir "${dest}"

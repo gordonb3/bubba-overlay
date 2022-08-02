@@ -2,39 +2,29 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=6
+EAPI=7
 
-MODULE_AUTHOR=RIBASUSHI
-MODULE_VERSION=0.08270
+DIST_AUTHOR=RIBASUSHI
+DIST_VERSION=0.08270
 inherit perl-module
 
 DESCRIPTION="Extensible and flexible object <-> relational mapper"
 
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~ppc-aix"
+KEYWORDS="~amd64 ~x86 ~ppc-aix ~arm ~ppc"
 IUSE="test admin admin_script deploy replicated"
 
 RDEPEND_MOOSE_BASIC="
 	>=dev-perl/Moose-0.980.0
 	>=dev-perl/MooseX-Types-0.210.0
 "
+
 RDEPEND_ADMIN_BASIC="
 	>=dev-perl/JSON-Any-1.220.0
 	>=dev-perl/MooseX-Types-JSON-0.20.0
 	>=dev-perl/MooseX-Types-Path-Class-0.50.0
 	>=dev-perl/namespace-autoclean-0.90.0
 "
-
-#	>=dev-perl/Class-DBI-Plugin-DeepAbstractSearch-0.08
-#	dev-perl/Class-Trigger
-#	>=dev-perl/DBIx-ContextualFetch-1.03
-#	>=dev-perl/Date-Simple-3.03
-#	dev-perl/DateTime-Format-MySQL
-#	dev-perl/DateTime-Format-Pg
-#	dev-perl/DateTime-Format-SQLite
-#	dev-perl/DateTime-Format-Strptime
-#	dev-perl/Devel-Cycle
-#	dev-perl/Time-Piece-MySQL
 
 RDEPEND="
 	admin? (
@@ -80,6 +70,7 @@ RDEPEND="
 	>=dev-perl/Try-Tiny-0.70.0
 	>=dev-perl/namespace-clean-0.240.0
 "
+
 DEPEND="${RDEPEND}
 	test? (
 		>=virtual/perl-File-Temp-0.22
@@ -88,6 +79,6 @@ DEPEND="${RDEPEND}
 		>=dev-perl/Test-Warn-0.21
 		>=virtual/perl-Test-Simple-0.94
 		dev-perl/Test-Pod
-		dev-perl/Test-Pod-Coverage )"
+		dev-perl/Test-Pod-Coverage
+	)"
 
-SRC_TEST=do
