@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit eutils cmake-utils systemd tmpfiles
+inherit eutils cmake systemd tmpfiles
 
 DESCRIPTION="Excito B3 administration tools and GUI"
 HOMEPAGE="http://www.excito.com/"
