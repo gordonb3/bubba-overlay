@@ -2,12 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
 
 LUA_VR="5.3.6"
 
 
-inherit cmake-utils eutils systemd toolchain-funcs
+inherit cmake eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
 COMMIT="c9526851b"
@@ -69,6 +69,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	eapply_user
+
 	# the project cmake file takes the application version from the Git project revision
 	# we can't use that here because the snapshot does not contain the Git header files
 	ProjectHash=${COMMIT:0:7}
@@ -134,7 +136,7 @@ src_prepare() {
 		-i ${S}/hardware/plugins/Plugins.h
 	}
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 src_configure() {
@@ -157,15 +159,15 @@ src_configure() {
 		-DUSE_LUA_STATIC="YES"
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	if use systemd ; then
 		systemd_newunit "${FILESDIR}/${PN}.service" "${PN}.service"

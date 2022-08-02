@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
 
-inherit cmake-utils eutils
+inherit cmake eutils
 
 DESCRIPTION="Library to control a Telldus TellStick"
 HOMEPAGE="http://www.telldus.com/"
@@ -36,7 +36,7 @@ src_prepare() {
 	sed -i \
 		-e "s/libtelldus-core\.so/libtelldus-core.so\n\t\tpthread/" \
 		${S}/tdadmin/CMakeLists.txt
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 
@@ -46,18 +46,18 @@ src_configure() {
 		-DCMAKE_INSTALL_PREFIX="/usr"
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 
 src_compile() {
 	# compile telldus-core target first to fix dependency issue with -j > 1
-	cmake-utils_src_compile telldus-core
+	cmake_src_compile telldus-core
 
-	cmake-utils_src_compile
+	cmake_src_compile
 }
 
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 }

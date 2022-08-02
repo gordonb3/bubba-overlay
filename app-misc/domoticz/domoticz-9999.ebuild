@@ -2,12 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
 
 LUA_VR="5.3.6"
 
 
-inherit cmake-utils eutils git-r3 systemd
+inherit cmake eutils git-r3 systemd
 
 EGIT_REPO_URI="https://github.com/domoticz/domoticz.git"
 EGIT_BRANCH="development"
@@ -64,6 +64,8 @@ src_unpack() {
 }
 
 src_prepare() {
+	eapply_user
+
 	# reset all static and runtime folder dynamic linking to off
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/CMakeLists.txt
 	sed -e "s/option\(.*\)ON)/option\1NO)/" -i ${S}/CMakeLists.txt
@@ -113,7 +115,7 @@ src_prepare() {
 		grep -q -m1 "BOOST_BIND_NO_PLACEHOLDERS" "${FILE}" || sed -e "1s/^/#define BOOST_BIND_NO_PLACEHOLDERS\n/" -i "${FILE}"
 	done
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 
 }
 
@@ -138,15 +140,15 @@ src_configure() {
 		-DUSE_LUA_STATIC="YES"
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	if use systemd ; then
 		systemd_newunit "${FILESDIR}/${PN}.service" "${PN}.service"

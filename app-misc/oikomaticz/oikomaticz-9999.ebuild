@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
 
-inherit cmake-utils eutils git-r3 systemd
+inherit cmake eutils git-r3 systemd
 
 EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
 EGIT_BRANCH="master"
@@ -56,7 +56,7 @@ src_prepare() {
 		-i CMakeLists.txt
 	}
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 src_configure() {
@@ -77,15 +77,15 @@ src_configure() {
 		-DUSE_BUILTIN_LUA="YES"
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	if use systemd ; then
 		systemd_newunit "${FILESDIR}/${PN}.service" "${PN}.service"

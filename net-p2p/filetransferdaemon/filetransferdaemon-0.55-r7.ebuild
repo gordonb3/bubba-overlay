@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="6"
+EAPI="7"
 
-inherit eutils systemd gnome2 flag-o-matic cmake-utils toolchain-funcs
+inherit eutils systemd gnome2 flag-o-matic cmake toolchain-funcs
 
 
 SIG_PV=2.4.1
@@ -97,7 +97,7 @@ utl_prepare() {
 	mkdir ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs ${WORKDIR}/libeutils/lib
 	ln -s ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs ${WORKDIR}/libeutils/lib/sigc++
 	popd > /dev/null
-	cmake-utils_src_prepare
+	cmake_src_prepare
 	S=${WORKDIR}/${PN}
 }
 
@@ -109,7 +109,7 @@ utl_configure() {
 		-DCMAKE_VERBOSE_MAKEFILE=OFF
 		-DBUILD_STATIC_LIBRARIES=ON
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 	S=${WORKDIR}/${PN}
 }
 
@@ -117,7 +117,7 @@ utl_configure() {
 utl_compile() {
 	einfo "compiling eutils"
         S=${WORKDIR}/libeutils
-        cmake-utils_src_compile
+        cmake_src_compile
         S=${WORKDIR}/${PN}
 }
 

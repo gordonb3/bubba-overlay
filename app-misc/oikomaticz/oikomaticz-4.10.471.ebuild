@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit cmake-utils eutils systemd toolchain-funcs
+inherit cmake eutils systemd toolchain-funcs
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
 COMMIT="04915497"
@@ -83,7 +83,7 @@ src_prepare() {
 		  -i CMakeLists.txt
 	}
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 src_configure() {
@@ -104,15 +104,15 @@ src_configure() {
 		-DUSE_BUILTIN_LUA="YES"
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 src_compile() {
-	cmake-utils_src_compile
+	cmake_src_compile
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 	if use systemd ; then
 		systemd_newunit "${FILESDIR}/${PN}.service" "${PN}.service"

@@ -108,7 +108,8 @@ CMAKE_IN_SOURCE_BUILD=yes
 S=${WORKDIR}/${PF}
 
 src_prepare() {
-	cmake-utils_src_prepare
+	eapply_user
+	cmake_src_prepare
 
 	# add gentoo logo to the web GUI
 	eapply ${S}/contrib/gentoo/gentoo-logo.patch
@@ -152,7 +153,7 @@ src_configure() {
 		-DWITH_SYSTEMD=$(usex systemd)
 	)
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
 
 bubba_admin_install_iptables_support() {
@@ -240,7 +241,7 @@ bubba_admin_install_GUI() {
 }
 
 src_install() {
-	cmake-utils_src_install
+	cmake_src_install
 
 #	exeinto /opt/bubba/bin
 #	doexe bubba-backend/new_printer_init.sh
