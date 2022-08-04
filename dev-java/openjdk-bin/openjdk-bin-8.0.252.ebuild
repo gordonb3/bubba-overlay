@@ -6,7 +6,7 @@ EAPI="7"
 
 SLOT="8"
 
-inherit eutils java-vm-2 prefix
+inherit java-vm-2 prefix
 
 
 MY_PN=${PN/-*/}

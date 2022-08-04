@@ -10,7 +10,7 @@ MY_HTDOCSDIR="/opt/roundcube/htdocs"
 
 DESCRIPTION="A browser-based multilingual IMAP client with an application-like user interface"
 HOMEPAGE="https://roundcube.net"
-SRC_URI="https://github.com/${PN}/${MY_PN}/releases/download/${PV}/${MY_P}-complete.tar.gz"
+SRC_URI="https://github.com/${ORG_PN}/${MY_PN}/releases/download/${PV}/${MY_P}-complete.tar.gz"
 
 # roundcube is GPL-licensed, the rest of the licenses here are
 # for bundled PEAR components, googiespell and utf8.class.php

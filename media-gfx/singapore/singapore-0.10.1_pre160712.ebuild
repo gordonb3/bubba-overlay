@@ -4,8 +4,6 @@
 
 EAPI="7"
 
-inherit eutils 
-
 # Although this is a git source, the project appears to be static, 
 # so there's no sense in rechecking the source with every reinstall.
 #EGIT_REPO_URI="git://github.com/tamlyn/singapore.git"

@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit eutils user
+inherit user
 
 DESCRIPTION="Anti-Spam SMTP Proxy written in Perl"
 HOMEPAGE="http://assp.sourceforge.net/"
@@ -52,7 +52,7 @@ src_prepare() {
 
 	# just being safe
 	for file in $(ls -1 *.pl); do
-		edos2unix ${file}
+		sed -i 's/\r$//' ${file}
 	done
 
 	# portable changes via sed vs patch
@@ -129,7 +129,8 @@ src_install() {
 	# Install the init.d script to listen
 	newinitd "${FILESDIR}/asspd.init" asspd
 
-	dohtml docs/*.htm || die "Failed to install html docs"
+	local HTML_DOCS="docs/*.htm"
+	einstalldocs
 }
 
 pkg_postinst() {

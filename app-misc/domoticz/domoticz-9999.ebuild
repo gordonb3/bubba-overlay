@@ -7,7 +7,7 @@ EAPI="7"
 LUA_VR="5.3.6"
 
 
-inherit cmake eutils git-r3 systemd
+inherit cmake git-r3 systemd
 
 EGIT_REPO_URI="https://github.com/domoticz/domoticz.git"
 EGIT_BRANCH="development"

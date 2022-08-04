@@ -7,7 +7,7 @@ EAPI="7"
 LUA_VR="5.3.6"
 
 
-inherit cmake eutils systemd toolchain-funcs
+inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
 COMMIT="c9526851b"

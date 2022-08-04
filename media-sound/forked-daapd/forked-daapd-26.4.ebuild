@@ -6,7 +6,7 @@
 
 EAPI="7"
 
-inherit autotools eutils user
+inherit autotools user
 
 DESCRIPTION="A DAAP (iTunes) media server"
 HOMEPAGE="https://github.com/ejurgensen/forked-daapd"

@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit eutils git-r3
+inherit git-r3
 
 EGIT_REPO_URI="https://github.com/OpenZWave/open-zwave.git"
 
@@ -36,6 +36,13 @@ src_prepare() {
 	# Portage does not set CROSS_COMPILE env var - use CHOST instead
 	sed -e "s/CROSS_COMPILE)/CHOST)-/g" \
 	    -i ${S}/cpp/build/support.mk
+
+	# gcc 11 compile issue
+	if (grep -q "NULL == group" ${S}/cpp/src/command_classes/AssociationCommandConfiguration.cpp); then
+		sed -e "s/\(Group\*.*\);/if (\1)/" \
+		    -e "/NULL == group/d" \
+		    -i ${S}/cpp/src/command_classes/AssociationCommandConfiguration.cpp
+	fi
 }
 
 src_compile() {

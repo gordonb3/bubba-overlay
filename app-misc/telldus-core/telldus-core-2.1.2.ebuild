@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit cmake eutils
+inherit cmake
 
 DESCRIPTION="Library to control a Telldus TellStick"
 HOMEPAGE="http://www.telldus.com/"
@@ -21,22 +21,32 @@ DEPEND="dev-libs/confuse
 
 RDEPEND="${DEPEND}"
 
-
 S=${WORKDIR}/${PF}
+CMAKE_IN_SOURCE_BUILD=yes
 
 src_prepare() {
 	eapply_user
 
-	ln -s ${S} ${S}_build
-
 	# Fix missing pthread link flag in tdtool and tdadmin targets
-	sed -i \
-		-e "s/libtelldus-core\.so/libtelldus-core.so\n\t\tpthread/" \
-		${S}/tdtool/CMakeLists.txt
-	sed -i \
-		-e "s/libtelldus-core\.so/libtelldus-core.so\n\t\tpthread/" \
-		${S}/tdadmin/CMakeLists.txt
-	cmake_src_configure
+	sed -e "s/libtelldus-core\.so/libtelldus-core.so\n\t\tpthread/" \
+	    -i ${S}/tdtool/CMakeLists.txt
+	sed -e "s/libtelldus-core\.so/libtelldus-core.so\n\t\tpthread/" \
+	    -i ${S}/tdadmin/CMakeLists.txt
+
+	# ftdi library has a '1' appended to it
+	sed -e "s/ftdi)/ftdi1)/" \
+	    -i ${S}/service/CMakeLists.txt
+
+	# doxyfile generation is broken in these sources
+	sed -e "s/FIND_PACKAGE(Doxygen)/SET(DOXYGEN_FOUND FALSE)/" \
+	    -i ${S}/CMakeLists.txt
+
+	# gcc 11 fix
+	sed -e "s/cfg > 0/cfg != nullptr/" \
+	    -i ${S}/service/SettingsConfuse.cpp
+
+
+	cmake_src_prepare
 }
 
 

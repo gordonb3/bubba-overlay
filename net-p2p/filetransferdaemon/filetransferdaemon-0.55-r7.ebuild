@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit eutils systemd gnome2 flag-o-matic cmake toolchain-funcs
+inherit systemd gnome2 flag-o-matic cmake toolchain-funcs
 
 
 SIG_PV=2.4.1
@@ -92,7 +92,7 @@ utl_prepare() {
 	pushd "${S}" > /dev/null
 	eapply ${FILESDIR}/libeutils-${UTL_PV}.patch
 	ln -s ${WORKDIR}/libsigc++-${SIG_PV} include
-	sed -e "s/\$.SIGC++_CFLAGS./-I..\/include/" -i libeutils/CMakeLists.txt
+	sed -e "s/\$.SIGC++_CFLAGS./-Iinclude/" -i libeutils/CMakeLists.txt
 	sed -e "/SIGC++/d" -e "/TUT/d" -e "s/ on /@@/" -e "s/ off / on /" -e "s/@@/ off /" -i CMakeLists.txt
 	mkdir ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs ${WORKDIR}/libeutils/lib
 	ln -s ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs ${WORKDIR}/libeutils/lib/sigc++

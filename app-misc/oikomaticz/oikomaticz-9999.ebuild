@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit cmake eutils git-r3 systemd
+inherit cmake git-r3 systemd
 
 EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
 EGIT_BRANCH="master"

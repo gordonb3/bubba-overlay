@@ -4,8 +4,6 @@
 
 EAPI="7"
 
-inherit eutils
-
 DESCRIPTION="The Bubba main package"
 HOMEPAGE="https://github.com/gordonb3/bubbagen"
 KEYWORDS="~arm ~ppc"

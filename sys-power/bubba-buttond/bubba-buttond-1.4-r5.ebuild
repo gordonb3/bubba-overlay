@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit eutils systemd toolchain-funcs
+inherit systemd toolchain-funcs
 
 DESCRIPTION="Excito B3 power control"
 HOMEPAGE="http://www.excito.com/"

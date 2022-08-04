@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit eutils systemd
+inherit systemd
 
 CA_SRC="excito-release"
 CA_COMMIT="1c12d4e"

@@ -4,8 +4,6 @@
 
 EAPI="7"
 
-inherit eutils
-
 DESCRIPTION="Free software library that interfaces with selected Z-Wave PC controllers"
 HOMEPAGE="http://www.openzwave.net/"
 
@@ -36,6 +34,12 @@ src_prepare() {
 	# Portage does not set CROSS_COMPILE env var - use CHOST instead
 	sed -e "s/CROSS_COMPILE)/CHOST)-/g" \
 	    -i ${S}/cpp/build/support.mk
+
+
+	# gcc 11 compile issue
+	sed -e "s/\(Group\*.*\);/if (\1)/" \
+	    -e "/NULL == group/d" \
+	    -i ${S}/cpp/src/command_classes/AssociationCommandConfiguration.cpp
 }
 
 src_compile() {

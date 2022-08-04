@@ -4,8 +4,6 @@
 
 EAPI="7"
 
-inherit eutils
-
 DESCRIPTION="Excito B2 manual"
 HOMEPAGE="http://www.excito.com/"
 

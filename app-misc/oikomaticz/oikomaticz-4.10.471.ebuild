@@ -4,7 +4,7 @@
 
 EAPI="7"
 
-inherit cmake eutils systemd toolchain-funcs
+inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
 COMMIT="04915497"
