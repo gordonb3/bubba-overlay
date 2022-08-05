@@ -7,12 +7,6 @@ EAPI="7"
 PYTHON_COMPAT=( python3_8 python3_9 python3_10 )
 inherit distutils-r1
 
-MY_PN=lib${PN}
-PVMAIN=1.3
-PVPERL=1.2
-PVPHP=1.2
-PVPY=1.0
-
 DESCRIPTION="Bubba platform information library"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PF}.tar.gz"
