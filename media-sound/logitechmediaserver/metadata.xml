@@ -10,5 +10,6 @@
     <flag name="alac">Add support for transcoding Apple Losless container format (m4a)</flag>
     <flag name="mac">Add support for transcoding Monkey's Audio container format (ape)</flag>
     <flag name="freetype">Add support for displaying non-Latin characters on old SB devices (Classic, Boom, Transporter)</flag>
+    <flag name="dlna">Add DLNA server support</flag>
   </use>
 </pkgmetadata>

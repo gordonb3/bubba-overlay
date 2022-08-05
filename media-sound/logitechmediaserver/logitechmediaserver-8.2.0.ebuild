@@ -22,7 +22,7 @@ DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${MY_PN}"
 RESTRICT="bindist mirror"
 SLOT="0"
-IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype"
+IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype dlna"
 
 EXTRALANGS="he"
 for LANG in ${EXTRALANGS}; do
@@ -78,6 +78,7 @@ RDEPEND="
 	alac? ( media-libs/slim-faad )
 	mac? ( media-sound/mac )
 	freetype? ( dev-perl/Font-FreeType )
+	dlna? ( dev-perl/Media-Scan )
 "
 
 RUN_UID=${MY_PN}
