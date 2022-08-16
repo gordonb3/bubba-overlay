@@ -168,11 +168,24 @@ pkg_postinst() {
 	[[ -e ${ROOT}/usr/local/sbin/distcc-fix ]] && rm -f ${ROOT}/usr/local/sbin/distcc-fix
 
 	# cleanup sakaki repositories as packages are throwing errors in emerge
-	if [[ -e /usr/local/portage/gentoo-b3/.git ]]; then
-		rm -v -rf /usr/local/portage/gentoo-b3/{.git,.gitignore,app-portage,dev-libs,dev-python,net-misc,net-wireless,sys-apps,sys-power}
-		rm -v -rf /usr/local/portage/gentoo-b3/sys-kernel/gentoo-b3-kernel-bin
-		rm -v -rf /usr/local/portage/sakaki-tools/{.git,.gitignore,acct-group,acct-user,app-admin,app-crypt,dev-java,dev-python,eclass,media-gfx,net-im,sys-apps,sys-fs}
-		rm -v -rf /usr/local/portage/sakaki-tools/app-portage/{emtee,mvn2ebuild,porthash,porthole}
-		sed -e "s/yes/no/" -i /etc/portage/repos.conf/gentoo-b3.conf -i /etc/portage/repos.conf/sakaki-tools.conf
+	LOCALPORTAGE=${ROOT}/usr/local/portage
+	if [[ -e ${LOCALPORTAGE}/gentoo-b3/.git ]]; then
+		rm -v -rf ${LOCALPORTAGE}/gentoo-b3/{.git,.gitignore,app-portage,dev-libs,dev-python,net-misc,net-wireless,sys-apps,sys-power}
+		rm -v -rf ${LOCALPORTAGE}/gentoo-b3/sys-kernel/gentoo-b3-kernel-bin
+		rm -v -rf ${LOCALPORTAGE}/sakaki-tools/{.git,.gitignore,acct-group,acct-user,app-admin,app-crypt,dev-java,dev-python,eclass,media-gfx,net-im,sys-apps,sys-fs}
+		rm -v -rf ${LOCALPORTAGE}/sakaki-tools/app-portage/{emtee,mvn2ebuild,porthash,porthole}
+		sed -e "s/yes/no/" -i ${ROOT}/etc/portage/repos.conf/gentoo-b3.conf -i ${ROOT}/etc/portage/repos.conf/sakaki-tools.conf
+	fi
+
+	# upgrade remaining packages from sakaki repositories to EAPI 8
+	if (grep -q "EAPI=\"*5" ${LOCALPORTAGE}/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild ); then
+		sed -e "s/^EAPI=.*$/EAPI=\"8\"/" \
+		    -i ${LOCALPORTAGE}/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild \
+		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild \
+		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild
+		grep -m1 "EAPI=\"*5" ${LOCALPORTAGE}/*/*/*/*.ebuild | while read match; do
+		    rm ${match%:*}
+		done
+		patch -d ${LOCALPORTAGE} -p1 < ${FILESDIR}/sakaki-EAPI-upgrade.patch
 	fi
 }

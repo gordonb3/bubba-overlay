@@ -1,0 +1,79 @@
+diff -ru a/gentoo-b3/sys-kernel/buildkernel-b3/Manifest b/gentoo-b3/sys-kernel/buildkernel-b3/Manifest
+--- a/gentoo-b3/sys-kernel/buildkernel-b3/Manifest
++++ b/gentoo-b3/sys-kernel/buildkernel-b3/Manifest
+@@ -1,4 +1 @@
+-DIST buildkernel-b3-1.0.3.tar.gz 19486 SHA256 078427e7b728ae665dcc44d57bddee1a666da8bac5d8393a667c4bb0dfb20292 SHA512 5fdc50a84b42334916946bdeef3e773946d33bd25250e2a8881414c089081a5cf0f1bed84151518d0d4fd043c983aa1c6fc49759dd5ff4c076a49de75b64cd16 WHIRLPOOL 5648969f7809713753aae404b9db7bff77bd1b7d60f9afda61b79618f3842e989d61fb55444f9aa38619947f35226bf7ac0fbe6451ca2406d6a8333ca63b8a80
+-DIST buildkernel-b3-1.0.4.tar.gz 19812 SHA256 c1605d96fb6e974cd02d8cc5c0e556145582a5106785af16a4c6f3fceb47d22e SHA512 2ed0c053f521669149032e9fd02f3d8391e931fe2bd99554e4dd4d9193693a2aec57f23cc2f26d3bf521b030388bf7b22f15fc9a104454af017ccb2c13f4d037 WHIRLPOOL 65ba0e86f071004fe7180bc648cccac58671d613e95aec99d8285ee1b0ed4032b0ab650a9ae039fda5fe2cd0a4cd2ed7d71baa1c902a4bb335588900164191b5
+-DIST buildkernel-b3-1.0.5.tar.gz 19815 SHA256 66a269ea155adc7303b035beb0379f6dd6edadc273a5c1b4c1bfe9fc731a327a SHA512 40f21739ba59819852a526dbebb18dddaac471b16c9a50c47541dbc7aa521a64b649d48defb0cbc9b020bc8d72fa20da68ec721b496cd354528e1b6cb53ecd29 WHIRLPOOL 187c7130beeaecf42e2eae1b9e6b4c2e0f11769ecaa6d40125a3f12e04f8576e50bbcd1d4d6ea5bde74e69b6187314c8092f7b780bf42ccfbf2240b7fac52a75
+-DIST buildkernel-b3-1.0.6.tar.gz 19810 SHA256 acb77332b45d71d8bf6cfb498b0ef2fe6b89edd4409c5ac5944eb51edac9d09d SHA512 6b100cf23cc40a94e7482c96a96a8470103065372d97195ea979da5a3d5d2e84ec4387c709b1cf649a89ad3c44596807f0cf5c91557c568f742940de4fba11a5 WHIRLPOOL c11ee47cf57e65234b5078411cd1487f556ac8a71eb06fb01f99f977438e23d7f481656115181375599872f75afdbe8bdec35f4f34b1b5cecd1e288f2f8ca0fb
++DIST buildkernel-b3-1.0.6.tar.gz 19810 BLAKE2B cfc8caeba09952389e2a6988a9718303c8557b2e8db6b2dcfc8ccb93793030379a602a8a3914a790d6b8179dc55c3cb0302590e3653b99b32fe10d4a313f8108 SHA512 6b100cf23cc40a94e7482c96a96a8470103065372d97195ea979da5a3d5d2e84ec4387c709b1cf649a89ad3c44596807f0cf5c91557c568f742940de4fba11a5
+diff -ru a/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild b/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild
+--- a/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild	2022-08-16 13:35:17.545306695 +0200
++++ b/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild	2022-08-16 13:47:45.192027795 +0200
+@@ -5,7 +5,6 @@
+ 
+ EAPI="8"
+ 
+-inherit eutils
+ 
+ DESCRIPTION="Script to build a bootable Linux kernel for the Excito B3"
+ BASE_SERVER_URI="https://github.com/sakaki-"
+diff -ru a/sakaki-tools/app-portage/genup/Manifest b/sakaki-tools/app-portage/genup/Manifest
+--- a/sakaki-tools/app-portage/genup/Manifest
++++ b/sakaki-tools/app-portage/genup/Manifest
+@@ -1,6 +1 @@
+-DIST genup-1.0.21.tar.gz 26949 BLAKE2B 863947141bc76007f09c3ded95e4a6bb38aa2970f98c596603a7ca40aa880bd0617fe1aed916c386599d535abd505c59a1f49451ecf6018b400df94b7d8efc62 SHA512 38efefec8fffd3d5e57443bc76fc0165449073a202721d82b3e4b4dab48dee0ae739abc5e6b2be7af249220836672c0da5a81a5d25ca8d32c6788090572cb565
+-DIST genup-1.0.22.tar.gz 27013 BLAKE2B 8875434eb4f0b2de36e730ec0a0adfb8786827268757a928a4fa243971653981964826023e73e13f1bc847efb0116369d4a6996f4b113e36f39d3c6005b0cd1a SHA512 be096e51c7d81ecfecaeffdf746c826d036c430d4f39c46b72a8d611c5f78e567a08fb38686bbbc929c6ac73d5dd3175bd8d7bb9aaae59d5d7cbec22263fdd6f
+-DIST genup-1.0.24.tar.gz 26959 BLAKE2B 62357cda0d3cb18dc79128ae05f21e67dec6fe43c24669ae881297c5468f61f3b5fe0dcdff0381d3c82e99b102cfe492972bcea76cdf1a442ceb6b6249fb82fc SHA512 4190591f4f395d7b6b8a1d4589f8ae42e3294d742ea7b4eedd86cd33c9253e24e76b80a3aaf23cdab0aa04d20b19e41db03d5a6af86cec21da88e7b57cd4c109
+-DIST genup-1.0.26.tar.gz 27153 BLAKE2B fe7049f9e51ba7bf6254ed917fbc09a94e7ca91902f0163e5c6e66ee43178c369b69cd5e2f8f1f84957a8ac1864f99ddc87ed5cd15ee8a1222a3c4ef329186e1 SHA512 743f49a7f0131c9e43ad7631a828f79de78c9911a7fb38bc31c5719ebfe495bea74ba8bea0ea2c0322c645093d1346070b5a1dea0e0eeee1cb0f61323a3f7845
+-DIST genup-1.0.27.tar.gz 27350 BLAKE2B 7f2a5cdd741dd45eac21328ab80721948a0b96dc5d46962bdab932399eb162692933d52c177a6262cd921f58947ac5af5fbb0c39418270ddbd589bf85b3a2965 SHA512 5506bcfaf773803c442ede516ef748bc299e4f84ddb828736dafd10d2f1ea6a42f6efc0048a766b985c742b24148e5687216282b254c662de598d91cfb87fb02
+ DIST genup-1.0.28.tar.gz 27946 BLAKE2B d906487bac075f3a5abf13cff4d27522d88fb5e18c7b79bf02cf77d767a641503e4139f45bcc34fa1352f819c7a6d45bf27e7fb14ded17d34423cdeb83799820 SHA512 a1d2ab027e11ff469c1c8cd71618e1ac396cb6e6fe0f34963a75caae11e0b2563b381c5d514aa173813ed241e687fdb0ee35c74fe7f59cd55fd270c7e1967a0a
+diff -ru a/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild b/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild
+--- a/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild
++++ b/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild
+@@ -4,8 +4,6 @@
+ 
+ EAPI="8"
+ 
+-inherit eutils
+-
+ DESCRIPTION="Update Portage tree, all installed packages, and kernel"
+ BASE_SERVER_URI="https://github.com/sakaki-"
+ HOMEPAGE="${BASE_SERVER_URI}/${PN}"
+@@ -47,7 +45,7 @@
+ 		sed -i -e 's@USE_EMTEE=false@USE_EMTEE=true@g' "${S}/${PN}" || \
+ 			die "Failed to patch script to reflect emtee USE flag."
+ 	fi
+-	epatch_user
++	eapply_user
+ }
+ src_install() {
+ 	dosbin "${PN}"
+diff -ru a/sakaki-tools/app-portage/showem/Manifest b/sakaki-tools/app-portage/showem/Manifest
+--- a/sakaki-tools/app-portage/showem/Manifest
++++ b/sakaki-tools/app-portage/showem/Manifest
+@@ -1 +1 @@
+-DIST showem-1.0.3.tar.gz 16581 SHA256 3b980b7ab41d531e062a338cb2ac3753ba9f31f0b5df5bf2a439ead2786934a7 SHA512 333dd83e98c028618996ba6b392d419bf6b9399200e2d22952c36da6ae57793d521edef0c16dfe01b0adb5c106e969b5288e89514c59f0a36cfe1e4e654aab4d WHIRLPOOL 759a197373e18c9c9f73f442edcbb58ed3564083581f4ddc4240ff208e654bd65be9e5e87008d40a4759a91c6a77fc012ab6717f949ae9c841b5572a08cbbcf4
++DIST showem-1.0.3.tar.gz 16581 BLAKE2B acbb043c05dc1b1bd6f28036e813cd9069d5a7f88da5b90707f58170100761397e56b83fb292e31e5487469b8ed202f096deea79e42c736a23c803b0e36a71d3 SHA512 333dd83e98c028618996ba6b392d419bf6b9399200e2d22952c36da6ae57793d521edef0c16dfe01b0adb5c106e969b5288e89514c59f0a36cfe1e4e654aab4d
+diff -ru a/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild b/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild
+--- a/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild
++++ b/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild
+@@ -5,8 +5,6 @@
+ 
+ EAPI="8"
+ 
+-inherit eutils
+-
+ DESCRIPTION="View output of a parallel emerge from a separate terminal"
+ BASE_SERVER_URI="https://github.com/sakaki-"
+ HOMEPAGE="${BASE_SERVER_URI}/${PN}"
+@@ -24,9 +22,6 @@
+ 	>=app-shells/bash-4.2"
+ 
+ # ebuild function overrides
+-src_prepare() {
+-	epatch_user
+-}
+ src_install() {
+ 	dobin "${PN}"
+ 	doman "${PN}.1"
