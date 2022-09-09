@@ -234,14 +234,15 @@ src_prepare() {
 	# The custom OS module for Gentoo - provides OS-specific path details
 	elog "Import custom paths to match Gentoo specifications"
 	cp "${FILESDIR}/gentoo-filepaths.pm" "Slim/Utils/OS/Custom.pm" || die "Unable to install Gentoo custom OS module"
+	fperms 644 "Slim/Utils/OS/Custom.pm"
 }
 
 src_install() {
 	# Everything in our package into the /opt hierarchy
 	elog "Installing package files"
 	dodir "${BINDIR}"
-	cp -aR ${S}/* "${ED}${BINDIR}" || die "Unable to install package files"
-	rm ${ED}${BINDIR}/{Changelog*,License*,README.md,revision.txt,SOCKS.txt}
+	cp -aR ${S}/* "${ED}/${BINDIR}" || die "Unable to install package files"
+	rm ${ED}/${BINDIR}/{Changelog*,License*,README.md,revision.txt,SOCKS.txt}
 
 	# Documentation
 	dodoc Changelog*.html
