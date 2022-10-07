@@ -12,5 +12,6 @@ net-mail/dovecot
 net-misc/minidlna
 net-misc/ntp
 net-p2p/filetransferdaemon
+net-vpn/tor
 sys-power/bubba-buttond
 virtual/bubba
