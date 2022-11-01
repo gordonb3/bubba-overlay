@@ -24,6 +24,11 @@ DEPEND=""
 
 RDEPEND="${DEPEND}"
 
+PATCHES=( "${FILESDIR}/bubba.patch"
+	  "${FILESDIR}/php5.6.patch"
+	  "${FILESDIR}/php8.patch"
+)
+
 S=${WORKDIR}/${PN}-${COMMIT}
 
 
@@ -31,8 +36,8 @@ src_prepare() {
 	eapply_user
 
 	sed -i "s/\r//" ${S}/includes/singapore.class.php
-	eapply ${FILESDIR}/php5.6.patch
-	eapply ${FILESDIR}/bubba.patch
+	
+	default
 }
 
 src_install() {

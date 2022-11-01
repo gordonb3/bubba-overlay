@@ -1,0 +1,305 @@
+Fix incompatibilities with php 8
+
+Patch by Gordon Bos
+
+diff --git a/includes/admin.class.php b/includes/admin.class.php
+index 18ac1b8..2f19ccc 100644
+--- a/includes/admin.class.php
++++ b/includes/admin.class.php
+@@ -47,7 +47,7 @@ class sgAdmin extends Singapore
+    * Admin constructor. Doesn't call {@link Singapore} constructor.
+    * @param string the path to the base singapore directory
+    */
+-  function sgAdmin($basePath = "")
++  function __construct($basePath = "")
+   {
+     //import class definitions
+     //io handler class included once config is loaded
+@@ -123,7 +123,15 @@ class sgAdmin extends Singapore
+     $this->ancestors = array($holder);
+   }
+   
+-  /**
++/**
++   * legacy construct
++   */
++  function sgAdmin($basePath = "")
++  {
++    self::__construct($basePath);
++  }
++
++ /**
+    * Push an error message onto the error stack
+    * @param string  Error message
+    * @param string  true if error is fatal; false otherwise (optional)
+diff --git a/includes/gallery.class.php b/includes/gallery.class.php
+index fe91017..1d09ef0 100644
+--- a/includes/gallery.class.php
++++ b/includes/gallery.class.php
+@@ -53,7 +53,7 @@ class sgGallery extends sgItem
+    * @param string     gallery id
+    * @param sgGallery  reference to the parent gallery
+    */
+-  function sgGallery($id, &$parent)
++  function __construct($id, &$parent)
+   {
+     $this->id = $id;
+     $this->parent = $parent;
+@@ -61,6 +61,14 @@ class sgGallery extends sgItem
+     $this->translator = Translator::getInstance();
+   }
+   
++  /**
++   * legacy construct
++   */
++  function sgGallery($id, &$parent)
++  {
++    self::__construct($id, $parent);
++  }
++
+   /** @return bool  true if this is a non-album gallery; false otherwise  */
+   function isGallery()         { return $this->hasChildGalleries(); }
+   
+diff --git a/includes/image.class.php b/includes/image.class.php
+index 66aca5b..e1478fd 100644
+--- a/includes/image.class.php
++++ b/includes/image.class.php
+@@ -53,7 +53,7 @@ class sgImage extends sgItem
+    * @param string     image id
+    * @param sgGallery  reference to the parent gallery
+    */
+-  function sgImage($id, &$parent)
++  function __construct($id, &$parent)
+   {
+     $this->id = $id;
+     $this->parent = $parent;
+@@ -61,6 +61,14 @@ class sgImage extends sgItem
+     $this->translator = Translator::getInstance();
+   }
+   
++  /**
++   * legacy construct
++   */
++  function sgImage($id, &$parent)
++  {
++    self::__construct($id, $parent);
++  }
++
+   /**
+    * Over-rides the method in the item class
+    * @return true  returns true
+diff --git a/includes/io.class.php b/includes/io.class.php
+index 28c2c9c..4f7ad82 100644
+--- a/includes/io.class.php
++++ b/includes/io.class.php
+@@ -28,11 +28,19 @@ class sgIO
+    * Constructor. Can be over-ridden by subclass but does not need to be.
+    * @param sgConfig  pointer to current script configuration object
+    */
+-  function sgIO()
++  function __construct()
+   {
+     $this->config = sgConfig::getInstance();
+   }
+   
++   /**
++   * legacy construct
++   */
++  function sgIO()
++  {
++    self::__construct();
++  }
++
+   /**
+    * Pseudo-abstract method to be over-ridden in subclasses.
+    */
+diff --git a/includes/io_mysql.class.php b/includes/io_mysql.class.php
+index bf2edae..8735963 100644
+--- a/includes/io_mysql.class.php
++++ b/includes/io_mysql.class.php
+@@ -22,13 +22,21 @@ class sgIO_mysql extends sgIOsql
+    * @param sgConfig pointer to a {@link sgConfig} object representing 
+    *   the current script configuration
+    */
+-  function sgIO_mysql()
++  function __construct()
+   {
+     $this->config = sgConfig::getInstance();
+     mysql_connect($this->config->sql_host, $this->config->sql_user, $this->config->sql_pass);
+     mysql_select_db($this->config->sql_database);
+   }
+ 
++   /**
++   * legacy construct
++   */
++  function sgIO_mysql()
++  {
++    self::__construct();
++  }
++
+   /**
+    * Name of IO backend.
+    */
+diff --git a/includes/io_sqlite.class.php b/includes/io_sqlite.class.php
+index 969d147..0d2bc4a 100644
+--- a/includes/io_sqlite.class.php
++++ b/includes/io_sqlite.class.php
+@@ -27,12 +27,20 @@ class sgIO_sqlite extends sgIOsql
+    * @param sgConfig pointer to a {@link sgConfig} object representing 
+    *   the current script configuration
+    */
+-  function sgIO_sqlite()
++  function __construct()
+   {
+     $this->config = sgConfig::getInstance();
+     $this->db = sqlite_open($this->config->base_path.$this->config->pathto_data_dir."sqlite.dat");
+   }
+ 
++  /**
++   * legacy construct
++   */
++  function sgIO_sqlite()
++  {
++    self::__construct();
++  }
++
+   /**
+    * Name of IO backend.
+    */
+diff --git a/includes/singapore.class.php b/includes/singapore.class.php
+index b04d3a2..b4bd4a5 100644
+--- a/includes/singapore.class.php
++++ b/includes/singapore.class.php
+@@ -85,7 +85,7 @@ class Singapore
+    * Constructor, does all init type stuff. This code is a total mess.
+    * @param string the path to the base singapore directory
+    */
+-  function Singapore($basePath = "")
++  function __construct($basePath = "")
+   {
+     //import class definitions
+     //io handler class included once config is loaded
+@@ -100,8 +100,8 @@ class Singapore
+     $this->scriptStartTime = microtime();
+     
+     //remove slashes
+-    if(get_magic_quotes_gpc())
+-      $_REQUEST = array_map(array("Singapore","arraystripslashes"), $_REQUEST);
++    //if(get_magic_quotes_gpc())
++    //  $_REQUEST = array_map(array("Singapore","arraystripslashes"), $_REQUEST);
+     
+     //desanitize request
+     $_REQUEST = array_map("htmlentities", $_REQUEST);
+@@ -196,6 +196,14 @@ class Singapore
+     
+   }
+   
++  /**
++   * legacy construct
++   */
++  function Singapore($basePath = "")
++  {
++    self::__construct($basePath);
++  }
++  
+   /**
+    * Load gallery and image info
+    * @param string the id of the gallery to load (optional)
+@@ -205,7 +213,7 @@ class Singapore
+     if(empty($galleryId)) $galleryId = isset($_REQUEST[$this->config->url_gallery]) ? $_REQUEST[$this->config->url_gallery] : ".";
+     
+     //try to validate gallery id
+-    if(strlen($galleryId)>1 && $galleryId{1} != '/') $galleryId = './'.$galleryId;
++    if(strlen($galleryId)>1 && $galleryId[1] != '/') $galleryId = './'.$galleryId;
+     
+     //detect back-references to avoid file-system walking
+     if(strpos($galleryId,"../")!==false) $galleryId = ".";
+@@ -875,8 +883,7 @@ class Singapore
+ 
+     while(false !== ($entry = readdir($dp)))
+       if(is_dir($dir->path.$entry)) {
+-        if($entry    != "CVS" && $entry    != ".svn" && 
+-         (($entry{0} != '.'   && $entry{0} != '_')   || $getHidden))
++        if(($entry[0] != '.' && $entry[0] != '_') || $getHidden)
+           $dir->dirs[] = $entry;
+       } else {
+         if($mask == null || preg_match("/\.($mask)$/i",$entry))
+diff --git a/includes/thumbnail.class.php b/includes/thumbnail.class.php
+index a321d55..4ca85b0 100644
+--- a/includes/thumbnail.class.php
++++ b/includes/thumbnail.class.php
+@@ -29,7 +29,7 @@ class sgThumbnail
+   var $imagePath = "";
+   var $thumbPath = "";
+   
+-  function sgThumbnail(&$img, $type)
++  function __construct(&$img, $type)
+   {
+     $this->config = sgConfig::getInstance();
+     $this->image  = $img; 
+@@ -71,6 +71,14 @@ class sgThumbnail
+       $this->buildThumbnail();
+   }
+   
++  /**
++   * legacy construct
++   */
++  function sgThumbnail(&$img, $type)
++  {
++    self::__construct($img, $type);
++  }
++
+   /** Accessor methods */
+   function width()  { return $this->thumbWidth; }
+   function height() { return $this->thumbHeight; }
+diff --git a/includes/translator.class.php b/includes/translator.class.php
+index 7f534d7..d53e535 100644
+--- a/includes/translator.class.php
++++ b/includes/translator.class.php
+@@ -31,11 +31,19 @@ class Translator
+    * @param string  language code
+    * @private
+    */
+-  function Translator($language)
++  function __construct($language)
+   {
+     $this->language = $language;
+   }
+   
++   /**
++   * legacy construct
++   */
++  function Translator($language)
++  {
++    self::__construct($language);
++  }
++
+   /**
+    * Implements a version of the Singleton design pattern by always returning 
+    * a reference to the same Translator object for each language. If no 
+diff --git a/includes/user.class.php b/includes/user.class.php
+index 7759db9..45a80c7 100644
+--- a/includes/user.class.php
++++ b/includes/user.class.php
+@@ -68,12 +68,20 @@ class sgUser
+   /**
+    * Constructor ensures username and userpass have values
+    */
+-  function sgUser($username, $userpass)
++  function __construct($username, $userpass)
+   {
+     $this->username = $username;
+     $this->userpass = $userpass;
+   }
+   
++   /**
++   * legacy construct
++   */
++  function sgUser($username, $userpass)
++  {
++    self::__construct($username, $userpass);
++  }
++
+   /**
+    * Checks if currently logged in user is an administrator.
+    * 
