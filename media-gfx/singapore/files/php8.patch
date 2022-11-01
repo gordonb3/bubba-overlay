@@ -224,6 +224,15 @@ index b04d3a2..b4bd4a5 100644
            $dir->dirs[] = $entry;
        } else {
          if($mask == null || preg_match("/\.($mask)$/i",$entry))
+@@ -934,7 +934,7 @@ class Singapore
+   /**
+    * Wrapper for mkdir() implementing the safe-mode hack
+    */
+-  function mkdir($path)
++  public static function mkdir($path)
+   {
+     $config = sgConfig::getInstance();
+     if($config->safe_mode_hack) {
 diff --git a/includes/thumbnail.class.php b/includes/thumbnail.class.php
 index a321d55..4ca85b0 100644
 --- a/includes/thumbnail.class.php
