@@ -10,8 +10,8 @@ LUA_VR="5.3.6"
 inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-COMMIT="c9526851b"
-CTIME="2022-01-31 09:34:32 +0100"
+COMMIT="eea9db734"
+CTIME="2022-11-05 13:05:35 +0100"
 
 LUA_V="${LUA_VR:0:3}"
 PKG_LUA="lua-${LUA_VR}.tar.gz"
