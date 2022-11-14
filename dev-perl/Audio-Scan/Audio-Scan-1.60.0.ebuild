@@ -4,7 +4,7 @@
 EAPI=7
 
 DIST_AUTHOR=AGRUNDMA
-# Note: 1.02 was never officially marked `release`, so we are grabbing 1.01 and patch it to reach 1.02
+# Note: 1.06 was never officially marked `release`, so we are grabbing 1.01 and patch it to reach 1.06
 DIST_VERSION=1.01
 inherit perl-module
 
@@ -28,7 +28,12 @@ PERL_RM_FILES=(
 	"t/04critic.t"
 )
 
-PATCHES=( "${FILESDIR}/fix_Opus_duration_bug.patch" )
+PATCHES=( "${FILESDIR}/1.01_gentoo_fix_compiler_warnings.patch"
+	  "${FILESDIR}/1.02_fix_Opus_duration_bug.patch"
+	  "${FILESDIR}/1.04_allow_seek_in_MP4_files_with_32bit_sample_rates.patch"
+	  "${FILESDIR}/1.05_correct_ID3_v2.4_extended_header_handling.patch"
+	  "${FILESDIR}/1.06_handle_large_comment_headers_in_Opus_files.patch"
+)
 
 
 src_compile() {
