@@ -1,4 +1,4 @@
-# Copyright 2020 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2022 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 #
 # $Header$
@@ -17,12 +17,12 @@ SRC_DIR="LogitechMediaServer_v${MY_PV}"
 SRC_URI="http://downloads.slimdevices.com/${SRC_DIR}/${MY_PF}-noCPAN.tgz"
 HOMEPAGE="http://www.mysqueezebox.com/"
 
-KEYWORDS="~amd64 ~x86 ~arm ~ppc"
+KEYWORDS=""
 DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${MY_PN}"
 RESTRICT="bindist mirror"
 SLOT="0"
-IUSE="systemd mp3 alac wavpack flac ogg aac mac dlna"
+IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype dlna"
 
 EXTRALANGS="he"
 for LANG in ${EXTRALANGS}; do
@@ -77,6 +77,7 @@ RDEPEND="
 	aac? ( media-libs/slim-faad )
 	alac? ( media-libs/slim-faad )
 	mac? ( media-sound/mac )
+	freetype? ( dev-perl/Font-FreeType )
 	dlna? ( dev-perl/Media-Scan )
 "
 
@@ -106,9 +107,9 @@ R1_PREFSDIR="/etc/${MY_PN}"
 
 PATCHES=(
 	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
-	"${FILESDIR}/LMS_move_client_playlist_path.patch"
-	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
 	"${FILESDIR}/LMS-perl-recent.patch"
+	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
+	"${FILESDIR}/LMS-8.2.0_move_client_playlist_path.patch"
 )
 
 
