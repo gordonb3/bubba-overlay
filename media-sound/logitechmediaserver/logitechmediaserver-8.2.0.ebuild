@@ -129,6 +129,7 @@ OBSOLETEDIRS=(
 	"Image"
 	"IO/Interface"
 	"Locale"
+	"Media"
 	"MP3"
 	"Sub"
 	"Template/Namespace"

@@ -10,6 +10,7 @@ DESCRIPTION="DLNA server support for LogitechMediaServer"
 HOMEPAGE="https://github.com/andygrundman/"
 SLOT=0
 KEYWORDS="~amd64 ~x86 ~arm ~ppc"
+RESTRICT="mirror"
 
 PVLMS=${PV%.0}
 
