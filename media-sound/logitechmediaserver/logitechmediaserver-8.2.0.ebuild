@@ -109,6 +109,7 @@ PATCHES=(
 	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
 	"${FILESDIR}/LMS-perl-recent.patch"
 	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
+	"${FILESDIR}/LMS-8.1.1_AAC_Radio_playback_fix.patch"
 	"${FILESDIR}/LMS-8.2.0_move_client_playlist_path.patch"
 )
 
@@ -238,7 +239,7 @@ src_install() {
 	elog "Installing package files"
 	dodir "${BINDIR}"
 	cp -aR ${S}/* "${ED}/${BINDIR}" || die "Unable to install package files"
-	rm ${ED}/${BINDIR}/{Changelog*,License*,README.md,revision.txt,SOCKS.txt}
+	rm ${ED}/${BINDIR}/{Changelog*,License*,README.md,SOCKS.txt}
 
 	# The custom OS module for Gentoo - provides OS-specific path details
 	elog "Import custom paths to match Gentoo specifications"

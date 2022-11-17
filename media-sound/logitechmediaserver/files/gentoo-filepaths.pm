@@ -17,6 +17,7 @@ sub initDetails {
 	$class->{osDetails} = $class->SUPER::initDetails();
 
 	$class->{osDetails}->{isGentoo} = 1 ;
+	$class->{osDetails}->{osName} = 'Gentoo Linux';
 
 	# Ensure we find manually installed plugin files.
 	push @INC, '/var/lib/logitechmediaserver';

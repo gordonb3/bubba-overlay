@@ -1,0 +1,13 @@
+diff -ru b/Slim/Player/Song.pm a/Slim/Player/Song.pm
+--- b/Slim/Player/Song.pm	2020-12-22 08:05:14.000000000 +0100
++++ a/Slim/Player/Song.pm	2022-11-17 10:35:53.150656366 +0100
+@@ -429,6 +429,8 @@
+ 			$format = $streamFormatMap{$format};
+ 		}
+ 
++		$self->wantFormat('aac') if $format eq 'aac';
++
+ 		# Is format supported by all players?
+ 		if (!grep {$_ eq $format} Slim::Player::CapabilitiesHelper::supportedFormats($client)) {
+ 			$error = 'PROBLEM_CONVERT_FILE';
+
