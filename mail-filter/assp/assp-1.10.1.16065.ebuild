@@ -4,8 +4,6 @@
 
 EAPI="7"
 
-inherit user
-
 DESCRIPTION="Anti-Spam SMTP Proxy written in Perl"
 HOMEPAGE="http://assp.sourceforge.net/"
 MY_PN=ASSP_${PV/.16/_16}_install
@@ -20,7 +18,10 @@ IUSE="ipv6 ldap sasl spf srs ssl syslog"
 
 DEPEND="app-arch/unzip"
 
-RDEPEND="dev-lang/perl
+RDEPEND="
+	acct-user/assp
+	acct-group/assp
+	dev-lang/perl
 	dev-perl/Net-DNS
 	dev-perl/File-ReadBackwards
 	virtual/perl-IO-Compress
@@ -41,11 +42,6 @@ RDEPEND="dev-lang/perl
 	ldap? ( dev-perl/perl-ldap )"
 
 S=${WORKDIR}/${MY_PN}/ASSP
-
-pkg_setup() {
-	enewgroup assp
-	enewuser assp -1 -1 /dev/null assp
-}
 
 src_prepare() {
 	eapply_user

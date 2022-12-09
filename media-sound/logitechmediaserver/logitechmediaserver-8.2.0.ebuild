@@ -5,7 +5,7 @@
 
 EAPI="7"
 
-inherit user systemd
+inherit systemd
 
 
 MY_PN="${PN/-bin}"
