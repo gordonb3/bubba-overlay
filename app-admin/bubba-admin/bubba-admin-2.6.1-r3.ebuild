@@ -354,26 +354,6 @@ pkg_postinst() {
 		fi
 	fi
 
-	# GUI
-	if use systemd; then
-		systemctl daemon-reload
-		systemctl is-enabled bubba-adminphp >/dev/null || {
-			elog "enable bubba-adminphp service"
-			systemctl enable bubba-adminphp >/dev/null
-		}
-		systemctl is-active bubba-adminphp >/dev/null && systemctl stop bubba-adminphp >/dev/null
-		elog "auto starting bubba-adminphp service"
-		systemctl start bubba-adminphp
-	else
-		rc-status default | grep -q bubba-adminphp || {
-			elog "add bubba-adminphp service to default runlevel"
-			rc-config add bubba-adminphp default >/dev/null
-		}
-		rc-service bubba-adminphp status >/dev/null && rc-service bubba-adminphp stop >/dev/null
-		elog "auto starting bubba-adminphp service"
-		rc-service bubba-adminphp start
-	fi
-	elog ""
 	if use nginx; then
 		elog "Although this package was configured for nginx, it should also function"
 		elog "with apache, provided apache was configured with the required use flags."
@@ -389,8 +369,5 @@ pkg_postinst() {
 		elog "from the examples folder to ${PHP_APACHE_INI_PATH}/ext/bubba-admin.ini"
 		elog "and create a symlink to it from ${PHP_APACHE_INI_PATH}/ext-active"
 	fi
-
-	# cleanup old sessions
-	[[ -d "/var/lib/php5" ]] && rm -rf /var/lib/php5
 }
 
