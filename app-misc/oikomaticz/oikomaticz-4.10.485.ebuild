@@ -7,8 +7,8 @@ EAPI="7"
 inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
-COMMIT="21781399"
-CTIME="2022-11-09 11:56:25 +0100"
+COMMIT="f4908da4"
+CTIME="2023-02-16 13:24:55 +0100"
 
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.zip -> ${PN}-${PV}.zip"
 RESTRICT="mirror"
@@ -130,7 +130,7 @@ src_install() {
 	# compress static web content
 	find ${ED}/opt/${PN}/www -name "*.css" -exec gzip -9 {} \;
 	find ${ED}/opt/${PN}/www -name "*.js" -exec gzip -9 {} \;
-	find ${ED}/opt/${PN}/www -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
+	find ${ED}/opt/${PN}/www -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} 2>/dev/null || gzip -9 {}' \;
 
 	# cleanup examples and non functional scripts
 	rm -rf ${ED}/opt/${PN}/{server_cert.pem,License.txt}
