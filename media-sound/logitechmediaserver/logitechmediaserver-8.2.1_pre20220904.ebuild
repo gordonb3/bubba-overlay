@@ -1,5 +1,8 @@
-# Copyright 2022 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2023 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
+#
+# This is the last version of LogitechMediaServer that features the full DLNA plugin offering
+# videos and images next to music.
 #
 # $Header$
 
@@ -7,30 +10,40 @@ EAPI="7"
 
 inherit systemd
 
+# we can't rely on 8.2.1_unreleased archive to keep matching our manifest, so we require the previous stable
+OLD_PV="${PV/1*}0"
 
-MY_PN="${PN/-bin}"
-MY_PV="${PV/_*}"
-MY_PF="${MY_PN}-${MY_PV}"
-S="${WORKDIR}/${MY_PF}-noCPAN"
+# grab the patch from logitech github to fast forward from 8.2.0 to our target 8.2.1
+OLD_PV_COMMIT="1ec1603"
+MY_PV_COMMIT="fa05c79"
 
-SRC_DIR="LogitechMediaServer_v${MY_PV}"
-SRC_URI="http://downloads.slimdevices.com/${SRC_DIR}/${MY_PF}-noCPAN.tgz"
-HOMEPAGE="http://www.mysqueezebox.com/"
+OLD_PF="${PN}-${OLD_PV}"
+MY_PF="${PN}-${PV/_*}"
 
-KEYWORDS=""
+SRC_URI="
+	https://downloads.slimdevices.com/LogitechMediaServer_v${OLD_PV}/${OLD_PF}-noCPAN.tgz
+	https://github.com/Logitech/slimserver/compare/${OLD_PV_COMMIT}..${MY_PV_COMMIT}.diff -> ${MY_PF}.patch
+"
+HOMEPAGE="https://www.mysqueezebox.com/"
+
+KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 DESCRIPTION="Logitech Media Server (streaming audio server)"
-LICENSE="${MY_PN}"
+LICENSE="${PN}"
 RESTRICT="bindist mirror"
 SLOT="0"
-IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype"
+IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype dlna"
 
 PATCHES=(
+	"${WORKDIR}/${MY_PF}.patch"
 	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
 	"${FILESDIR}/LMS-perl-recent.patch"
 	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
 	"${FILESDIR}/LMS-8.1.1_AAC_Radio_playback_fix.patch"
 	"${FILESDIR}/LMS-8.2.0_move_client_playlist_path.patch"
+	"${FILESDIR}/LMS-8.2.1_fix_release_date_parsing_for_Deezer.patch"
 )
+
+S="${WORKDIR}/${OLD_PF}-noCPAN"
 
 EXTRALANGS="he"
 for LANG in ${EXTRALANGS}; do
@@ -39,11 +52,11 @@ done
 
 # Installation dependencies.
 DEPEND="
-	acct-user/${MY_PN}
-	acct-group/${MY_PN}
+	acct-user/${PN}
+	acct-group/${PN}
 	!media-sound/squeezecenter
 	!media-sound/squeezeboxserver
-	!media-sound/${MY_PN}-bin
+	!media-sound/${PN}-bin
 	app-arch/unzip
 	dev-lang/nasm
 "
@@ -86,20 +99,21 @@ RDEPEND="
 	alac? ( media-libs/slim-faad )
 	mac? ( media-sound/mac )
 	freetype? ( dev-perl/Font-FreeType )
+	dlna? ( dev-perl/Media-Scan )
 "
 
-RUN_UID=${MY_PN}
-RUN_GID=${MY_PN}
+RUN_UID=${PN}
+RUN_GID=${PN}
 
 # Installation target locations
-BINDIR="/opt/${MY_PN}"
-DATADIR="/var/lib/${MY_PN}"
+BINDIR="/opt/${PN}"
+DATADIR="/var/lib/${PN}"
 CACHEDIR="${DATADIR}/cache"
 USRPLUGINSDIR="${DATADIR}/Plugins"
 SVRPLUGINSDIR="${CACHEDIR}/InstalledPlugins"
 CLIENTPLAYLISTSDIR="${DATADIR}/ClientPlaylists"
 PREFSDIR="${DATADIR}/preferences"
-LOGDIR="/var/log/${MY_PN}"
+LOGDIR="/var/log/${PN}"
 SVRPREFS="${PREFSDIR}/server.prefs"
 
 # Old Squeezebox Server file locations
@@ -110,8 +124,7 @@ SBS_SVRPLUGINSDIR="${SBS_VARLIBDIR}/cache/InstalledPlugins"
 SBS_USRPLUGINSDIR="${SBS_VARLIBDIR}/Plugins"
 
 # Original preferences location from the Squeezebox overlay
-R1_PREFSDIR="/etc/${MY_PN}"
-
+R1_PREFSDIR="/etc/${PN}"
 
 # Use of DynaLoader causes conflicts because it prefers the system
 # perl folders over the local CPAN folder. Following is a list of
@@ -210,8 +223,19 @@ OBSOLETEFILES=(
 	"Template.pm"
 )
 
+src_unpack() {
+	unpack ${OLD_PF}-noCPAN.tgz
+	cp "${DISTDIR}/${MY_PF}.patch" "${WORKDIR}/${MY_PF}.patch"
+}
+
 src_prepare() {
-	default	
+	# fix the diff we got from GitHub to not target missing files in the noCPAN release
+	grep "+++" ${WORKDIR}/${MY_PF}.patch | while read file; do
+		SEARCH="${file#+++ b/}"
+		[[ ! -e $SEARCH ]] && sed -e "\#$SEARCH#d" -i ${WORKDIR}/${MY_PF}.patch
+	done
+
+	default
 
 	# fix default user name to run as
 	sed -e "s/squeezeboxserver/${RUN_UID}/" -i slimserver.pl
@@ -253,13 +277,13 @@ src_install() {
 	# This may seem a weird construct, but it saves me from receiving QA messages on OpenRC systems
 	if use systemd ; then
 		# Install unit file (systemd)
-		cat "${FILESDIR}/${MY_PN}.service" | sed "s/^#Env/Env/" > "${S}/../${MY_PN}.service"
-		systemd_dounit "${S}/../${MY_PN}.service"
+		cat "${FILESDIR}/${PN}.service" | sed "s/^#Env/Env/" > "${S}/../${PN}.service"
+		systemd_dounit "${S}/../${PN}.service"
 	else
 		# Install init script (OpenRC)
-		newinitd "${FILESDIR}/${MY_PN}.init.d" "${MY_PN}"
+		newinitd "${FILESDIR}/${PN}.init.d" "${PN}"
 	fi
-	newconfd "${FILESDIR}/${MY_PN}.conf.d" "${MY_PN}"
+	newconfd "${FILESDIR}/${PN}.conf.d" "${PN}"
 
 	# prepare data and log file locations
 	elog "Set up log and data file locations"
@@ -275,28 +299,28 @@ src_install() {
 
 	# Install logrotate support
 	insinto /etc/logrotate.d
-	newins "${FILESDIR}/${MY_PN}.logrotate.d" "${MY_PN}"
+	newins "${FILESDIR}/${PN}.logrotate.d" "${PN}"
 }
 
 lms_starting_instr() {
 	elog "Logitech Media Server can be started with the following command:"
 	if use systemd ; then
-		elog "\tsystemctl start ${MY_PN}"
+		elog "\tsystemctl start ${PN}"
 	else
-		elog "\t/etc/init.d/${MY_PN} start"
+		elog "\t/etc/init.d/${PN} start"
 	fi
 	elog ""
 	elog "Logitech Media Server can be automatically started on each boot"
 	elog "with the following command:"
 	if use systemd ; then
-		elog "\tsystemctl enable ${MY_PN}"
+		elog "\tsystemctl enable ${PN}"
 	else
-		elog "\trc-update add ${MY_PN} default"
+		elog "\trc-update add ${PN} default"
 	fi
 	elog ""
 	elog "You might want to examine and modify the following configuration"
 	elog "file before starting Logitech Media Server:"
-	elog "\t/etc/conf.d/${MY_PN}"
+	elog "\t/etc/conf.d/${PN}"
 	elog ""
 
 	# Discover the port number from the preferences, but if it isn't there
