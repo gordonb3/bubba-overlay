@@ -1,4 +1,4 @@
-# Copyright 2020 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2023 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 #
 # $Header$
@@ -8,21 +8,26 @@ EAPI="7"
 inherit systemd
 
 
-MY_PN="${PN/-bin}"
 MY_PV="${PV/_*}"
-MY_PF="${MY_PN}-${MY_PV}"
+MY_PF="${PN}-${MY_PV}"
 S="${WORKDIR}/${MY_PF}-noCPAN"
 
-SRC_DIR="LogitechMediaServer_v${MY_PV}"
-SRC_URI="http://downloads.slimdevices.com/${SRC_DIR}/${MY_PF}-noCPAN.tgz"
+SRC_URI="http://downloads.slimdevices.com/LogitechMediaServer_v${MY_PV}/${MY_PF}-noCPAN.tgz"
 HOMEPAGE="http://www.mysqueezebox.com/"
 
 KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 DESCRIPTION="Logitech Media Server (streaming audio server)"
-LICENSE="${MY_PN}"
+LICENSE="${PN}"
 RESTRICT="bindist mirror"
 SLOT="0"
-IUSE="systemd mp3 alac wavpack flac ogg aac mac dlna"
+IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype"
+
+PATCHES=(
+	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
+	"${FILESDIR}/LMS-perl-recent.patch"
+	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
+	"${FILESDIR}/LMS-8.2.0_move_client_playlist_path.patch"
+)
 
 EXTRALANGS="he"
 for LANG in ${EXTRALANGS}; do
@@ -31,11 +36,11 @@ done
 
 # Installation dependencies.
 DEPEND="
-	acct-user/${MY_PN}
-	acct-group/${MY_PN}
+	acct-user/${PN}
+	acct-group/${PN}
 	!media-sound/squeezecenter
 	!media-sound/squeezeboxserver
-	!media-sound/${MY_PN}-bin
+	!media-sound/${PN}-bin
 	app-arch/unzip
 	dev-lang/nasm
 "
@@ -77,21 +82,21 @@ RDEPEND="
 	aac? ( media-libs/slim-faad )
 	alac? ( media-libs/slim-faad )
 	mac? ( media-sound/mac )
-	dlna? ( dev-perl/Media-Scan )
+	freetype? ( dev-perl/Font-FreeType )
 "
 
-RUN_UID=${MY_PN}
-RUN_GID=${MY_PN}
+RUN_UID=${PN}
+RUN_GID=${PN}
 
 # Installation target locations
-BINDIR="/opt/${MY_PN}"
-DATADIR="/var/lib/${MY_PN}"
+BINDIR="/opt/${PN}"
+DATADIR="/var/lib/${PN}"
 CACHEDIR="${DATADIR}/cache"
 USRPLUGINSDIR="${DATADIR}/Plugins"
 SVRPLUGINSDIR="${CACHEDIR}/InstalledPlugins"
 CLIENTPLAYLISTSDIR="${DATADIR}/ClientPlaylists"
 PREFSDIR="${DATADIR}/preferences"
-LOGDIR="/var/log/${MY_PN}"
+LOGDIR="/var/log/${PN}"
 SVRPREFS="${PREFSDIR}/server.prefs"
 
 # Old Squeezebox Server file locations
@@ -102,14 +107,7 @@ SBS_SVRPLUGINSDIR="${SBS_VARLIBDIR}/cache/InstalledPlugins"
 SBS_USRPLUGINSDIR="${SBS_VARLIBDIR}/Plugins"
 
 # Original preferences location from the Squeezebox overlay
-R1_PREFSDIR="/etc/${MY_PN}"
-
-PATCHES=(
-	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
-	"${FILESDIR}/LMS_move_client_playlist_path.patch"
-	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
-	"${FILESDIR}/LMS-perl-recent.patch"
-)
+R1_PREFSDIR="/etc/${PN}"
 
 
 # Use of DynaLoader causes conflicts because it prefers the system
@@ -237,7 +235,7 @@ src_install() {
 	elog "Installing package files"
 	dodir "${BINDIR}"
 	cp -aR ${S}/* "${ED}/${BINDIR}" || die "Unable to install package files"
-	rm ${ED}/${BINDIR}/{Changelog*,License*,README.md,revision.txt,SOCKS.txt}
+	rm ${ED}/${BINDIR}/{Changelog*,License*,README.md,SOCKS.txt}
 
 	# The custom OS module for Gentoo - provides OS-specific path details
 	elog "Import custom paths to match Gentoo specifications"
@@ -252,13 +250,13 @@ src_install() {
 	# This may seem a weird construct, but it saves me from receiving QA messages on OpenRC systems
 	if use systemd ; then
 		# Install unit file (systemd)
-		cat "${FILESDIR}/${MY_PN}.service" | sed "s/^#Env/Env/" > "${S}/../${MY_PN}.service"
-		systemd_dounit "${S}/../${MY_PN}.service"
+		cat "${FILESDIR}/${PN}.service" | sed "s/^#Env/Env/" > "${S}/../${PN}.service"
+		systemd_dounit "${S}/../${PN}.service"
 	else
 		# Install init script (OpenRC)
-		newinitd "${FILESDIR}/${MY_PN}.init.d" "${MY_PN}"
+		newinitd "${FILESDIR}/${PN}.init.d" "${PN}"
 	fi
-	newconfd "${FILESDIR}/${MY_PN}.conf.d" "${MY_PN}"
+	newconfd "${FILESDIR}/${PN}.conf.d" "${PN}"
 
 	# prepare data and log file locations
 	elog "Set up log and data file locations"
@@ -274,28 +272,28 @@ src_install() {
 
 	# Install logrotate support
 	insinto /etc/logrotate.d
-	newins "${FILESDIR}/${MY_PN}.logrotate.d" "${MY_PN}"
+	newins "${FILESDIR}/${PN}.logrotate.d" "${PN}"
 }
 
 lms_starting_instr() {
 	elog "Logitech Media Server can be started with the following command:"
 	if use systemd ; then
-		elog "\tsystemctl start ${MY_PN}"
+		elog "\tsystemctl start ${PN}"
 	else
-		elog "\t/etc/init.d/${MY_PN} start"
+		elog "\t/etc/init.d/${PN} start"
 	fi
 	elog ""
 	elog "Logitech Media Server can be automatically started on each boot"
 	elog "with the following command:"
 	if use systemd ; then
-		elog "\tsystemctl enable ${MY_PN}"
+		elog "\tsystemctl enable ${PN}"
 	else
-		elog "\trc-update add ${MY_PN} default"
+		elog "\trc-update add ${PN} default"
 	fi
 	elog ""
 	elog "You might want to examine and modify the following configuration"
 	elog "file before starting Logitech Media Server:"
-	elog "\t/etc/conf.d/${MY_PN}"
+	elog "\t/etc/conf.d/${PN}"
 	elog ""
 
 	# Discover the port number from the preferences, but if it isn't there
