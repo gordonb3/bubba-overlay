@@ -18,7 +18,7 @@ HOMEPAGE="http://www.mysqueezebox.com/"
 KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${PN}"
-RESTRICT="bindist mirror"
+RESTRICT="mirror"
 SLOT="0"
 IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype"
 
