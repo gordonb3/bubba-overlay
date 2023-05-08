@@ -1,4 +1,4 @@
-# Copyright 2015-2016 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2023 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -28,7 +28,7 @@ pkg_preinst() {
 
 src_install() {
 	exeinto "/opt/bubba/sbin"
-	newexe "${FILESDIR}/install_on_sda-1.13.sh" "install_on_sda.sh"
+	newexe "${FILESDIR}/install_on_sda-${PVR}.sh" "install_on_sda.sh"
 	insinto /usr/share/doc/${PF}
 	docompress -x /usr/share/doc/${PF}
 	doins "${FILESDIR}/fstab-on-b3" "${FILESDIR}/install.ini"
