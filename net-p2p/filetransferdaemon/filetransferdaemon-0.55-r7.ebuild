@@ -7,16 +7,9 @@ EAPI="7"
 inherit systemd gnome2 flag-o-matic cmake toolchain-funcs
 
 
-SIG_PV=2.4.1
-UTL_PV=0.7.39
-
-DESCRIPTION="Excito library utils"
+DESCRIPTION="Excito File Transfer Daemon"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="
-	http://b3.update.excito.org/pool/main/f/${PN}/${PN}_${PV}.tar.gz
-	https://download.gnome.org/sources/libsigc++/2.4/libsigc++-${SIG_PV}.tar.xz
-	http://b3.update.excito.org/pool/main/libe/libeutils/libeutils_${UTL_PV}.tar.gz
-"
+SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PN}-${PVR}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
@@ -42,108 +35,20 @@ RDEPEND="${DEPEND}
 	apache2? ( www-servers/apache[apache2_modules_cgi] )
 "
 
-S=${WORKDIR}/${PN}
 CMAKE_IN_SOURCE_BUILD=yes
 
 
-pkg_setup() {
-	if [ ! -e ${ROOT}/usr/lib/libexpect.so ]; then
-		rm -f ${ROOT}/usr/lib/libexpect.so
-		ln -s $(ls ${ROOT}/usr/lib/expect*/libexpect*.so) ${ROOT}/usr/lib/libexpect.so
-	fi
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/${PN}-* ${S}
 }
-
-
-sigc_prepare() {
-	cd ../libsigc++-${SIG_PV}
-	sed -i 's|^\(SUBDIRS =.*\)examples\(.*\)$|\1\2|' \
-		Makefile.am Makefile.in || die "sed examples failed"
-
-	# don't waste time building tests unless USE=test
-	sed -i 's|^\(SUBDIRS =.*\)tests\(.*\)$|\1\2|' \
-		Makefile.am Makefile.in || die "sed tests failed"
-
-	gnome2_src_prepare
-	cd - &>/dev/null
-}
-
-
-sigc_configure() {
-	einfo "configuring libsigc++"
-	cd ../libsigc++-${SIG_PV}
-	filter-flags -fno-exceptions #84263
-
-	ECONF_SOURCE="${WORKDIR}/libsigc++-${SIG_PV}" gnome2_src_configure --enable-static
-
-	cd - &>/dev/null
-}
-
-
-sigc_compile() {
-	einfo "compiling libsigc++"
-	cd ../libsigc++-${SIG_PV}
-	default
-	cd - &>/dev/null
-}
-
-
-utl_prepare() {
-	S=${WORKDIR}/libeutils
-	pushd "${S}" > /dev/null
-	eapply ${FILESDIR}/libeutils-${UTL_PV}.patch
-	ln -s ${WORKDIR}/libsigc++-${SIG_PV} include
-	sed -e "s/\$.SIGC++_CFLAGS./-Iinclude/" -i libeutils/CMakeLists.txt
-	sed -e "/SIGC++/d" -e "/TUT/d" -e "s/ on /@@/" -e "s/ off / on /" -e "s/@@/ off /" -i CMakeLists.txt
-	mkdir ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs ${WORKDIR}/libeutils/lib
-	ln -s ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs ${WORKDIR}/libeutils/lib/sigc++
-	popd > /dev/null
-	cmake_src_prepare
-	S=${WORKDIR}/${PN}
-}
-
-utl_configure() {
-	einfo "configuring eutils"
-	S=${WORKDIR}/libeutils
-	local mycmakeargs=(
-		-DCMAKE_INSTALL_PREFIX=/usr
-		-DCMAKE_VERBOSE_MAKEFILE=OFF
-		-DBUILD_STATIC_LIBRARIES=ON
-	)
-	cmake_src_configure
-	S=${WORKDIR}/${PN}
-}
-
-
-utl_compile() {
-	einfo "compiling eutils"
-        S=${WORKDIR}/libeutils
-        cmake_src_compile
-        S=${WORKDIR}/${PN}
-}
-
 
 src_prepare() {
 	eapply_user
 
-	# prepare include libraries
-	sigc_prepare
-	utl_prepare
-
-	eapply ${FILESDIR}/libtorrent-rasterbar.patch
-	eapply ${FILESDIR}/gcc5.patch
-
-	if ! use libtorrent; then 
-		sed \
-			-e "s/TorrentDownloader.cpp//" \
-			-e "s/DirWatcher.cpp//" \
-			-e "s/libtorrent-rasterbar //g" \
-			-e "s/^LD_LIBTORRENT.*$/LD_LIBTORRENT=\\\/" \
-			-i Makefile
-
-		sed \
-			-e "/TorrentDownloader.h/c\ " \
-			-e "/TorrentDownloadManager/c\ " \
-			-i src/filetransferdaemon.cpp
+	if use libtorrent; then 
+		eapply ${FILESDIR}/libtorrent-rasterbar.patch
+		eapply ${FILESDIR}/gcc5.patch
 	fi
 
 	if ! ( use apache2 && use upload ); then
@@ -151,47 +56,23 @@ src_prepare() {
 			ewarn "Refusing to build upload.cgi"
 			ewarn "Uploads are only supported with apache web server"
 		fi
-		sed \
-			-e "s/ \$.UPLOAD_CGI.//g" \
-			-i Makefile
+		sed -e "s/ \$\(UPLOAD_CGI\)//" -e "/www-data/d" -i bubba-ftd/Makefile
+	else
+		sed -e "s/\-\-owner=www-data//" -i bubba-ftd/Makefile
 	fi
 
-	# static linking of libsigc++ and libeutils
-        sed \
-                -e "s/cflags libeutils/cflags/" \
-                -e "s/sigc++-2.0 libcurl)/libcurl glib-2.0) \-I\$(CURDIR)\/include/" \
-                -e "s/LDFLAGS_EXTRA =/LDFLAGS_EXTRA = libeutils.a libsigc-2.0.a -lpthread/" \
-                -e "s/libs libeutils sigc++-2.0/libs glib-2.0/" \
-                -i Makefile
-
-	# boost >= 1.77 does no longer provide separate multithread libraries
-        sed \
-                -e "s/\-mt//g" \
-                -i Makefile
-
+	cmake_src_prepare
 }
 
 
 src_configure() {
-	sigc_configure
-	utl_configure
-}
+	local mycmakeargs=(
+		-DCMAKE_BUILD_TYPE=Release
+		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
+		-DWITH_LIBTORRENT=$(usex libtorrent)
+	)
 
-
-src_compile() {
-	sigc_compile
-	utl_compile
-
-	einfo "compiling main application"
-
-	# add include folder and static libs
-	ln -s ${WORKDIR}/libsigc++-${SIG_PV} ${S}/include
-	ln -s ${WORKDIR}/libeutils/libeutils ${S}/include/
-	cp -al ${S}/include/libeutils/json/include/json/* ${S}/include/libeutils/json/
-	ln -s ${WORKDIR}/libsigc++-${SIG_PV}/sigc++/.libs/libsigc-2.0.a ${S}/
-	ln -s ${WORKDIR}/libeutils/libeutils/libeutils.a ${S}/
-
-	emake CXX=$(tc-getCXX) VERSION="${PV}" CFGPATH="/etc/bubba/ftdconfig.ini"
+	cmake_src_configure
 }
 
 
@@ -199,14 +80,13 @@ src_install() {
 	docompress -x /usr/share/doc/${PF}
 
 	exeinto /opt/bubba/bin
-	doexe ftdclient
+	doexe _deploy/usr/bin/ftdclient
 
 	insinto /opt/bubba/web-admin/ftd
-	doins php/ipc.php
+	doins _deploy/usr/share/ftd/ipc.php
 
-	dodoc ${FILESDIR}/Changelog debian/copyright
-	newdoc ftdconfig.ini ftdconfig.default
-	newdoc debian/changelog changelog.debian
+	dodoc ${FILESDIR}/Changelog bubba-ftd/debian/copyright _deploy/usr/share/ftd/ftdconfig.default
+	newdoc bubba-ftd/debian/changelog changelog.debian
 
 	if use systemd; then
 		systemd_dounit "${FILESDIR}"/${PN}.service
@@ -216,12 +96,12 @@ src_install() {
 
 	exeopts -m700
 	exeinto /opt/bubba/sbin
-	doexe ftd
+	doexe _deploy/usr/sbin/ftd
 
 	use upload && use apache2 && {
 		exeinto /opt/bubba/web-admin/cgi-bin
-		doexe upload.cgi
-		fowners apache.root /opt/bubba/web-admin/cgi-bin/upload.cgi
+		doexe _deploy/usr/lib/cgi-bin/upload.cgi
+		fowners apache:root /opt/bubba/web-admin/cgi-bin/upload.cgi
 	}
 }
 
