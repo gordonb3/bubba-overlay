@@ -8,7 +8,8 @@ inherit systemd toolchain-funcs
 
 DESCRIPTION="Excito B3 power control"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.gz"
+COMMIT="8e6b241"
+SRC_URI="https://github.com/excito/${PN}/archive/${COMMIT}.tar.gz -> ${PN}-${PVR}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
@@ -21,11 +22,9 @@ DEPEND=""
 RDEPEND="systemd? ( sys-apps/systemd )"
 
 
-S=${WORKDIR}/buttond
-
 pkg_setup() {
 	ebegin "checking for write-magic enabled sysvinit"
-	if [ "$(cat /var/db/pkg/sys-apps/sysvinit-*/repository)" == "bubba" ]; then
+	if grep -qoa "wrote B3 halt magic values" /sbin/shutdown ; then
 		eend 0
 		ENABLE_COMPAT="no"
 	else
@@ -35,6 +34,11 @@ pkg_setup() {
 
 }
 
+
+src_unpack() {
+	unpack ${A}
+	mv ${WORKDIR}/${PN}-* ${S}
+}
 
 src_compile() {
 	emake CC=$(tc-getCC)
