@@ -8,10 +8,11 @@ DESCRIPTION="Excito B2 manual"
 HOMEPAGE="http://www.excito.com/"
 
 if [[ ${PR} == "r0" ]] ; then
-	SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}.tar.xz"
+	SRC_URI="https://github.com/gordonb3/${PN}/archive/${PV}.tar.gz"
 else
 	REV=${PR/r/rc}
-	SRC_URI="http://b3.update.excito.org/pool/main/b/${PN}/${PN}_${PV}~${REV}.tar.xz"
+	SRC_URI="https://github.com/gordonb3/${PN}/archive/${PV}_${REV}.tar.gz"
+	S=${WORKDIR}/${PN}-${PV}_${REV}
 fi
 
 
