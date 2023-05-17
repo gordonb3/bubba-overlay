@@ -9,13 +9,17 @@ inherit systemd gnome2 flag-o-matic cmake toolchain-funcs
 
 DESCRIPTION="Excito File Transfer Daemon"
 HOMEPAGE="http://www.excito.com/"
-SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PN}-${PVR}.tar.gz"
+SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PF}.tar.gz"
 
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
 IUSE="+apache2 +upload libtorrent systemd"
+
+PATCHES=(
+	"${FILESDIR}/libeutils-0.7.39.patch"
+)
 
 DEPEND="
 	dev-libs/popt
