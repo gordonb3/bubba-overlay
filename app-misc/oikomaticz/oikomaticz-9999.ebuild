@@ -97,13 +97,14 @@ src_install() {
 
 	insinto /var/lib/${PN}
 	touch ${ED}/var/lib/${PN}/.keep_db_folder
+	doins ttnmqtt_aliasses.json
 
 	dodoc History.txt License.txt
 
 	# compress static web content
 	find ${ED}/opt/${PN}/www -name "*.css" -exec gzip -9 {} \;
 	find ${ED}/opt/${PN}/www -name "*.js" -exec gzip -9 {} \;
-	find ${ED}/opt/${PN}/www -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} 2>/dev/null || gzip -9 {}' \;
+	find ${ED}/opt/${PN}/www -name "*.html" -exec sh -c 'grep -q "<.--#embed" {} 2>/dev/null || gzip -9 {}' \;
 
 	# cleanup examples and non functional scripts
 	rm -rf ${ED}/opt/${PN}/{server_cert.pem,License.txt}

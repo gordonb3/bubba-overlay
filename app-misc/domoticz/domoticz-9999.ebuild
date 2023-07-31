@@ -23,7 +23,7 @@ HOMEPAGE="http://domoticz.com/"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS=""
-IUSE="systemd telldus openzwave python i2c +spi +internal-lua examples"
+IUSE="systemd telldus python i2c +spi +internal-lua examples"
 
 RDEPEND="net-misc/curl
 	 dev-libs/libusb
@@ -36,7 +36,6 @@ RDEPEND="net-misc/curl
 	 app-misc/mosquitto
 	 dev-db/sqlite
 	 telldus? ( app-misc/telldus-core )
-	 openzwave? ( dev-libs/openzwave )
 	 python? ( dev-lang/python )
 	 dev-libs/openssl
 	 dev-libs/cereal
@@ -77,14 +76,6 @@ src_prepare() {
 		  -e "/Found telldus/d" \
 		  -e "/find_path(TELLDUSCORE_INCLUDE/c  set(TELLDUSCORE_INCLUDE NO)" \
 		  -e "/Not found telldus-core/c  message(STATUS \"tellstick support disabled\")" \
-		  -i ${S}/CMakeLists.txt
-	}
-
-	# disable automatic scanning for OpenZWave
-	use openzwave || {
-		sed \
-		  -e "/pkg_check_modules(OPENZWAVE/cset(OPENZWAVE_FOUND NO)" \
-		  -e "s/==== OpenZWave.*!/OpenZWave support disabled/" \
 		  -i ${S}/CMakeLists.txt
 	}
 
@@ -143,10 +134,6 @@ src_configure() {
 	cmake_src_configure
 }
 
-src_compile() {
-	cmake_src_compile
-}
-
 src_install() {
 	cmake_src_install
 
@@ -159,27 +146,28 @@ src_install() {
 	fi
 
 	insinto /var/lib/${PN}
-	touch ${ED}var/lib/${PN}/.keep_db_folder
+	touch ${ED}/var/lib/${PN}/.keep_db_folder
+	doins ttnmqtt_aliasses.json
 
 	dodoc History.txt License.txt
 
 	# compress static web content
 	find ${ED} -name "*.css" -exec gzip -9 {} \;
 	find ${ED} -name "*.js" -exec gzip -9 {} \;
-	find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
+	find ${ED} -name "*.html" -exec sh -c 'grep -q "<.--#embed" {} || gzip -9 {}' \;
 
 	# cleanup examples and non functional scripts
 	rm -rf ${ED}/opt/${PN}/{updatedomo,server_cert.pem,History.txt,License.txt}
 	rm -rf ${ED}/opt/${PN}/scripts/{update_domoticz,restart_domoticz,download_update.sh,_domoticz_main*,logrotate}
 	use examples || {
-		rm -rf ${ED}opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
-		rm -rf ${ED}opt/${PN}/plugins/examples
+		rm -rf ${ED}/opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
+		rm -rf ${ED}/opt/${PN}/plugins/examples
 	}
-	rm -rf ${ED}opt/${PN}/dzVents/.gitignore
-	find ${ED}opt/${PN}/scripts -empty -type d -exec rmdir {} \;
+	rm -rf ${ED}/opt/${PN}/dzVents/.gitignore
+	find ${ED}/opt/${PN}/scripts -empty -type d -exec rmdir {} \;
 
 	# move scripts to /var/lib/domoticz
-	mv ${ED}opt/${PN}/scripts ${ED}var/lib/${PN}/
+	mv ${ED}/opt/${PN}/scripts ${ED}/var/lib/${PN}/
 }
 
 

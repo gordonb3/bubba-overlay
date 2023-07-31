@@ -10,9 +10,9 @@ LUA_VR="5.3.6"
 inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-CTIME="2023-02-14 14:48:00 +0100"
-COMMIT="79a3538c0"
-REVCOUNT="15090"
+CTIME="2023-07-21 17:23:44 +0200"
+COMMIT="19efd03"
+REVCOUNT="15453"
 
 LUA_V="${LUA_VR:0:3}"
 PKG_LUA="lua-${LUA_VR}.tar.gz"
@@ -165,10 +165,6 @@ src_configure() {
 	cmake_src_configure
 }
 
-src_compile() {
-	cmake_src_compile
-}
-
 src_install() {
 	cmake_src_install
 
@@ -181,27 +177,28 @@ src_install() {
 	fi
 
 	insinto /var/lib/${PN}
-	touch ${ED}var/lib/${PN}/.keep_db_folder
+	touch ${ED}/var/lib/${PN}/.keep_db_folder
+	doins ttnmqtt_aliasses.json
 
 	dodoc History.txt License.txt
 
 	# compress static web content
 	find ${ED} -name "*.css" -exec gzip -9 {} \;
 	find ${ED} -name "*.js" -exec gzip -9 {} \;
-	find ${ED} -name "*.html" -exec sh -c 'grep -q "<\!--#embed" {} || gzip -9 {}' \;
+	find ${ED} -name "*.html" -exec sh -c 'grep -q "<.--#embed" {} || gzip -9 {}' \;
 
 	# cleanup examples and non functional scripts
-	rm -rf ${ED}opt/${PN}/{updatedomo,server_cert.pem,History.txt,License.txt}
-	rm -rf ${ED}opt/${PN}/scripts/{update_domoticz,restart_domoticz,download_update.sh,_domoticz_main*,logrotate}
+	rm -rf ${ED}/opt/${PN}/{updatedomo,server_cert.pem,History.txt,License.txt}
+	rm -rf ${ED}/opt/${PN}/scripts/{update_domoticz,restart_domoticz,download_update.sh,_domoticz_main*,logrotate}
 	use examples || {
-		rm -rf ${ED}opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
-		rm -rf ${ED}opt/${PN}/plugins/examples
+		rm -rf ${ED}/opt/${PN}/scripts/{dzVents/examples,lua/*demo.lua,python/*demo.py,lua_parsers/example*,*example*}
+		rm -rf ${ED}/opt/${PN}/plugins/examples
 	}
-	rm -rf ${ED}opt/${PN}/dzVents/.gitignore
-	find ${ED}opt/${PN}/scripts -empty -type d -exec rmdir {} \;
+	rm -rf ${ED}/opt/${PN}/dzVents/.gitignore
+	find ${ED}/opt/${PN}/scripts -empty -type d -exec rmdir {} \;
 
 	# move scripts to /var/lib/domoticz
-	mv ${ED}opt/${PN}/scripts ${ED}var/lib/${PN}/
+	mv ${ED}/opt/${PN}/scripts ${ED}/var/lib/${PN}/
 }
 
 
