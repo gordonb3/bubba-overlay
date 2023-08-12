@@ -25,9 +25,9 @@ QA_PREBUILT='*'
 
 src_install() {
 	insinto /usr/src/linux-${PV}-gentoo${REVISION}
-	newins ${S}/boot/config-${PV}-gentoo${REVISION}-b3 .config
-	newins ${S}/boot/Module.symvers-${PV}-gentoo${REVISION}-b3 Module.symvers
-	newins ${S}/boot/System.map-${PV}-gentoo${REVISION}-b3 System.map
+	newins ${S}/boot/config-${PV}-gentoo${REVISION} .config
+	newins ${S}/boot/Module.symvers-${PV}-gentoo${REVISION} Module.symvers
+	newins ${S}/boot/System.map-${PV}-gentoo${REVISION} System.map
 	mv * "${ED}" || die
 }
 
@@ -51,7 +51,7 @@ pkg_prerm() {
 			# can restore it in the postrm phase
 			MODULES=$(ls -1d ${ROOT}/lib/modules/${PV}-gentoo${REVISION}-b3)
 			cp -al ${MODULES} ${ROOT}/lib/modules/_$(basename ${MODULES})
-			ls -1 ${ROOT}/boot/*${PV}-gentoo${REVISION}-b3 | while read FILE; do
+			ls -1 ${ROOT}/boot/*${PV}-gentoo${REVISION}* | while read FILE; do
 				cp -al ${FILE} ${ROOT}/boot/_$(basename ${FILE})
 			done
 			cp -a ${ROOT}/var/db/pkg/sys-kernel/${PF} /tmp/${PF}.pkgdb
@@ -65,7 +65,7 @@ pkg_postrm() {
 	if [[ -z "${REPLACED_BY_VERSION}" ]]; then
 		_UNAME=$(uname -r)
 		_UVERS=${_UNAME/-gentoo/}
-		_UVERS=${_UNAME/-b3/}
+		_UVERS=${_UVERS/-b3/}
 
 		if [[ "${_UVERS}" == "${PVR}" ]]; then
 			echo ""
@@ -77,7 +77,7 @@ pkg_postrm() {
 			MODULES=$(ls -1d ${ROOT}/lib/modules/_${PV}-gentoo${REVISION}-b3)
 			cp -al ${MODULES} $(echo ${MODULES} | sed "s/_//")
 			rm -rf ${MODULES}
-			ls -1 ${ROOT}/boot/_*${PV}-gentoo${REVISION}-b3 | while read FILE; do
+			ls -1 ${ROOT}/boot/_*${PV}-gentoo${REVISION}* | while read FILE; do
 				mv ${FILE} $(echo ${FILE} | sed "s/_//")
 			done
 			sh -c "while [[ -d \"${ROOT}/var/db/pkg/sys-kernel/${PF}\" ]]; do sleep 10; done; cp -a \"/tmp/${PF}.pkgdb\" \"${ROOT}/var/db/pkg/sys-kernel/${PF}\"" &
