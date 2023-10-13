@@ -20,7 +20,6 @@ DEPEND="
 	!sys-apps/b3-init-scripts
 	>=virtual/udev-215
 	>=sys-apps/ethtool-3.12.1
-	!virtual/bubba:0/0
 "
 
 RDEPEND="${DEPEND}
