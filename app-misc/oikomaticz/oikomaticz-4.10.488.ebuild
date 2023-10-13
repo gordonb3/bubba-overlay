@@ -16,7 +16,7 @@ DESCRIPTION="Home automation system"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
-IUSE="systemd telldus openzwave python i2c +spi gpio +internal-lua examples"
+IUSE="systemd telldus python i2c +spi gpio +internal-lua examples"
 
 VMAJOR=${PV:0:1}
 SLOT="0/${VMAJOR}"
@@ -33,7 +33,6 @@ RDEPEND="net-misc/curl
 	net-dns/c-ares
 	dev-db/sqlite
 	telldus? ( app-misc/telldus-core )
-	openzwave? ( dev-libs/openzwave )
 	python? ( >=dev-lang/python-3.4 )
 	dev-libs/openssl
 "
@@ -96,7 +95,6 @@ src_configure() {
 		-DWITH_LINUX_I2C=$(usex i2c)
 		-DWITH_SPI=$(usex spi)
 		-DWITH_GPIO=$(usex gpio)
-		-DWITH_OPENZWAVE=$(usex openzwave)
 		-DWITHOUT_OLDDB_SUPPORT=yes
 	)
 
