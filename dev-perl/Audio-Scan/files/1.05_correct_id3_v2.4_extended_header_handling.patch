@@ -152,18 +152,6 @@ index ed960ea..b6f860c 100644
  # Bug 15895, bad APE tag
  {
      my $s;
-diff --git a/t/mp3/v2.4-ext-header-invalid-too-short.mp3 b/t/mp3/v2.4-ext-header-invalid-too-short.mp3
-new file mode 100755
-index 0000000..516b235
-Binary files /dev/null and b/t/mp3/v2.4-ext-header-invalid-too-short.mp3 differ
-diff --git a/t/mp3/v2.4-ext-header-invalid.mp3 b/t/mp3/v2.4-ext-header-invalid.mp3
-new file mode 100755
-index 0000000..305ebb8
-Binary files /dev/null and b/t/mp3/v2.4-ext-header-invalid.mp3 differ
-diff --git a/t/mp3/v2.4-ext-header.mp3 b/t/mp3/v2.4-ext-header.mp3
-new file mode 100755
-index 0000000..8a3dd44
-Binary files /dev/null and b/t/mp3/v2.4-ext-header.mp3 differ
 diff --git a/t/wavpack.t b/t/wavpack.t
 index b29783f..0eb2661 100644
 --- a/t/wavpack.t

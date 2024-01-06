@@ -1,0 +1,216 @@
+mpeg-4: Smoothly handle small and ignore empty atoms.
+
+
+diff -ru Audio-Scan-1.01/Changes Audio-Scan-1.08/Changes
+--- Audio-Scan-1.01/Changes	2023-12-15 17:28:29.975463166 +0100
++++ Audio-Scan-1.08/Changes	2023-11-29 20:13:49.000000000 +0100
+@@ -2,6 +2,10 @@
+ 
+ Note: Bug numbers refer to bugs at http://bugs.slimdevices.com
+ 
++1.08	2023-11-29
++	- mpeg-4: Smoothly handle small and ignore empty atoms.
++	- Added Windows build support for Strawberry Perl 32/64-bit.
++
+ 1.07	Unreleased build
+ 	- ogg/opus: Improve/fix seek.
+ 
+diff -ru Audio-Scan-1.01/Makefile.PL Audio-Scan-1.08/Makefile.PL
+--- Audio-Scan-1.01/Makefile.PL	2023-12-15 16:56:45.766469836 +0100
++++ Audio-Scan-1.08/Makefile.PL	2023-11-29 20:13:49.000000000 +0100
+@@ -4,13 +4,14 @@
+ use File::Spec::Functions;
+ use Getopt::Long;
+ 
+-my (@INC, @LIBS);
++my (@CCFLAGS, @INC, @LIBS);
+ 
+ push @INC, '-Iinclude', '-Isrc';
+ if( $^O eq 'MSWin32' ) {
+ push @LIBS, '-Lwin32/ -lzlib';
+ }
+ else {
++push @CCFLAGS, '-Wdeclaration-after-statement';
+ push @LIBS, '-lz';
+ }
+ 
+@@ -23,6 +24,7 @@
+     PREREQ_PM         => { 'Test::Warn' => 0 },
+     ABSTRACT_FROM     => 'lib/Audio/Scan.pm',
+     AUTHOR            => 'Andy Grundman <andy@hybridized.org>',
++    CCFLAGS           => "$Config::Config{ccflags} " . join(' ', @CCFLAGS),
+     INC               => join(' ', @INC),
+     LIBS              => [ join(' ', @LIBS) ],
+     depend            => { 'Scan.c' => "$inc_files $src_files" },
+diff -ru Audio-Scan-1.01/include/common.h Audio-Scan-1.08/include/common.h
+--- Audio-Scan-1.01/include/common.h	2018-07-10 05:07:55.000000000 +0200
++++ Audio-Scan-1.08/include/common.h	2023-11-29 20:13:49.000000000 +0100
+@@ -33,7 +33,7 @@
+ 
+ #define DEFAULT_BLOCK_SIZE 4096
+ 
+-#ifndef _MSC_VER
++#ifndef _WIN32
+ // We use the built-in GUID type on Windows
+ typedef struct _GUID {
+   uint32_t Data1;
+diff -ru Audio-Scan-1.01/include/mp4.h Audio-Scan-1.08/include/mp4.h
+--- Audio-Scan-1.01/include/mp4.h	2018-02-14 15:18:03.000000000 +0100
++++ Audio-Scan-1.08/include/mp4.h	2023-11-29 20:13:49.000000000 +0100
+@@ -74,9 +74,9 @@
+   char *file;
+   Buffer *buf;
+   uint64_t file_size; // total file size
+-  uint64_t size;      // total size
+-  uint8_t  hsize;     // header size
+-  uint64_t rsize;     // remaining size
++  uint64_t size;      // total size of box; 0 => remainder of file
++  uint8_t  hsize;     // header size in box
++  uint64_t rsize;     // remaining size in box outside header
+   uint64_t audio_offset;
+   uint64_t audio_size;
+   HV *info;
+diff -ru Audio-Scan-1.01/lib/Audio/Scan.pm Audio-Scan-1.08/lib/Audio/Scan.pm
+--- Audio-Scan-1.01/lib/Audio/Scan.pm	2023-12-15 17:28:12.614125940 +0100
++++ Audio-Scan-1.08/lib/Audio/Scan.pm	2023-11-29 20:13:49.000000000 +0100
+@@ -2,7 +2,7 @@
+ 
+ use strict;
+ 
+-our $VERSION = '1.07';
++our $VERSION = '1.08';
+ 
+ require XSLoader;
+ XSLoader::load('Audio::Scan', $VERSION);
+diff -ru Audio-Scan-1.01/src/common.c Audio-Scan-1.08/src/common.c
+--- Audio-Scan-1.01/src/common.c	2018-02-14 15:18:03.000000000 +0100
++++ Audio-Scan-1.08/src/common.c	2023-11-29 20:13:49.000000000 +0100
+@@ -29,7 +29,7 @@
+     uint32_t actual_wanted;
+     unsigned char *tmp;
+ 
+-#ifdef _MSC_VER
++#ifdef _WIN32
+     uint32_t pos_check = PerlIO_tell(infile);
+ #endif
+ 
+@@ -48,7 +48,7 @@
+ 
+     if ( (read = PerlIO_read(infile, tmp, actual_wanted)) <= 0 ) {
+       if ( PerlIO_error(infile) ) {
+-#ifdef _MSC_VER
++#ifdef _WIN32
+         // Show windows specific error message as Win32 PerlIO_read does not set errno
+         DWORD last_error = GetLastError();
+         LPWSTR *errmsg = NULL;
+@@ -76,7 +76,7 @@
+       goto out;
+     }
+ 
+-#ifdef _MSC_VER
++#ifdef _WIN32
+     // Bug 16095, weird off-by-one bug seen only on Win32 and only when reading a filehandle
+     if (PerlIO_tell(infile) != pos_check + read) {
+       //PerlIO_printf(PerlIO_stderr(), "Win32 bug, pos should be %d, but was %d\n", pos_check + read, PerlIO_tell(infile));
+@@ -205,7 +205,7 @@
+ off_t
+ _file_size(PerlIO *infile)
+ {
+-#ifdef _MSC_VER
++#ifdef _WIN32
+   // Win32 doesn't work right with fstat
+   off_t file_size;
+ 
+diff -ru Audio-Scan-1.01/src/mp4.c Audio-Scan-1.08/src/mp4.c
+--- Audio-Scan-1.01/src/mp4.c	2023-12-15 16:56:45.767469856 +0100
++++ Audio-Scan-1.08/src/mp4.c	2023-11-29 20:13:49.000000000 +0100
+@@ -255,7 +255,7 @@
+   }
+ 
+   if (file_offset > mp4->audio_offset + mp4->audio_size) {
+-    PerlIO_printf(PerlIO_stderr(), "find_frame: file offset out of range (%d > %llu)\n", file_offset, mp4->audio_offset + mp4->audio_size);
++    PerlIO_printf(PerlIO_stderr(), "find_frame: file offset out of range (%d > %lld)\n", file_offset, mp4->audio_offset + mp4->audio_size);
+     ret = -1;
+     goto out;
+   }
+@@ -669,7 +669,7 @@
+ 
+   mp4->rsize = 0; // remaining size in box
+ 
+-  if ( !_check_buf(mp4->infile, mp4->buf, 16, MP4_BLOCK_SIZE) ) {
++  if ( !_check_buf(mp4->infile, mp4->buf, 8, MP4_BLOCK_SIZE) ) {
+     return 0;
+   }
+ 
+@@ -678,27 +678,38 @@
+   type[4] = '\0';
+   buffer_consume(mp4->buf, 4);
+ 
++  mp4->hsize = 8;
+   // Check for 64-bit size
+   if (size == 1) {
++    if ( !_check_buf(mp4->infile, mp4->buf, 8, MP4_BLOCK_SIZE) ) {
++      return 0;
++    }
+     size = buffer_get_int64(mp4->buf);
+     mp4->hsize = 16;
+   }
+-  else if (size == 0) {
+-    // XXX: size extends to end of file
+-    mp4->hsize = 8;
++
++  if (size == 0) { 
++    // XXX: box extends to end of file
++    /*nothing to do*/ ; // rsize=size=0
++  } 
++  else if (size < mp4->hsize) {
++    PerlIO_printf(PerlIO_stderr(), "Invalid box size in: %s\n", mp4->file);
++    return 0;
+   }
+   else {
+-    mp4->hsize = 8;
+-  }
+-
+-  if (size) {
++    // set size of the remainder of the box
+     mp4->rsize = size - mp4->hsize;
+-  }
++  } 
+ 
+   mp4->size = size;
+ 
+   DEBUG_TRACE("%s size %llu\n", type, size);
+ 
++  if (size == mp4->hsize) {
++    PerlIO_printf(PerlIO_stderr(), "Ignoring empty box of type %s in: %s\n", type, mp4->file);
++    return size;
++  }
++
+   if (mp4->seekhdr) {
+     // Copy and adjust header if seeking
+     char tmp_size[4];
+@@ -791,20 +802,17 @@
+     || FOURCC_EQ(type, "dinf")
+     || FOURCC_EQ(type, "stbl")
+     || FOURCC_EQ(type, "udta")
++    || FOURCC_EQ(type, "trak")
+   ) {
+     // These boxes are containers for nested boxes, return only the fact that
+-    // we read the header size of the container
++    // we read the header size of the container. Read the nested box the next call to this fn.
+     size = mp4->hsize;
+ 
+     if ( FOURCC_EQ(type, "trak") ) {
++      // Also a container, but we need to increment track_count too
+       mp4->track_count++;
+     }
+   }
+-  else if ( FOURCC_EQ(type, "trak") ) {
+-    // Also a container, but we need to increment track_count too
+-    size = mp4->hsize;
+-    mp4->track_count++;
+-  }
+   else if ( FOURCC_EQ(type, "mvhd") ) {
+     mp4->seen_moov = 1;
+ 
+

@@ -4,7 +4,7 @@
 EAPI=7
 
 DIST_AUTHOR=AGRUNDMA
-# Note: 1.06 was never officially marked `release`, so we are grabbing 1.01 and patch it to reach 1.06
+# Note: 1.08 is an unofficial release by the Logitech Media Server community, so we are grabbing 1.01 and patch it to reach 1.08
 DIST_VERSION=1.01
 inherit perl-module
 
@@ -33,6 +33,8 @@ PATCHES=( "${FILESDIR}/1.01_gentoo_fix_compiler_warnings.patch"
 	  "${FILESDIR}/1.04_allow_seek_in_mp4_files_with_32bit_sample_rates.patch"
 	  "${FILESDIR}/1.05_correct_id3_v2.4_extended_header_handling.patch"
 	  "${FILESDIR}/1.06_handle_large_comment_headers_in_opus_files.patch"
+	  "${FILESDIR}/1.07_ogg_opus_improve_seek.patch"
+	  "${FILESDIR}/1.08_improve_mp4_tiny_atom_handling.patch"
 )
 
 

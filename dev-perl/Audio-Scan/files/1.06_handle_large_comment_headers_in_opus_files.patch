@@ -105,7 +105,4 @@ index 1c902be..b9913d7 100644
  ## A few of the official Opus test files from https://people.xiph.org/~greg/opus_testvectors/
  
  {
-diff --git a/t/opus/large_embedded_picture.opus b/t/opus/large_embedded_picture.opus
-new file mode 100644
-index 0000000..91a1770
-Binary files /dev/null and b/t/opus/large_embedded_picture.opus differ
+
