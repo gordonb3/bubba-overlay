@@ -1,20 +1,22 @@
+# Gordon Bos <gordon@bosvangennip.nl> (23 Jan 2024)
+# Outdated package, service has been discontinued
+# Masked for removal in 30 days.
+net-misc/forked-easyfind-client
+
 # Gordon Bos <gordon@bosvangennip.nl> (25 Jan 2018)
 # Java 7 is no longer supported on Gentoo
 # Masked for removal in 30 days.
 =dev-java/openjdk-bin-7*
-
 
 # Gordon Bos <gordon@bosvangennip.nl> (25 Jan 2018)
 # Obsolete package, we no longer have a dependency on this
 # Masked for removal in 30 days.
 dev-libs/libeutils
 
-
 # Gordon Bos <gordon@bosvangennip.nl> (25 Jan 2018)
 # Outdated package, we no longer have a dependency on this
 # Masked for removal in 30 days.
 =dev-libs/libsigc++-2.4.1
-
 
 # Gordon Bos <gordon@bosvangennip.nl> (22 Jan 2018)
 # Outdated package, disfunctional with new Perl versions
@@ -22,7 +24,6 @@ dev-libs/libeutils
 # install net-misc/forked-easyfind-client instead
 # Masked for removal in 30 days.
 net-misc/bubba-easyfind
-
 
 # Gordon Bos <gordon@bosvangennip.nl> (22 Jan 2018)
 # Obsolete packages, replaced by sys-apps/bubba-info

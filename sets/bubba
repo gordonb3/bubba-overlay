@@ -1,6 +1,4 @@
-mail-client/bubba-roundcube
 mail-mta/postfix
-media-gfx/singapore
 net-dns/dnsmasq
 net-fs/davfs2
 net-fs/netatalk
@@ -8,9 +6,8 @@ net-fs/samba
 net-ftp/proftpd
 net-mail/fetchmail
 net-mail/dovecot
-net-misc/minidlna
 net-misc/ntp
-net-p2p/filetransferdaemon
-net-vpn/tor
+net-misc/wsdd
+sys-kernel/bubba-b3-kernel-bin
 sys-power/bubba-buttond
 virtual/bubba
