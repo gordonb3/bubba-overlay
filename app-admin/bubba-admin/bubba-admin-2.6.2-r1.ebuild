@@ -93,7 +93,7 @@ DEPEND="
 	${COMMON_DEPEND}
 	dev-util/cppunit
 	dev-util/cmake
-	sys-devel/libtool
+	dev-build/libtool
 	sys-devel/m4
 	dev-perl/Locale-PO
 	dev-perl/Getopt-Long-Descriptive

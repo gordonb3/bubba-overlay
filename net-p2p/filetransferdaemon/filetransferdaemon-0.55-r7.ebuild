@@ -31,7 +31,7 @@ DEPEND="
 	    <net-libs/libtorrent-rasterbar-1.1
 	    <dev-libs/boost-1.70
 	)
-	sys-devel/libtool
+	dev-build/libtool
 	sys-devel/m4
 "
 
