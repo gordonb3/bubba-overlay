@@ -50,9 +50,7 @@ RDEPEND="net-misc/curl
 	 dev-libs/libfmt
 "
 
-DEPEND="${RDEPEND}
-	dev-util/cmake
-"
+DEPEND="${RDEPEND}"
 
 CMAKE_IN_SOURCE_BUILD=yes
 

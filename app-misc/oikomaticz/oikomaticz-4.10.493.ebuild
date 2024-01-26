@@ -40,9 +40,7 @@ RDEPEND="net-misc/curl
 
 DEPEND="${RDEPEND}"
 
-BDEPEND="${RDEPEND}
-	dev-util/cmake
-"
+BDEPEND="${RDEPEND}"
 
 CMAKE_IN_SOURCE_BUILD=yes
 

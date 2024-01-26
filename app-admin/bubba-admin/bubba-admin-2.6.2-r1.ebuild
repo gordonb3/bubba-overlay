@@ -92,7 +92,6 @@ GUI_DEPEND="
 DEPEND="
 	${COMMON_DEPEND}
 	dev-util/cppunit
-	dev-util/cmake
 	dev-build/libtool
 	sys-devel/m4
 	dev-perl/Locale-PO
