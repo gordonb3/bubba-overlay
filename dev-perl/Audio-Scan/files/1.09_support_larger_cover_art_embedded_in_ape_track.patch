@@ -1,0 +1,38 @@
+diff -ru /var/tmp/portage/dev-perl/Audio-Scan-1.80.0/work/Audio-Scan-1.01/Changes Audio-Scan/Changes
+--- /var/tmp/portage/dev-perl/Audio-Scan-1.80.0/work/Audio-Scan-1.01/Changes	2024-01-28 12:58:46.985829444 +0100
++++ Audio-Scan/Changes	2024-01-26 16:06:14.374464081 +0100
+@@ -2,6 +2,9 @@
+ 
+ Note: Bug numbers refer to bugs at http://bugs.slimdevices.com
+ 
++1.09	2023-12-20
++	- ape/wavpack: support larger cover art embedded in track file.
++
+ 1.08	2023-11-29
+ 	- mpeg-4: Smoothly handle small and ignore empty atoms.
+ 	- Added Windows build support for Strawberry Perl 32/64-bit.
+diff -ru /var/tmp/portage/dev-perl/Audio-Scan-1.80.0/work/Audio-Scan-1.01/include/ape.h Audio-Scan/include/ape.h
+--- /var/tmp/portage/dev-perl/Audio-Scan-1.80.0/work/Audio-Scan-1.01/include/ape.h	2017-10-04 20:01:50.000000000 +0200
++++ Audio-Scan/include/ape.h	2024-01-26 16:06:14.374464081 +0100
+@@ -37,7 +37,7 @@
+ #define APE_NO_ID3             (1 << 5)
+ 
+ /* Artificial limits -- recommended but can be increased */
+-#define APE_MAXIMUM_TAG_SIZE   100 * 1024 // recommended limit is 8KB but have seen files that are larger (Bug 15324)
++#define APE_MAXIMUM_TAG_SIZE   2048 * 1024 // recommended limit is 8KB but have seen files that are larger (Bug 15324, https://github.com/Logitech/slimserver/issues/961)
+ #define APE_MAXIMUM_ITEM_COUNT 64
+ #define APE_ID3_MIN_TAG_SIZE   128
+ 
+diff -ru /var/tmp/portage/dev-perl/Audio-Scan-1.80.0/work/Audio-Scan-1.01/lib/Audio/Scan.pm Audio-Scan/lib/Audio/Scan.pm
+--- /var/tmp/portage/dev-perl/Audio-Scan-1.80.0/work/Audio-Scan-1.01/lib/Audio/Scan.pm	2024-01-28 12:58:46.987829481 +0100
++++ Audio-Scan/lib/Audio/Scan.pm	2024-01-26 16:06:14.376464119 +0100
+@@ -2,7 +2,7 @@
+ 
+ use strict;
+ 
+-our $VERSION = '1.08';
++our $VERSION = '1.09';
+ 
+ require XSLoader;
+ XSLoader::load('Audio::Scan', $VERSION);
+

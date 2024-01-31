@@ -7,13 +7,10 @@
 # changed; user-servicable parts go in /etc/conf.d/logitechmediaserver.
 lms=logitechmediaserver
 rundir=/run/${lms}
-logdir=/var/log/${lms}
 bindir=/opt/${lms}
-datadir=/var/lib/${lms}
-pidfile=${rundir}/${lms}.pid
-cachedir=${datadir}/cache
-prefsdir=${datadir}/preferences
+
 lmsuser=${lms}
+pidfile=${rundir}/${lms}.pid
 lmsbin=${bindir}/slimserver.pl
 
 depend() {
@@ -35,10 +32,8 @@ start() {
 		--background \
 		-- \
 		--quiet \
-		--pidfile=${pidfile} \
-		--cachedir=${cachedir} \
-		--prefsdir=${prefsdir} \
-		--logdir=${logdir} \
+		--nomysqueezebox \
+		--pidfile ${pidfile} \
 		${LMS_OPTS}
 
 	eend $? "Failed to start Logitech Media Server"
