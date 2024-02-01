@@ -1,0 +1,61 @@
+Between kernel 6.1 and kernel 6.6 the structure of the dts folder changed. This
+patch corrects that without losing the ability to build older kernels.
+
+
+--- a/buildkernel-b3
++++ b/buildkernel-b3
+@@ -61,7 +61,8 @@
+ CUSTOMDTSPATH=""
+ DTBNAME="kirkwood-b3.dtb"
+ DTSNAME="kirkwood-b3.dts"
+-DTSPATH="arch/arm/boot/dts/${DTSNAME}"
++DTSFOLDER="$(find arch/arm/boot/dts -name ${DTSNAME} -exec dirname {} \;)"
++DTSPATH="${DTSFOLDER}/${DTSNAME}"
+ DTSOLDPATH="${DTSPATH}.orig"
+ 
+ # used to unwind mountpoints on failure
+@@ -389,7 +390,7 @@
+         warning "(original in '${DTSOLDPATH}')..."
+     fi
+     show "Compiling DTB..."
+-    make ${MAKEEXTRAS} "${DTBNAME}"
++    make ${MAKEEXTRAS} "$(find arch/arm/boot/dts -name ${DTBNAME} -printf %P)"
+     show "Compiling modules..."
+     ${PUMP} make -j${NUMTHREADS} ${MAKEEXTRAS} modules
+     show "Installing modules..."
+@@ -405,7 +406,7 @@
+     echo -n -e \\x11\\x3f\\x2f\\xee >> cache_head_patch
+     echo -n -e \\x00\\x30\\xa0\\xe3 >> cache_head_patch
+     echo -n -e \\x17\\x3f\\x07\\xee >> cache_head_patch
+-    cat cache_head_patch zImage "dts/${DTBNAME}" > zImage-dts-appended
++    cat cache_head_patch zImage "dts/$(find arch/arm/boot/dts -name ${DTBNAME} -printf %P)" > zImage-dts-appended
+     rm cache_head_patch
+     show "Creating a uImage from this, targeting 0x00008000..."
+     mkimage -A arm -O linux -T kernel -C none -a 0x00008000 -e 0x00008000 \
+@@ -433,7 +434,7 @@
+         fi
+     done
+     cp "${IMAGE_SOURCE}" "${TGTDIR}/${IMAGE_TARGET}"
+-    cp "arch/arm/boot/dts/${DTBNAME}" "${TGTDIR}/${DTBNAME}"
++    cp "${DTSFOLDER}/${DTBNAME}" "${TGTDIR}/${DTBNAME}"
+     cp System.map "${TGTDIR}/System.map"
+     cp .config "${TGTDIR}/config"
+ }
+@@ -449,7 +450,7 @@
+         fi
+     done
+     cp uImage "${TGTDIR}/install.itb" # U-Boot will accept this
+-    cp "arch/arm/boot/dts/${DTBNAME}" "${TGTDIR}/${DTBNAME}"
++    cp "${DTSFOLDER}/${DTBNAME}" "${TGTDIR}/${DTBNAME}"
+     cp System.map "${TGTDIR}/System.map"
+     cp .config "${TGTDIR}/config"
+ }
+@@ -469,7 +470,7 @@
+     fi
+ }
+ check_if_running_in_linux_source_dir() {
+-    if [[ ! -s arch/arm/boot/dts/kirkwood-b3.dts ]]; then
++    if [[ ! -s ${DTSPATH} ]]; then
+         die "Please run in the top-level Linux kernel directory"
+     fi
+ }
