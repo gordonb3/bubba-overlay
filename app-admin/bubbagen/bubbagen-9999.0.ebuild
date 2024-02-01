@@ -110,6 +110,7 @@ src_install() {
 	rm etc/portage/make.conf
 	insinto /etc
 	cp -aR etc/portage ${ED}/etc/
+	cp -aR etc/local.d ${ED}/etc/
 
 	exeinto /opt/bubba/sbin
 	doexe sbin/bubba-restore-defaults.sh
