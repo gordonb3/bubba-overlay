@@ -1,0 +1,52 @@
+Fixes various deprecation warnings
+
+
+diff -ru a/system/core/Common.php b/system/core/Common.php
+--- a/system/core/Common.php	2015-04-14 23:40:02.000000000 +0200
++++ b/system/core/Common.php	2024-02-01 13:32:04.344291790 +0100
+@@ -345,7 +345,7 @@
+ */
+ if ( ! function_exists('log_message'))
+ {
+-	function log_message($level = 'error', $message, $php_error = FALSE)
++	function log_message($level, $message, $php_error = FALSE)
+ 	{
+ 		static $_log;
+ 
+diff -ru a/system/core/Output.php b/system/core/Output.php
+--- a/system/core/Output.php	2015-04-14 23:40:02.000000000 +0200
++++ b/system/core/Output.php	2024-02-01 14:04:31.383050581 +0100
+@@ -360,7 +360,7 @@
+ 
+ 		$elapsed = $BM->elapsed_time('total_execution_time_start', 'total_execution_time_end');
+ 
+-		if ($this->parse_exec_vars === TRUE)
++		if ($this->parse_exec_vars === TRUE && $output)
+ 		{
+ 			$memory	 = ( ! function_exists('memory_get_usage')) ? '0' : round(memory_get_usage()/1024/1024, 2).'MB';
+ 
+diff -ru a/system/helpers/html_helper.php b/system/helpers/html_helper.php
+--- a/system/helpers/html_helper.php	2015-04-14 23:40:02.000000000 +0200
++++ b/system/helpers/html_helper.php	2024-02-01 13:37:37.748635918 +0100
+@@ -104,7 +104,7 @@
+  */
+ if ( ! function_exists('_list'))
+ {
+-	function _list($type = 'ul', $list, $attributes = '', $depth = 0)
++	function _list($type, $list, $attributes = '', $depth = 0)
+ 	{
+ 		// If an array wasn't submitted there's nothing to do...
+ 		if ( ! is_array($list))
+diff -ru a/system/libraries/Log.php b/system/libraries/Log.php
+--- a/system/libraries/Log.php	2015-04-14 23:40:02.000000000 +0200
++++ b/system/libraries/Log.php	2024-02-01 13:34:18.242095358 +0100
+@@ -70,7 +70,7 @@
+ 	 * @param	bool	whether the error is a native PHP error
+ 	 * @return	bool
+ 	 */
+-	public function write_log($level = 'error', $msg, $php_error = FALSE)
++	public function write_log($level, $msg, $php_error = FALSE)
+ 	{
+ 		if ($this->_enabled === FALSE)
+ 		{
+
