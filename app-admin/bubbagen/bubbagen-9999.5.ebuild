@@ -10,7 +10,7 @@ EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
 
 DESCRIPTION="The Bubba main package"
 HOMEPAGE="https://github.com/gordonb3/bubbagen"
-KEYWORDS="~arm ~ppc"
+KEYWORDS=""
 VMAJOR=${PV:0:4}
 REVISION=$((${PV:5}%5))
 #SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VMAJOR}.tar.gz -> ${PF}.tgz"
