@@ -37,7 +37,7 @@ COMMON_DEPEND="
 	nftables? ( net-firewall/nftables )
 	systemd? (
 	  sys-apps/systemd
-	  net-misc/networkmanager[dhcpcd,-dhclient]
+	  net-misc/networkmanager
 	)
 "
 
