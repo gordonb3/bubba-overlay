@@ -39,6 +39,9 @@ COMMON_DEPEND="
 	  sys-apps/systemd
 	  net-misc/networkmanager
 	)
+	!systemd? (
+	  net-misc/dhcpcd
+	)
 "
 
 BACKEND_DEPEND="
@@ -68,7 +71,6 @@ DISKMANAGER_DEPEND="
 "
 
 NETWORKMANAGER_DEPEND="
-	net-misc/dhcpcd
 	wifi? ( net-misc/bridge-utils
 		net-wireless/hostapd
 		net-wireless/iw
@@ -248,8 +250,9 @@ bubba_admin_install_GUI() {
 src_install() {
 	cmake_src_install
 
-#	exeinto /opt/bubba/bin
-#	doexe bubba-backend/new_printer_init.sh
+	if use systemd; then
+		rm -rf ${ED}/lib
+	fi
 
 	dosym /opt/bubba/bin/dpkg-query /usr/bin/dpkg-query
 
@@ -287,11 +290,6 @@ src_install() {
 	doins bubba-backend/sysctl.conf bubba-backend/auth_template.xml
 	doins ${FILESDIR}/*.conf ${FILESDIR}/*.nft ${FILESDIR}/*.crond
 	doins contrib/gentoo/apache2.vhost contrib/gentoo/nginx.vhost
-
-	if use systemd; then
-		insinto /etc/NetworkManager/conf.d
-		echo -e "[main]\ndhcp=dhcpcd\n" > ${ED}/etc/NetworkManager/conf.d/dhcpcd.conf
-	fi
 }
 
 pkg_postinst() {
