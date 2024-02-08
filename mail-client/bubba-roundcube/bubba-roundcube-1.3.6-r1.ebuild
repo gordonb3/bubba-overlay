@@ -71,14 +71,14 @@ src_install() {
 	doins -r [[:lower:]]* SQL
 	doins .htaccess
 
-	fowners apache.apache "${MY_HTDOCSDIR}"/logs
-	fowners apache.apache "${MY_HTDOCSDIR}"/temp
+	fowners apache:apache "${MY_HTDOCSDIR}"/logs
+	fowners apache:apache "${MY_HTDOCSDIR}"/temp
 
 	insinto /var/log/roundcube
-	fowners apache.apache /var/log/roundcube
+	fowners apache:apache /var/log/roundcube
 
 	insinto /var/lib/roundcube
-	fowners apache.apache /var/lib/roundcube
+	fowners apache:apache /var/lib/roundcube
 }
 
 pkg_postinst() {

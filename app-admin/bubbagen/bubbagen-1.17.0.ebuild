@@ -8,8 +8,13 @@ DESCRIPTION="The Bubba main package"
 HOMEPAGE="https://github.com/gordonb3/bubbagen"
 KEYWORDS="~arm ~ppc"
 LICENSE="GPL-3+"
-SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${PV}.tar.gz -> ${PF}.tgz"
 VMAJOR=${PV:0:4}
+REVISION=${PV:5}
+VRELEASE=${VMAJOR}
+if [ ${REVISION} -gt 0 ]; then
+  VRELEASE=${VMAJOR}.${REVISION}
+fi
+SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VRELEASE}.tar.gz -> ${PF}.tgz"
 SLOT="0/${VMAJOR}"
 RESTRICT="mirror"
 IUSE="bindist systemd"

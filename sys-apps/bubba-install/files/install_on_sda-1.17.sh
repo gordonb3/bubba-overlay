@@ -34,6 +34,9 @@
 #  - injection of systemd derived methods in openrc caused installer to
 #       configure boot.ini for systemd always. 
 #
+# Feb 2024 - gordonb3 <gordon@bosvangennip.nl>
+#  - switched root filesystem layout to merged-usr
+#
 
 declare -r LOG=/var/log/gentoo_install.log
 declare -r TARGETDEV=sda
