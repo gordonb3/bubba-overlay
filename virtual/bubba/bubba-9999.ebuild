@@ -10,10 +10,5 @@ KEYWORDS=""
 IUSE="systemd"
 
 RDEPEND="
-	!systemd? (
-		app-admin/bubbagen:0/${PV}
-	)
-	systemd? (
-		app-admin/bubbagen:0/${PV}.5
-	)
+	app-admin/bubbagen:0/${PV}
 "

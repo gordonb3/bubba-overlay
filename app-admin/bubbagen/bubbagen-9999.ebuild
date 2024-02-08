@@ -1,25 +1,22 @@
-# Copyright 2021 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2015-2022 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
 EAPI="7"
 
+inherit git-r3
+
+EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
+
 DESCRIPTION="The Bubba main package"
 HOMEPAGE="https://github.com/gordonb3/bubbagen"
-KEYWORDS="~arm ~ppc"
-VMAJOR=${PV:0:4}
-REVISION=$((${PV:5}%5))
-VRELEASE=${VMAJOR}
-if [ ${REVISION} -gt 0 ]; then
-  VRELEASE=${VMAJOR}.${REVISION}
-fi
-SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VRELEASE}.tar.gz -> ${PF}.tgz"
+KEYWORDS=""
 LICENSE="GPL-3+"
-SLOT="0/${VMAJOR}.5"
+#SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${PV}.tar.gz -> ${PF}.tgz"
+VMAJOR=${PV:0:4}
+SLOT="0/${VMAJOR}"
 RESTRICT="mirror"
-IUSE="systemd bindist"
-
-REQUIRED_USE="systemd"
+IUSE="bindist systemd"
 
 # Conflicts/replaces Sakaki's b3-init-scripts
 DEPEND="
@@ -29,10 +26,9 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}
-	app-admin/bubba-admin[systemd]
+	app-admin/bubba-admin
 	app-admin/bubba-manual
-	arm? ( sys-power/bubba-buttond[systemd] )
-	sys-apps/systemd
+	arm? ( sys-power/bubba-buttond )
 "
 
 REMOVELIST=""
@@ -63,12 +59,6 @@ pkg_setup() {
 	KERNEL_MINOR=$(uname -r | cut -d. -f2)
 }
 
-src_unpack() {
-	default
-
-	mv ${WORKDIR}/${PN}* ${S}
-}
-
 src_prepare() {
 	eapply_user
 
@@ -76,8 +66,14 @@ src_prepare() {
 	# clean up the bogus content here.
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
-	# revision 5 and higher: combine systemd specific files with the regular openrc tree
-	[[ ${PV:5} -gt 4 ]] && cp -a ${S}/systemd/* ${S}/
+	if use systemd; then
+		cp -al ${S}/systemd/* ${S}/
+		cd ${S}/etc/local.d
+		ls -1 | while read FILE; do
+			grep -q -m1 rc-service ${FILE} && rm ${FILE}
+		done
+		cd - > /dev/null
+	fi
 
 	# if enabled, include config files required to prevent bindist conflicts
 	use bindist && [[ -d ${S}/bindist ]] && cp -a ${S}/bindist/* ${S}/
@@ -106,8 +102,11 @@ src_compile() {
 }
 
 src_install() {
+	# construct version from git info
+	LAST_TAG=$(git describe --abbrev=0 --tags)
+	LAST_COMMIT=$(date -d @$(git show -s --format=%ct) +"%y%m%d")
         dodir /etc/bubba
-	echo ${PV} > ${ED}/etc/bubba/bubba.version
+	echo "${LAST_TAG:0:5}.$((${PV:5}+4))_pre${LAST_COMMIT}" > ${ED}/etc/bubba/bubba.version
 
 	insinto /var/lib/bubba
 	doins bubba-default-config.tgz
@@ -134,56 +133,58 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [[ -n "${REMOVELIST}" ]]; then
+	if [[ ! -z "${REMOVELIST}" ]]; then
 		elog "Removed obsolete portage config files from previous version"
 		rm -f ${REMOVELIST}
 	fi
 
 	if use bindist; then
-		CONF_BINDIST=$(grep "^USE=" ${ROOT}/etc/portage/make.conf | cut -d# -f1 | grep bindist)
+		CONF_BINDIST=$(grep "^USE=" /etc/portage/make.conf | cut -d# -f1 | grep bindist)
 		if [[ -z "${CONF_BINDIST}" ]]; then
-			EMPTYUSELINE=$(grep -m1 -n "^USE=\"\"" ${ROOT}/etc/portage/make.conf | cut -d: -f1)
+			EMPTYUSELINE=$(grep -m1 -n "^USE=\"\"" /etc/portage/make.conf | cut -d: -f1)
 			if [[ -z "${EMPTYUSELINE}" ]]; then
-				sed -e "${EMPTYUSELINE} s/^USE=\"\"/USE=\"bindist\"/" -i ${ROOT}/etc/portage/make.conf
+				sed -e "${EMPTYUSELINE} s/^USE=\"\"/USE=\"bindist\"/" -i /etc/portage/make.conf
 			else
-				LINENUMBER=$(grep -m1 -n "^USE=\"" ${ROOT}/etc/portage/make.conf | cut -d: -f1)
-				sed -e "${LINENUMBER} s/^USE=\"/USE=\"bindist\"\nUSE=\"\${USE} /" -i ${ROOT}/etc/portage/make.conf
+				LINENUMBER=$(grep -m1 -n "^USE=\"" /etc/portage/make.conf | cut -d: -f1)
+				sed -e "${LINENUMBER} s/^USE=\"/USE=\"bindist\"\nUSE=\"\${USE} /" -i /etc/portage/make.conf
 			fi
 			elog "Added bindist USE flag to your global make.conf"
 		fi
 
 		# enforce overwrite of bindist conf files
-		find ${ROOT}/etc/portage/ -name ._cfg*bindist* | while read FILE; do
+		find /etc/portage/ -name ._cfg*bindist* | while read FILE; do
 			CONFFILE=$(echo ${FILE} | sed "s/\._cfg[0-9]*_//")
 			rm -f ${CONFFILE}
 			mv ${FILE} ${CONFFILE}
 		done
 	else
-		grep -q "^USE=\"[^#]*bindist" ${ROOT}/etc/portage/make.conf && elog "Removed bindist USE flag from your global make.conf"
-		sed -e "s/^\(USE=\"[^#]*\)bindist\(.*\)$/\1\2/" -e "s/ *\" */\"/g" -e "s/   */ /g" -i ${ROOT}/etc/portage/make.conf
+		grep -q "^USE=\"[^#]*bindist" /etc/portage/make.conf && elog "Removed bindist USE flag from your global make.conf"
+		sed -e "s/^\(USE=\"[^#]*\)bindist\(.*\)$/\1\2/" -e "s/ *\" */\"/g" -e "s/   */ /g" -i /etc/portage/make.conf
 
-		BINDIST_CONFS=$(find ${ROOT}/etc/portage -name *bindist*)
-		[[ -n "${BINDIST_CONFS}" ]] && elog "Removed package specific restrictions only required for bindist"
+		BINDIST_CONFS=$(find /etc/portage -name *bindist*)
+		[[ ! -z "${BINDIST_CONFS}" ]] && elog "Removed package specific restrictions only required for bindist"
 		rm -f ${BINDIST_CONFS}
 	fi
 
 	# cleanup distcc-fix in /usr/local/sbin (not a package file in previous releases)
-	[[ -e ${ROOT}/usr/local/sbin/distcc-fix ]] && rm -f ${ROOT}/usr/local/sbin/distcc-fix
+	[[ -e /usr/local/sbin/distcc-fix ]] && rm -f /usr/local/sbin/distcc-fix
 
 	# cleanup sakaki repositories as packages are throwing errors in emerge
 	LOCALPORTAGE=${ROOT}/usr/local/portage
-	if [[ -e ${LOCALPORTAGE}/gentoo-b3/.git ]]; then
-		rm -v -rf ${LOCALPORTAGE}/gentoo-b3/{.git,.gitignore,app-portage,dev-libs,dev-python,net-misc,net-wireless,sys-apps,sys-power}
-		rm -v -rf ${LOCALPORTAGE}/gentoo-b3/sys-kernel/gentoo-b3-kernel-bin
+	if [[ -d ${LOCALPORTAGE}/gentoo-b3 ]]; then\
+		rm -v -rf ${LOCALPORTAGE}/gentoo-b3
+		rm -v -f ${ROOT}/etc/portage/repos.conf/gentoo-b3.conf
+	fi
+
+	if [[ -e ${LOCALPORTAGE}/sakaki-tools/.git ]]; then
 		rm -v -rf ${LOCALPORTAGE}/sakaki-tools/{.git,.gitignore,acct-group,acct-user,app-admin,app-crypt,dev-java,dev-python,eclass,media-gfx,net-im,sys-apps,sys-fs}
 		rm -v -rf ${LOCALPORTAGE}/sakaki-tools/app-portage/{emtee,mvn2ebuild,porthash,porthole}
 		sed -e "s/yes/no/" -i ${ROOT}/etc/portage/repos.conf/gentoo-b3.conf -i ${ROOT}/etc/portage/repos.conf/sakaki-tools.conf
 	fi
 
 	# upgrade remaining packages from sakaki repositories to EAPI 8
-	if (grep -q "EAPI=\"*5" ${LOCALPORTAGE}/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild ); then
+	if (grep -q "EAPI=\"*5" ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild ); then
 		sed -e "s/^EAPI=.*$/EAPI=\"8\"/" \
-		    -i ${LOCALPORTAGE}/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild \
 		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild \
 		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild
 		grep -m1 "EAPI=\"*5" ${LOCALPORTAGE}/*/*/*/*.ebuild | while read match; do

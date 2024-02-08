@@ -1,23 +1,3 @@
-diff -ru a/gentoo-b3/sys-kernel/buildkernel-b3/Manifest b/gentoo-b3/sys-kernel/buildkernel-b3/Manifest
---- a/gentoo-b3/sys-kernel/buildkernel-b3/Manifest
-+++ b/gentoo-b3/sys-kernel/buildkernel-b3/Manifest
-@@ -1,4 +1 @@
--DIST buildkernel-b3-1.0.3.tar.gz 19486 SHA256 078427e7b728ae665dcc44d57bddee1a666da8bac5d8393a667c4bb0dfb20292 SHA512 5fdc50a84b42334916946bdeef3e773946d33bd25250e2a8881414c089081a5cf0f1bed84151518d0d4fd043c983aa1c6fc49759dd5ff4c076a49de75b64cd16 WHIRLPOOL 5648969f7809713753aae404b9db7bff77bd1b7d60f9afda61b79618f3842e989d61fb55444f9aa38619947f35226bf7ac0fbe6451ca2406d6a8333ca63b8a80
--DIST buildkernel-b3-1.0.4.tar.gz 19812 SHA256 c1605d96fb6e974cd02d8cc5c0e556145582a5106785af16a4c6f3fceb47d22e SHA512 2ed0c053f521669149032e9fd02f3d8391e931fe2bd99554e4dd4d9193693a2aec57f23cc2f26d3bf521b030388bf7b22f15fc9a104454af017ccb2c13f4d037 WHIRLPOOL 65ba0e86f071004fe7180bc648cccac58671d613e95aec99d8285ee1b0ed4032b0ab650a9ae039fda5fe2cd0a4cd2ed7d71baa1c902a4bb335588900164191b5
--DIST buildkernel-b3-1.0.5.tar.gz 19815 SHA256 66a269ea155adc7303b035beb0379f6dd6edadc273a5c1b4c1bfe9fc731a327a SHA512 40f21739ba59819852a526dbebb18dddaac471b16c9a50c47541dbc7aa521a64b649d48defb0cbc9b020bc8d72fa20da68ec721b496cd354528e1b6cb53ecd29 WHIRLPOOL 187c7130beeaecf42e2eae1b9e6b4c2e0f11769ecaa6d40125a3f12e04f8576e50bbcd1d4d6ea5bde74e69b6187314c8092f7b780bf42ccfbf2240b7fac52a75
--DIST buildkernel-b3-1.0.6.tar.gz 19810 SHA256 acb77332b45d71d8bf6cfb498b0ef2fe6b89edd4409c5ac5944eb51edac9d09d SHA512 6b100cf23cc40a94e7482c96a96a8470103065372d97195ea979da5a3d5d2e84ec4387c709b1cf649a89ad3c44596807f0cf5c91557c568f742940de4fba11a5 WHIRLPOOL c11ee47cf57e65234b5078411cd1487f556ac8a71eb06fb01f99f977438e23d7f481656115181375599872f75afdbe8bdec35f4f34b1b5cecd1e288f2f8ca0fb
-+DIST buildkernel-b3-1.0.6.tar.gz 19810 BLAKE2B cfc8caeba09952389e2a6988a9718303c8557b2e8db6b2dcfc8ccb93793030379a602a8a3914a790d6b8179dc55c3cb0302590e3653b99b32fe10d4a313f8108 SHA512 6b100cf23cc40a94e7482c96a96a8470103065372d97195ea979da5a3d5d2e84ec4387c709b1cf649a89ad3c44596807f0cf5c91557c568f742940de4fba11a5
-diff -ru a/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild b/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild
---- a/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild	2022-08-16 13:35:17.545306695 +0200
-+++ b/gentoo-b3/sys-kernel/buildkernel-b3/buildkernel-b3-1.0.6.ebuild	2022-08-16 13:47:45.192027795 +0200
-@@ -5,7 +5,6 @@
- 
- EAPI="8"
- 
--inherit eutils
- 
- DESCRIPTION="Script to build a bootable Linux kernel for the Excito B3"
- BASE_SERVER_URI="https://github.com/sakaki-"
 diff -ru a/sakaki-tools/app-portage/genup/Manifest b/sakaki-tools/app-portage/genup/Manifest
 --- a/sakaki-tools/app-portage/genup/Manifest
 +++ b/sakaki-tools/app-portage/genup/Manifest
