@@ -12,7 +12,7 @@ inherit java-vm-2 prefix
 MY_PN=${PN/-*/}
 
 DEB_DIST="http://ftp.nl.debian.org/debian/pool/main/o"
-DEB_VERSION="8u252-b09-1~deb9u1"
+DEB_VERSION="8u402-ga-2"
 DEB_PKGS=( jre-headless jdk-headless )
 DEB_ARCH="armel" 
 
@@ -52,7 +52,7 @@ RDEPEND=">=dev-libs/glib-2.42:2
 	>=sys-devel/gcc-4.9.3
 	>=sys-libs/glibc-2.22
 	>=sys-libs/zlib-1.2.8-r1
-	virtual/jpeg:62
+	virtual/jpeg
 	sys-apps/pcsc-lite
 	x11-base/xorg-proto
 	x11-libs/libX11
