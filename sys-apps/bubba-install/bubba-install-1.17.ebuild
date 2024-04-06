@@ -16,7 +16,7 @@ IUSE="liveusb sysinit minimal"
 # required by Portage, as we have no SRC_URI...
 S="${WORKDIR}"
 
-DEPEND="virtual/bubba"
+DEPEND=""
 RDEPEND="${DEPEND}"
 
 pkg_preinst() {
