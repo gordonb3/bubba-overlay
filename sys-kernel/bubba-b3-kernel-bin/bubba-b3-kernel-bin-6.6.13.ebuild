@@ -42,14 +42,13 @@ pkg_prerm() {
 		ebegin "Checking current running kernel version"
 		_UNAME=$(uname -r)
 		_UVERS=${_UNAME/-gentoo/}
-		_UVERS=${_UNAME/-b3/}
 
 		if [[ "${_UVERS}" == "${PVR}" ]]; then
 			eend 1
 			# calling die() in this state appears to be ignored by emerge
 			# we therefore create a backup of the kernel and modules so we
 			# can restore it in the postrm phase
-			MODULES=$(ls -1d ${ROOT}/lib/modules/${PV}-gentoo${REVISION}-b3)
+			MODULES=$(ls -1d ${ROOT}/lib/modules/${PV}-gentoo${REVISION})
 			cp -al ${MODULES} ${ROOT}/lib/modules/_$(basename ${MODULES})
 			ls -1 ${ROOT}/boot/*${PV}-gentoo${REVISION}* | while read FILE; do
 				cp -al ${FILE} ${ROOT}/boot/_$(basename ${FILE})
