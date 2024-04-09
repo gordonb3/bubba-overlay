@@ -35,6 +35,7 @@ REMOVELIST=""
 IS_BINDIST=""
 KERNEL_MAJOR=""
 KERNEL_MINOR=""
+PROFILE=0
 
 pkg_setup() {
 	[[ -e ${ROOT}/var/lib/bubba/bubba-default-config.tgz ]] || return
@@ -57,6 +58,9 @@ pkg_setup() {
 	# get kernel version
 	KERNEL_MAJOR=$(uname -r | cut -d. -f1)
 	KERNEL_MINOR=$(uname -r | cut -d. -f2)
+
+	# get profile version
+	PROFILE=$(readlink /etc/portage/make.profile | sed -e "s/[^0-9]//g" -e "s/^\(..\).*/\1/")
 }
 
 src_prepare() {
@@ -67,7 +71,7 @@ src_prepare() {
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
 	if use systemd; then
-		cp -al ${S}/systemd/* ${S}/
+		cp -a ${S}/systemd/* ${S}/
 		cd ${S}/etc/local.d
 		ls -1 | while read FILE; do
 			grep -q -m1 rc-service ${FILE} && rm ${FILE}
@@ -88,14 +92,18 @@ src_prepare() {
 }
 
 src_compile() {
-	[[ -d ${WORKDIR}/oldconfig ]] || return
+	if [ -d ${WORKDIR}/oldconfig ]; then
+		# build list of portage config files that need to be removed
+		cd ${WORKDIR}/oldconfig
+		find etc/portage -type f | while read FILE; do
+			[[ -e ${S}/${FILE} ]] || REMOVELIST="${REMOVELIST} /${FILE}"
+		done
+		cd - > /dev/null
+	fi
 
-	# build list of portage config files that need to be removed
-	cd ${WORKDIR}/oldconfig
-	find etc/portage -type f | while read FILE; do
-		[[ -e ${S}/${FILE} ]] || REMOVELIST="${REMOVELIST} /${FILE}"
-	done
-	cd - > /dev/null
+	if [ ${PROFILE} -ge 23 ]; then
+		rm ${S}/etc/portage/package.use.force/merged-usr
+	fi
 
 	elog "Create bubba-default-config archive"
 	tar -czf bubba-default-config.tgz etc
@@ -191,5 +199,12 @@ pkg_postinst() {
 		    rm ${match%:*}
 		done
 		patch -d ${LOCALPORTAGE} -p1 < ${FILESDIR}/sakaki-EAPI-upgrade.patch
+	fi
+
+	# remove obsolete merged-usr entries in make.conf
+	if [ ${PROFILE} -ge 23 ]; then
+		sed -e "s/\-split\-usr//" -e "s/^UNINSTALL_IGNORE/#UNINSTALL_IGNORE/" -i /etc/portage/make.conf
+		[[ -e /etc/portage/package.use.force/merged-usr ]]  && rm -v /etc/portage/package.use.force/merged-usr
+		[[ -d /etc/portage/package.use.force ]] && rmdir -v /etc/portage/package.use.force
 	fi
 }

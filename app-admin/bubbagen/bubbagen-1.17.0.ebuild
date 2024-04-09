@@ -74,7 +74,7 @@ src_prepare() {
 	find ${S} -name ~nofiles~ -exec rm {} \;
 
 	if use systemd; then
-		cp -al ${S}/systemd/* ${S}/
+		cp -a ${S}/systemd/* ${S}/
 		cd ${S}/etc/local.d
 		ls -1 | while read FILE; do
 			grep -q -m1 rc-service ${FILE} && rm ${FILE}
@@ -95,14 +95,14 @@ src_prepare() {
 }
 
 src_compile() {
-	[[ -d ${WORKDIR}/oldconfig ]] || return
-
-	# build list of portage config files that need to be removed
-	cd ${WORKDIR}/oldconfig
-	find etc/portage -type f | while read FILE; do
-		[[ -e ${S}/${FILE} ]] || REMOVELIST="${REMOVELIST} /${FILE}"
-	done
-	cd - > /dev/null
+	if [ -d ${WORKDIR}/oldconfig ]; then
+		# build list of portage config files that need to be removed
+		cd ${WORKDIR}/oldconfig
+		find etc/portage -type f | while read FILE; do
+			[[ -e ${S}/${FILE} ]] || REMOVELIST="${REMOVELIST} /${FILE}"
+		done
+		cd - > /dev/null
+	fi
 
 	elog "Create bubba-default-config archive"
 	tar -czf bubba-default-config.tgz etc
