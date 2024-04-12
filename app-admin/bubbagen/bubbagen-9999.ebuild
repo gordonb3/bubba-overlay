@@ -103,6 +103,7 @@ src_compile() {
 
 	if [ ${PROFILE} -ge 23 ]; then
 		rm ${S}/etc/portage/package.use.force/merged-usr
+		rmdir ${S}/etc/portage/package.use.force 2>/dev/null
 	fi
 
 	elog "Create bubba-default-config archive"
@@ -120,7 +121,7 @@ src_install() {
 	doins bubba-default-config.tgz
 
 	elog "Installing portage config files"
-	rm etc/portage/make.conf
+	rm -f etc/portage/make.conf
 	insinto /etc
 	cp -aR etc/portage ${ED}/etc/
 	cp -aR etc/local.d ${ED}/etc/
