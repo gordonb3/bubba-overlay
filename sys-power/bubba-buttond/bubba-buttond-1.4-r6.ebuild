@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
 inherit systemd toolchain-funcs
 
@@ -18,20 +18,21 @@ KEYWORDS="~arm"
 IUSE="systemd"
 
 DEPEND=""
-
 RDEPEND="systemd? ( sys-apps/systemd )"
+
+
+ENABLE_COMPAT=""
 
 
 pkg_setup() {
 	ebegin "checking for write-magic enabled sysvinit"
-	if grep -qoa "wrote B3 halt magic values" /sbin/shutdown ; then
+	if grep -qoa "wrote B3 halt magic value" /sbin/shutdown ; then
 		eend 0
 		ENABLE_COMPAT="no"
 	else
 		eend 1 "   incorrect version number -> reverting to backward compatibility"
 		ENABLE_COMPAT="yes"
 	fi
-
 }
 
 
@@ -39,6 +40,7 @@ src_unpack() {
 	unpack ${A}
 	mv ${WORKDIR}/${PN}-* ${S}
 }
+
 
 src_compile() {
 	emake CC=$(tc-getCC)
@@ -92,8 +94,8 @@ pkg_postinst() {
 		elog "\twrite-magic 0xdeadbeef && reboot"
 	fi
 	elog ""
-
 }
+
 
 pkg_prerm()
 {
