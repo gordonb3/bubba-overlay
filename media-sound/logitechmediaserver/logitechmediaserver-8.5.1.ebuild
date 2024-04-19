@@ -302,6 +302,13 @@ lms_starting_instr() {
 	elog "You may access and configure Logitech Media Server by browsing to:"
 	elog "\thttp://localhost:${httpport:-9000}/"
 	elog ""
+
+	elog ""
+	elog "Note: as of version 8.5.1 Logitech Media Server includes an analytic"
+	elog "reporting plugin to aid developers in identifying elements for which"
+	elog "may be dropped. If you do not like to participate you can disable this"
+	elog "plugin in the LMS Server Settings"
+	elog ""
 }
 
 pkg_postinst() {
@@ -335,6 +342,7 @@ pkg_postinst() {
 	fi
 
 	# Recursively wipe modules already present in system to prevent version conflicts
+	elog "Recursively wiping modules already present in system to prevent version conflicts."
 	lms_wipe_duplicates
 
 	# Show some instructions on starting and accessing the server.
@@ -430,6 +438,7 @@ pkg_config() {
 	lms_remove_db_prefs "${EROOT}${SVRPREFS}"
 
 	# Recursively wipe modules already present in system to prevent version conflicts
+	elog "Recursively wiping modules already present in system to prevent version conflicts."
 	lms_wipe_duplicates
 
 	# Phew - all done.
