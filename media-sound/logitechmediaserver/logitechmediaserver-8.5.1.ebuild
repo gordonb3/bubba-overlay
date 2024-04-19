@@ -1,4 +1,4 @@
-# Copyright 2023 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2024 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 #
 # $Header$
@@ -221,7 +221,7 @@ src_prepare() {
 	sed -e "/catdir(\$libPath,'lib'),/d" -i Slim/bootstrap.pm
 
 	# Delete files that our dependencies have placed in the system's Perl vendor path
-	elog "Remove CPAN modules that conflict with arch specific modules in the system vendor path"
+	elog "Remove CPAN modules known to conflict with arch specific modules in the system vendor path"
 	for DIR in ${OBSOLETEDIRS[@]} ; do
 		rm -rf CPAN/${DIR}
 	done
@@ -334,6 +334,9 @@ pkg_postinst() {
 		fi
 	fi
 
+	# Recursively wipe modules already present in system to prevent version conflicts
+	lms_wipe_duplicates
+
 	# Show some instructions on starting and accessing the server.
 	lms_starting_instr
 }
@@ -351,7 +354,7 @@ lms_remove_db_prefs() {
 	chmod 660 "${EROOT}${MY_PREFS}"
 }
 
-lms_clean_oldfiles() {
+lms_wipe_duplicates() {
 	einfo "locating "
 	MY_PERL_VENDORPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorlib | sed "s/^.*vendorlib=//" | sed "s/ .*$//g")
 	cd ${MY_PERL_VENDORPATH}
@@ -426,8 +429,8 @@ pkg_config() {
 	# Remove the existing MySQL preferences from Squeezebox Server (if any).
 	lms_remove_db_prefs "${EROOT}${SVRPREFS}"
 
-	# Scan system for possible version conflicts
-	lms_clean_oldfiles
+	# Recursively wipe modules already present in system to prevent version conflicts
+	lms_wipe_duplicates
 
 	# Phew - all done.
 	einfo "Done."
