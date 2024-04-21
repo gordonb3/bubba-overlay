@@ -36,6 +36,8 @@ REMOVELIST=""
 IS_BINDIST=""
 KERNEL_MAJOR=""
 KERNEL_MINOR=""
+PROFILE=0
+
 
 pkg_setup() {
 	[[ -e ${ROOT}/var/lib/bubba/bubba-default-config.tgz ]] || return
@@ -58,6 +60,9 @@ pkg_setup() {
 	# get kernel version
 	KERNEL_MAJOR=$(uname -r | cut -d. -f1)
 	KERNEL_MINOR=$(uname -r | cut -d. -f2)
+
+	# get profile version
+	PROFILE=$(readlink /etc/portage/make.profile | sed -e "s/[^0-9]//g" -e "s/^\(..\).*/\1/")
 }
 
 src_unpack() {
@@ -102,6 +107,11 @@ src_compile() {
 			[[ -e ${S}/${FILE} ]] || REMOVELIST="${REMOVELIST} /${FILE}"
 		done
 		cd - > /dev/null
+	fi
+
+	if [ ${PROFILE} -ge 23 ]; then
+		rm ${S}/etc/portage/package.use.force/merged-usr
+		rmdir ${S}/etc/portage/package.use.force 2>/dev/null
 	fi
 
 	elog "Create bubba-default-config archive"
@@ -201,5 +211,12 @@ pkg_postinst() {
 	if (grep -q "uuid: 7b0490d8" /var/lib/logitechmediaserver/preferences/server.prefs); then
 		sed -e "/^server_uuid/d" -i /var/lib/logitechmediaserver/preferences/server.prefs
 		sed -e "/^securitySecret/d" -i /var/lib/logitechmediaserver/preferences/server.prefs
+	fi
+
+	# remove obsolete merged-usr entries in make.conf
+	if [ ${PROFILE} -ge 23 ]; then
+		sed -e "s/\-split\-usr//" -e "s/^UNINSTALL_IGNORE/#UNINSTALL_IGNORE/" -i /etc/portage/make.conf
+		[[ -e /etc/portage/package.use.force/merged-usr ]]  && rm -v /etc/portage/package.use.force/merged-usr
+		[[ -d /etc/portage/package.use.force ]] && rmdir -v /etc/portage/package.use.force
 	fi
 }
