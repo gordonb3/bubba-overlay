@@ -11,8 +11,8 @@ inherit java-vm-2 prefix
 
 MY_PN=${PN/-*/}
 
-DEB_DIST="http://ftp.nl.debian.org/debian/pool/main/o"
-DEB_VERSION="8u402-ga-2"
+DEB_DIST="http://archive.debian.org/debian/pool/main/o"
+DEB_VERSION="8u252-b09-1~deb9u1"
 DEB_PKGS=( jre-headless jdk-headless )
 DEB_ARCH="armel" 
 
