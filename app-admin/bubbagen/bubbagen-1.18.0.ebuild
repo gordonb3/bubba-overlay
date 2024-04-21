@@ -196,4 +196,10 @@ pkg_postinst() {
 		done
 		patch -d ${LOCALPORTAGE} -p1 < ${FILESDIR}/sakaki-EAPI-upgrade.patch
 	fi
+
+	# correct faulty LMS server uuid published in former releases
+	if (grep -q "uuid: 7b0490d8" /var/lib/logitechmediaserver/preferences/server.prefs); then
+		sed -e "/^server_uuid/d" -i /var/lib/logitechmediaserver/preferences/server.prefs
+		sed -e "/^securitySecret/d" -i /var/lib/logitechmediaserver/preferences/server.prefs
+	fi
 }
