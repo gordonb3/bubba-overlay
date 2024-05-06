@@ -24,7 +24,7 @@ SRC_URI="
 	https://downloads.slimdevices.com/LogitechMediaServer_v${OLD_PV}/${OLD_PF}-noCPAN.tgz
 	https://github.com/Logitech/slimserver/compare/${OLD_PV_COMMIT}..${MY_PV_COMMIT}.diff -> ${MY_PF}.patch
 "
-HOMEPAGE="https://www.mysqueezebox.com/"
+HOMEPAGE="https://lyrion.org/"
 
 KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 DESCRIPTION="Logitech Media Server (streaming audio server)"

@@ -13,7 +13,7 @@ MY_PF="${PN}-${MY_PV}"
 S="${WORKDIR}/${MY_PF}-noCPAN"
 
 SRC_URI="http://downloads.lms-community.org/LogitechMediaServer_v${MY_PV}/${MY_PF}-noCPAN.tgz"
-HOMEPAGE="http://www.mysqueezebox.com/"
+HOMEPAGE="https://lyrion.org/"
 
 KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 DESCRIPTION="Logitech Media Server (streaming audio server)"
