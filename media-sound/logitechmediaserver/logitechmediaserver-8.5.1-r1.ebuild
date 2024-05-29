@@ -5,7 +5,7 @@
 
 EAPI="8"
 
-inherit systemd
+inherit systemd perl-module
 
 
 MY_PV="${PV/_*}"
@@ -32,6 +32,13 @@ PATCHES=(
 EXTRALANGS="he"
 for LANG in ${EXTRALANGS}; do
 	IUSE="$IUSE l10n_${LANG}"
+done
+
+HAVE_ITHREADS=0
+for FEAT in ${PERL_FEATURES}; do
+	if [ "${FEAT}" = "ithreads" ]; then
+		HAVE_ITHREADS=1
+	fi
 done
 
 # Installation dependencies.
@@ -207,6 +214,17 @@ OBSOLETEFILES=(
 	"Template.pm"
 )
 
+pkg_pretend() {
+	if [ $HAVE_ITHREADS = 0 ]; then
+		echo ""
+		ewarn "LogitechMediaServer requires perl ithreads support. As of dev-lang/perl-5.38.2-r3"
+		ewarn "this must be set globally in make.conf in the use-expand variable PERL_FEATURES"
+		ewarn "It appears that you have not set this variable properly yet."
+		echo ""
+		die "Terminating now"
+	fi
+}
+
 src_prepare() {
 	default	
 
@@ -282,7 +300,7 @@ lms_starting_instr() {
 	else
 		elog "\t/etc/init.d/${PN} start"
 	fi
-	elog ""
+	echo ""
 	elog "Logitech Media Server can be automatically started on each boot"
 	elog "with the following command:"
 	if use systemd ; then
@@ -290,25 +308,25 @@ lms_starting_instr() {
 	else
 		elog "\trc-update add ${PN} default"
 	fi
-	elog ""
+	echo ""
 	elog "You might want to examine and modify the following configuration"
 	elog "file before starting Logitech Media Server:"
 	elog "\t/etc/conf.d/${PN}"
-	elog ""
+	echo ""
 
 	# Discover the port number from the preferences, but if it isn't there
 	# then report the standard one.
 	httpport=$(gawk '$1 == "httpport:" { print $2 }' "${ROOT}${SVRPREFS}" 2>/dev/null)
 	elog "You may access and configure Logitech Media Server by browsing to:"
 	elog "\thttp://localhost:${httpport:-9000}/"
-	elog ""
+	echo ""
 
-	elog ""
+	echo ""
 	elog "Note: as of version 8.5.1 Logitech Media Server includes an analytic"
 	elog "reporting plugin to aid developers in identifying elements for which"
 	elog "may be dropped. If you do not like to participate you can disable this"
 	elog "plugin in the LMS Server Settings"
-	elog ""
+	echo ""
 }
 
 pkg_postinst() {
@@ -329,7 +347,7 @@ pkg_postinst() {
 	elog "Manually installed plugins should be placed in the following"
 	elog "directory:"
 	elog "\t${EROOT}${USRPLUGINSDIR}"
-	elog ""
+	echo ""
 
 	# Bug: LMS should not write to /etc
 	# Move existing preferences from /etc to /var/lib
@@ -395,11 +413,11 @@ pkg_config() {
 	einfo "Press ENTER to migrate any preferences from a previous installation of"
 	einfo "Squeezebox Server (media-sound/squeezeboxserver) to this installation"
 	einfo "of Logitech Media Server."
-	einfo ""
+	echo ""
 	einfo "Note that this will remove any current preferences and plugins and"
 	einfo "therefore you should take a backup if you wish to preserve any files"
 	einfo "from this current Logitech Media Server installation."
-	einfo ""
+	echo ""
 	einfo "Alternatively, press Control-C to abort now..."
 	read
 
@@ -443,5 +461,5 @@ pkg_config() {
 
 	# Phew - all done.
 	einfo "Done."
-	einfo ""
+	echo ""
 }
