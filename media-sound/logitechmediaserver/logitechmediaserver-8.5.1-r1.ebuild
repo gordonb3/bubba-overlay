@@ -44,7 +44,7 @@ DEPEND="
 RDEPEND="
 	virtual/logger
 	dev-db/sqlite
-	dev-lang/perl[perl_features_ithreads]
+	>=dev-lang/perl-5.38.2-r3[perl_features_ithreads]
 	dev-perl/Data-UUID
 	dev-perl/Audio-Scan
 	dev-perl/Class-XSAccessor
