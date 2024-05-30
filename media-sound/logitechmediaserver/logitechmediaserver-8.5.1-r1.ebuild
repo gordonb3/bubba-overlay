@@ -20,7 +20,7 @@ DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${PN}"
 RESTRICT="mirror"
 SLOT="0"
-IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype"
+IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype l10n_he"
 
 PATCHES=(
 	"${FILESDIR}/LMS_replace_UUID-Tiny_with_Data-UUID.patch"
@@ -28,18 +28,6 @@ PATCHES=(
 	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
 	"${FILESDIR}/LMS-8.2.0_move_client_playlist_path.patch"
 )
-
-EXTRALANGS="he"
-for LANG in ${EXTRALANGS}; do
-	IUSE="$IUSE l10n_${LANG}"
-done
-
-HAVE_ITHREADS=0
-for FEAT in ${PERL_FEATURES}; do
-	if [ "${FEAT}" = "ithreads" ]; then
-		HAVE_ITHREADS=1
-	fi
-done
 
 # Installation dependencies.
 DEPEND="
@@ -215,7 +203,7 @@ OBSOLETEFILES=(
 )
 
 pkg_pretend() {
-	if [ $HAVE_ITHREADS = 0 ]; then
+	if ! use perl_features_ithreads; then
 		echo ""
 		ewarn "LogitechMediaServer requires perl ithreads support. As of dev-lang/perl-5.38.2-r3"
 		ewarn "this must be set globally in make.conf in the use-expand variable PERL_FEATURES"
