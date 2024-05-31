@@ -70,7 +70,7 @@ pkg_postrm() {
 			echo ""
 			eerror "ERROR: Package manager ignored our call to die()"
 			ewarn "  Restoring previous situation to salvage the situation"
-			ewarn ""
+			echo ""
 			ewarn "  Should you have already installed a newer kernel, please boot into"
 			ewarn "  the new kernel first before re-attempting removal of this package"
 			MODULES=$(ls -1d ${ROOT}/lib/modules/_${PV}-gentoo${REVISION}-b3)

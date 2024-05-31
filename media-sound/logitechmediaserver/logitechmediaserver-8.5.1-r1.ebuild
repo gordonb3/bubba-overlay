@@ -328,7 +328,7 @@ pkg_postinst() {
 		elog "running the following command (note that this will overwrite any"
 		elog "current preferences and plugins):"
 		elog "\temerge --config =${CATEGORY}/${PF}"
-		elog ""
+		echo ""
 	fi
 
 	# Tell user where they should put any manually-installed plugins.

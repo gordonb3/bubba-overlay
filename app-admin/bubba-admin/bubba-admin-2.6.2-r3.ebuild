@@ -314,11 +314,11 @@ pkg_postinst() {
 
 	if use iptables; then
 		ewarn "Important note about firewall settings:"
-		ewarn ""
+		echo ""
 		ewarn "If you like to be able to use the Bubba web interface to manage your firewall,"
 		ewarn "then please make sure to save your current state to /etc/bubba/firewall.conf"
 		ewarn "and that the following rules are included:"
-		ewarn ""
+		echo ""
 		ewarn "  iptables -N Bubba_IN"
 		ewarn "  iptables -A INPUT -j Bubba_IN"
 		ewarn "  iptables -N Bubba_FWD"
@@ -327,16 +327,16 @@ pkg_postinst() {
 		ewarn "  iptables -t nat -A PREROUTING -j Bubba_DNAT"
 		ewarn "  iptables -t nat -N Bubba_SNAT"
 		ewarn "  iptables -t nat -A POSTROUTING -j Bubba_SNAT"
-		ewarn ""
+		echo ""
 	fi
 
 	if use nftables; then
 		ewarn "Important note about firewall settings:"
-		ewarn ""
+		echo ""
 		ewarn "If you like to be able to use the Bubba web interface to manage your firewall,"
 		ewarn "then please make sure to save your current state to /etc/bubba/firewall.nft"
 		ewarn "and that the following rules are included:"
-		ewarn ""
+		echo ""
 		ewarn "  nftables add chain ip filter Bubba_IN"
 		ewarn "  nftables add rule ip filter INPUT jump Bubba_IN"
 		ewarn "  nftables add chain ip filter Bubba_FWD"
@@ -345,7 +345,7 @@ pkg_postinst() {
 		ewarn "  nftables add rule ip nat PREROUTING jump Bubba_DNAT"
 		ewarn "  nftables add chain ip nat Bubba_SNAT"
 		ewarn "  nftables add rule ip nat POSTROUTING jump Bubba_SNAT"
-		ewarn ""
+		echo ""
 	fi
 
 	# At present, the forked-daapd install does not provide a systemd service file, so
@@ -366,7 +366,7 @@ pkg_postinst() {
 	fi
 	elog "Sample config files have been placed in /usr/share/doc/${PF}/examples"
 	if use nginx; then
-		elog ""
+		echo ""
 		elog "If you are manually switching to apache, please do not forget to enable"
 		elog "the bubba-admin plugin for mod_php as well by copying php5-apache.conf"
 		elog "from the examples folder to ${PHP_APACHE_INI_PATH}/ext/bubba-admin.ini"

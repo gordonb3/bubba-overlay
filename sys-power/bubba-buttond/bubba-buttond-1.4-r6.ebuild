@@ -90,10 +90,10 @@ pkg_postinst() {
 
 	if [ ${ENABLE_COMPAT} == "yes" ];then
 		elog "To manually shutdown the B3 manually use this command:"
-		elog ""
+		echo ""
 		elog "\twrite-magic 0xdeadbeef && reboot"
 	fi
-	elog ""
+	echo ""
 }
 
 
