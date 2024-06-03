@@ -369,20 +369,11 @@ lms_remove_db_prefs() {
 }
 
 lms_wipe_duplicates() {
-	einfo "locating "
-	MY_PERL_VENDORPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorlib | sed "s/^.*vendorlib=//" | sed "s/ .*$//g")
-	cd ${MY_PERL_VENDORPATH}
+	MY_PERL_VENDOR_ARCHPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorarch | sed -e "s/^.*vendorarch=//" -e "s/ .*$//g")
+	cd ${MY_PERL_VENDOR_ARCHPATH}
 	find -type f | sed "s/^\.\///" | grep -v "/DBIx/" | while read file; do 
 		if [ -f ${EROOT}${BINDIR}/CPAN/${file} ]; then
-			rm -v ${EROOT}${BINDIR}/CPAN/${file}
-		fi
-	done
-	cd - &>/dev/null
-	MY_PERL_VENDORPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorarch | sed "s/^.*vendorarch=//" | sed "s/ .*$//g")
-	cd ${MY_PERL_VENDORPATH}
-	find -type f | sed "s/^\.\///" | grep -v "/DBIx/" | while read file; do 
-		if [ -f ${EROOT}${BINDIR}/CPAN/${file} ]; then
-			rm -v ${EROOT}${BINDIR}/CPAN/${file}
+			rm ${EROOT}${BINDIR}/CPAN/${file}
 		fi
 	done
 	cd - &>/dev/null
@@ -391,7 +382,7 @@ lms_wipe_duplicates() {
 	cd ${EROOT}${BINDIR}
 	MY_SEARCHDEPTH=5
 	while [  ${MY_SEARCHDEPTH} -gt 0 ]; do
-		find -mindepth ${MY_SEARCHDEPTH} -maxdepth ${MY_SEARCHDEPTH} -type d -empty -exec rmdir -v {} \;
+		find -mindepth ${MY_SEARCHDEPTH} -maxdepth ${MY_SEARCHDEPTH} -type d -empty -exec rmdir {} \;
 		MY_SEARCHDEPTH=$((MY_SEARCHDEPTH-1))
 	done
 	cd - &>/dev/null

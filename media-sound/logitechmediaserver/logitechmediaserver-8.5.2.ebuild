@@ -207,15 +207,6 @@ pkg_postinst() {
 }
 
 lms_wipe_duplicates() {
-	MY_PERL_VENDOR_LIBPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorlib | sed -e "s/^.*vendorlib=//" -e "s/ .*$//g")
-	cd ${MY_PERL_VENDOR_LIBPATH}
-	find -type f | sed "s/^\.\///" | grep -v "/DBIx/" | while read file; do 
-		if [ -f ${EROOT}${BINDIR}/CPAN/${file} ]; then
-			rm ${EROOT}${BINDIR}/CPAN/${file}
-		fi
-	done
-	cd - &>/dev/null
-
 	MY_PERL_VENDOR_ARCHPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorarch | sed -e "s/^.*vendorarch=//" -e "s/ .*$//g")
 	cd ${MY_PERL_VENDOR_ARCHPATH}
 	find -type f | sed "s/^\.\///" | grep -v "/DBIx/" | while read file; do 
