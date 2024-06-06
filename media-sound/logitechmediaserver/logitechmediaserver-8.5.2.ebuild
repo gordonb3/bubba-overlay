@@ -35,7 +35,7 @@ BDEPEND="
 DEPEND="
 	acct-user/${PN}
 	acct-group/${PN}
-	dev-lang/perl[perl_features_ithreads]
+	>=dev-lang/perl-5.38.2-r3[perl_features_ithreads]
 	dev-perl/Audio-Scan
 	dev-perl/Class-XSAccessor
 	dev-perl/DBD-SQLite
