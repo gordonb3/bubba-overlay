@@ -5,7 +5,7 @@
 
 EAPI="8"
 
-inherit systemd perl-module
+inherit systemd
 
 
 MY_PV="${PV/_*}"
@@ -20,7 +20,7 @@ DESCRIPTION="Logitech Media Server (streaming audio server)"
 LICENSE="${PN}"
 RESTRICT="mirror"
 SLOT="0"
-IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype l10n_he"
+IUSE="systemd mp3 alac wavpack flac ogg aac mac freetype l10n_he perl_features_ithreads"
 
 PATCHES=(
 	"${FILESDIR}/LMS-8.0.0_remove_softlink_target_check.patch"
