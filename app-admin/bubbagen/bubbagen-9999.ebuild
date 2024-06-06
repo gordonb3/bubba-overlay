@@ -175,23 +175,44 @@ pkg_postinst() {
 		rm -f ${BINDIST_CONFS}
 	fi
 
-	# cleanup distcc-fix in /usr/local/sbin (not a package file in previous releases)
-	[[ -e /usr/local/sbin/distcc-fix ]] && rm -f /usr/local/sbin/distcc-fix
+	# -- hotfixes --
 
-	# cleanup sakaki repositories as packages are throwing errors in emerge
+	# 24-05-31 verify that PERL_FEATURES="ithreads" is set in the global make.conf
+	if (! grep -q "PERL_FEATURES.*ithreads" /etc/portage/make.conf); then
+		if (grep -q PERL_FEATURES /etc/portage/make.conf); then
+			eval $(grep PERL_FEATURES /etc/portage/make.conf)
+			sed -e "/PERL_FEATURES/cPERL_FEATURES=\"${PERL_FEATURES} ithreads\"" -i /etc/portage/make.conf
+		else
+			echo -e "\nPERL_FEATURES=\"ithreads\"" >> /etc/portage/make.conf
+		fi
+	fi
+
+	# 24-04-21 correct faulty LMS server uuid published in former releases
+	if (grep -q "uuid: 7b0490d8" /var/lib/logitechmediaserver/preferences/server.prefs); then
+		sed -e "/^server_uuid/d" -i /var/lib/logitechmediaserver/preferences/server.prefs
+		sed -e "/^securitySecret/d" -i /var/lib/logitechmediaserver/preferences/server.prefs
+	fi
+
+	# 24-04-21 remove profile 21 obsolete merged-usr entries in make.conf
+	if [ ${PROFILE} -ge 23 ]; then
+		sed -e "s/\-split\-usr//" -e "s/^UNINSTALL_IGNORE/#UNINSTALL_IGNORE/" -i /etc/portage/make.conf
+		[[ -e /etc/portage/package.use.force/merged-usr ]]  && rm -v /etc/portage/package.use.force/merged-usr
+		[[ -d /etc/portage/package.use.force ]] && rmdir -v /etc/portage/package.use.force
+	fi
+
+	# 22-08-16 cleanup sakaki repositories as packages are throwing errors in emerge
 	LOCALPORTAGE=${ROOT}/usr/local/portage
 	if [[ -d ${LOCALPORTAGE}/gentoo-b3 ]]; then\
 		rm -v -rf ${LOCALPORTAGE}/gentoo-b3
 		rm -v -f ${ROOT}/etc/portage/repos.conf/gentoo-b3.conf
 	fi
-
 	if [[ -e ${LOCALPORTAGE}/sakaki-tools/.git ]]; then
 		rm -v -rf ${LOCALPORTAGE}/sakaki-tools/{.git,.gitignore,acct-group,acct-user,app-admin,app-crypt,dev-java,dev-python,eclass,media-gfx,net-im,sys-apps,sys-fs}
 		rm -v -rf ${LOCALPORTAGE}/sakaki-tools/app-portage/{emtee,mvn2ebuild,porthash,porthole}
 		sed -e "s/yes/no/" -i ${ROOT}/etc/portage/repos.conf/gentoo-b3.conf -i ${ROOT}/etc/portage/repos.conf/sakaki-tools.conf
 	fi
 
-	# upgrade remaining packages from sakaki repositories to EAPI 8
+	# 22-08-16 upgrade remaining packages from sakaki repositories to EAPI 8
 	if (grep -q "EAPI=\"*5" ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild ); then
 		sed -e "s/^EAPI=.*$/EAPI=\"8\"/" \
 		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild \
@@ -200,12 +221,5 @@ pkg_postinst() {
 		    rm ${match%:*}
 		done
 		patch -d ${LOCALPORTAGE} -p1 < ${FILESDIR}/sakaki-EAPI-upgrade.patch
-	fi
-
-	# remove obsolete merged-usr entries in make.conf
-	if [ ${PROFILE} -ge 23 ]; then
-		sed -e "s/\-split\-usr//" -e "s/^UNINSTALL_IGNORE/#UNINSTALL_IGNORE/" -i /etc/portage/make.conf
-		[[ -e /etc/portage/package.use.force/merged-usr ]]  && rm -v /etc/portage/package.use.force/merged-usr
-		[[ -d /etc/portage/package.use.force ]] && rmdir -v /etc/portage/package.use.force
 	fi
 }
