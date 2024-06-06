@@ -4,7 +4,7 @@
 # TODO:
 # Add --enable-spotify when it works
 
-EAPI="7"
+EAPI="8"
 
 inherit autotools
 
@@ -27,7 +27,7 @@ RDEPEND="
 	dev-libs/libevent
 	dev-libs/libgcrypt:0
 	dev-libs/libunistring
-	>=dev-libs/mxml-2.9[threads]
+	<dev-libs/mxml-4.0[threads]
 	dev-libs/json-c
 	media-libs/alsa-lib
 	net-dns/avahi[dbus]
