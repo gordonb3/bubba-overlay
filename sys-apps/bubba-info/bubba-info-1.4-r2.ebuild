@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
-PYTHON_COMPAT=( python3_10 python3_11 )
+PYTHON_COMPAT=( python3_{11,12} )
 inherit distutils-r1
 
 DESCRIPTION="Bubba platform information library"
