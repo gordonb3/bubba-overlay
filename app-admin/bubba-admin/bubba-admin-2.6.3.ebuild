@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
 inherit cmake systemd tmpfiles
 
@@ -21,7 +21,6 @@ REQUIRED_USE="^^ ( apache2 nginx )
 "
 
 PATCHES=(
-	"${FILESDIR}/libeutils-0.7.39.patch"
 )
 
 
@@ -80,9 +79,8 @@ NETWORKMANAGER_DEPEND="
 GUI_DEPEND="
 	app-admin/hddtemp
 	>=dev-lang/php-8.0.0[fpm,sockets,xml,gd,pdo,imap]
-	dev-php/PEAR-HTTP_Request2
 	sys-apps/bubba-info[php]
-	www-apps/codeigniter-bin:0/2.2
+	www-apps/codeigniter-bin:0/3
 	apache2? (
 		dev-lang/php[apache2]
 		sys-apps/bubba-info[apache2]

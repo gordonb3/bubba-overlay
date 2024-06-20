@@ -1,18 +1,18 @@
-# Copyright 2015-2022 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2024 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
 DESCRIPTION="CodeIgniter PHP framework for full-featured web applications"
 SRC_URI="https://github.com/bcit-ci/CodeIgniter/archive/${PV}.tar.gz -> ${PF}.tar.gz"
 RESTRICT="mirror"
-SLOT="0/2.2"
+SLOT="0/3"
 KEYWORDS="~arm ~ppc"
 IUSE=""
 
 PATCHES=(
-	"${FILESDIR}/php8.1.patch"
+	"${FILESDIR}/ci3.patch"
 )
 
 MY_PN="CodeIgniter"
@@ -24,7 +24,7 @@ LICENSE="MIT"
 DEPEND=""
 
 # Runtime dependencies.
-RDEPEND=">=dev-lang/php-5.1.6"
+RDEPEND=">=dev-lang/php-5.6"
 
 src_install() {
 	find -name index.html -exec rm {} \;
