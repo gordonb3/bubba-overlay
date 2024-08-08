@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
 LUA_VR="5.3.6"
 
@@ -10,9 +10,9 @@ LUA_VR="5.3.6"
 inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
-CTIME="2024-01-30 09:16:34 +0100"
-COMMIT="731719420"
-REVCOUNT="15889"
+CTIME="2024-07-13 16:59:31 +0200"
+COMMIT="b317cfab1"
+REVCOUNT="16157"
 
 LUA_V="${LUA_VR:0:3}"
 PKG_LUA="lua-${LUA_VR}.tar.gz"
