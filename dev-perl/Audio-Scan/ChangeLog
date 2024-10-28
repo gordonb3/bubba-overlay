@@ -1,6 +1,12 @@
 # ChangeLog for dev-perl/Audio-Scan
 # Copyright 1999-2014 Gentoo Foundation; Distributed under the GPL v2
 
+*Audio-Scan-1.100.0 (29 Feb 2024)
+
+  29 Feb 2024; Gordon Bos <gordon@bosvangennip.nl>
+  +Audio-Scan-1.100.0.ebuild, -Audio-Scan-1.60.0.ebuild:
+  Unofficial version bump from LMS Community
+
 *Audio-Scan-1.60.0 (14 Nov 2022)
 
   14 Nov 2022; Gordon Bos <gordon@bosvangennip.nl>

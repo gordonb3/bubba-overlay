@@ -10,7 +10,7 @@ inherit perl-module
 DESCRIPTION="read font files and render glyphs from Perl using FreeType2"
 LICENSE=""
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~x86-solaris ~arm ~ppc"
+KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 IUSE="test"
 RESTRICT="!test? ( test )"
 

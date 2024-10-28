@@ -10,7 +10,7 @@ inherit perl-module
 DESCRIPTION="bidirectional Hebrew support for Perl"
 LICENSE=""
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~x86-solaris ~arm ~ppc"
+KEYWORDS="~amd64 ~x86 ~arm ~ppc"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
