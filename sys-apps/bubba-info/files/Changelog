@@ -1,3 +1,9 @@
+2025-04-25
+
+  * Expire the python module. We have not needed this module for several
+    years and the setup routine calls for now deprecated features.
+
+-------------------------------------------------------------------
 2018-01-22
 
   * Move away from Debian scattered libs. Combine libbubba-info,

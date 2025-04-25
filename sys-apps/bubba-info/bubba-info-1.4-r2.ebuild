@@ -4,9 +4,6 @@
 
 EAPI="8"
 
-PYTHON_COMPAT=( python3_{11,12} )
-inherit distutils-r1
-
 DESCRIPTION="Bubba platform information library"
 HOMEPAGE="http://www.excito.com/"
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PF}.tar.gz"
@@ -15,7 +12,7 @@ RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm ~ppc"
-IUSE="apache2 +php +perl python"
+IUSE="apache2 +php +perl"
 
 BLOCK_OLD_PACKAGES="
 	!dev-perl/libbubba-info-perl
@@ -26,7 +23,6 @@ DEPEND="
 	${BLOCK_OLD_PACKAGES}
 	perl? ( dev-lang/perl:= )
 	php? ( dev-lang/php:= )
-	python? ( dev-python/setuptools[${PYTHON_USEDEP}] )
 "
 RDEPEND="${DEPEND}"
 
@@ -39,7 +35,6 @@ src_prepare() {
 	sed -e "s/libtool --mode/libtool --tag=CC --mode/" -i Makefile
 	use perl && sed -e "s/^\(\s*.ABSTRACT\)_FROM.*$/\1       => 'Perl extension for querying Bubba platform information',/" -i perl/Makefile.PL
 	use php && sed -e "s/^static function_entry/zend_function_entry/" -i php/bubba_info.c
-	use python && sed -e "s/python2.6/python/" -i bubba-info.py
 }
 
 
@@ -78,11 +73,6 @@ src_compile() {
 		cd php
 		emake LIBTOOL="/usr/bin/libtool --tag=CC"
 		cd - &>/dev/null
-	fi
-
-	if use python; then
-		einfo "compile python module"
-		python2 setup.py build
 	fi
 }
 
@@ -124,11 +114,6 @@ src_install() {
 			fi
 		done
 		cd - &>/dev/null
-	fi
-
-	if use python; then
-		einfo "install python module"
-		python2 setup.py install --root=${ED}
 	fi
 }
 
