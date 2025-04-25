@@ -1,0 +1,12 @@
+# Copyright 2024 gordonb3
+# Distributed under the terms of the GNU General Public License v2
+# $Header$
+
+/var/log/lyrionmusicserver/scanner.log /var/log/lyrionmusicserver/server.log /var/log/lyrionmusicserver/perfmon.log {
+	missingok
+	notifempty
+	copytruncate
+	rotate 5
+	size 100k
+	su lyrion lyrion
+}

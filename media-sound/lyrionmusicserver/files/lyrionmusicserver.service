@@ -1,0 +1,17 @@
+# Copyright 2024 gordonb3
+# Distributed under the terms of the GNU General Public License v2
+#
+# unit file for media-sound/lyrionmusicserver
+
+[Unit]
+Description=Lyrion Music Server Daemon
+After=network.target
+
+[Service]
+User=lyrion
+Group=lyrion
+WorkingDirectory=/opt/lyrionmusicserver
+ExecStart=/opt/lyrionmusicserver/slimserver.pl --logfile syslog $LMS_OPTS
+
+[Install]
+WantedBy=network.target
