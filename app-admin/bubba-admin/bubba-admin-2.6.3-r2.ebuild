@@ -13,7 +13,7 @@ SRC_URI="https://github.com/gordonb3/${PN}/archive/${PVR}.tar.gz -> ${PF}.tar.gz
 RESTRICT="mirror"
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~arm ~ppc"
 IUSE="+apache2 nginx systemd +iptables nftables +wifi debug"
 
 REQUIRED_USE="^^ ( apache2 nginx )
