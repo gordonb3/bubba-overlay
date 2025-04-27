@@ -111,7 +111,7 @@ src_prepare() {
 	default	
 
 	# fix default user name to run as
-	sed -e "s/squeezeboxserver/${RUN_UID}/" -i slimserver.pl
+	sed -e "s/nobody/${RUN_UID}/" -i slimserver.pl
 
 	# merge the secondary lib folder into CPAN, keeping track of the various locations
 	# for CPAN modules possibly duplicated in system is hard enough already without it.
