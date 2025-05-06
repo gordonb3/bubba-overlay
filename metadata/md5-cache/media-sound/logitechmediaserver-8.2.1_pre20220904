@@ -1,0 +1,16 @@
+BDEPEND=virtual/pkgconfig
+DEFINED_PHASES=config install postinst prepare unpack
+DEPEND=acct-user/logitechmediaserver acct-group/logitechmediaserver !media-sound/squeezecenter !media-sound/squeezeboxserver !media-sound/logitechmediaserver-bin app-arch/unzip dev-lang/nasm
+DESCRIPTION=Logitech Media Server (streaming audio server)
+EAPI=7
+HOMEPAGE=https://lyrion.org/
+INHERIT=systemd
+IUSE=systemd mp3 alac wavpack flac ogg aac mac freetype dlna l10n_he
+KEYWORDS=~amd64 ~x86 ~arm ~ppc
+LICENSE=logitechmediaserver
+RDEPEND=virtual/logger dev-db/sqlite >=dev-lang/perl-5.8.8[ithreads] >=dev-perl/Data-UUID-1.202 >=dev-perl/Audio-Scan-1.20.0 >=dev-perl/Class-XSAccessor-1.180.0 dev-perl/CGI dev-perl/Class-C3-XS dev-perl/DBD-SQLite dev-perl/DBI dev-perl/Digest-SHA1 dev-perl/Encode-Detect dev-perl/EV dev-perl/HTML-Parser dev-perl/Image-Scale[gif,jpeg,png] dev-perl/IO-AIO dev-perl/IO-Interface dev-perl/JSON-XS dev-perl/Linux-Inotify2 dev-perl/Sub-Name dev-perl/Template-Toolkit[gd] dev-perl/XML-Parser dev-perl/YAML-LibYAML dev-perl/MP3-Cut-Gapless l10n_he? ( dev-perl/Locale-Hebrew ) mp3? ( media-sound/lame ) wavpack? ( media-sound/wavpack ) flac? ( media-libs/flac media-sound/sox[flac] ) ogg? ( media-sound/sox[ogg] ) aac? ( media-libs/slim-faad ) alac? ( media-libs/slim-faad ) mac? ( media-sound/mac ) freetype? ( dev-perl/Font-FreeType ) dlna? ( dev-perl/Media-Scan )
+RESTRICT=mirror
+SLOT=0
+SRC_URI=https://downloads.slimdevices.com/LogitechMediaServer_v8.2.0/logitechmediaserver-8.2.0-noCPAN.tgz https://github.com/Logitech/slimserver/compare/1ec1603..fa05c79.diff -> logitechmediaserver-8.2.1.patch
+_eclasses_=multilib	b2a329026f2e404e9e371097dda47f96	systemd	54bd206bb5c4efac6ae28b6b006713b0	toolchain-funcs	6afdb6107430c1832ca7e16aacbf8fa1
+_md5_=537f2ebe7bb24cf748d776f9e6a1675b

@@ -1,0 +1,15 @@
+BDEPEND=virtual/pkgconfig
+DEFINED_PHASES=compile install postinst prerm setup unpack
+DESCRIPTION=Excito B3 power control
+EAPI=8
+HOMEPAGE=http://www.excito.com/
+INHERIT=systemd toolchain-funcs
+IUSE=systemd
+KEYWORDS=~arm
+LICENSE=GPL-3
+RDEPEND=systemd? ( sys-apps/systemd )
+RESTRICT=mirror
+SLOT=0
+SRC_URI=https://github.com/excito/bubba-buttond/archive/8e6b241.tar.gz -> bubba-buttond-1.4-r6.tar.gz
+_eclasses_=multilib	b2a329026f2e404e9e371097dda47f96	systemd	54bd206bb5c4efac6ae28b6b006713b0	toolchain-funcs	6afdb6107430c1832ca7e16aacbf8fa1
+_md5_=8b86c11c573fcf0b3d38c537d66db726

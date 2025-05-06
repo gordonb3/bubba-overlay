@@ -1,0 +1,13 @@
+BDEPEND=>=dev-vcs/git-1.8.2.1[curl]
+DEFINED_PHASES=compile install prepare unpack
+DEPEND=htmldoc? ( app-doc/doxygen media-gfx/graphviz )
+DESCRIPTION=free software library that interfaces with selected Z-Wave PC controllers
+EAPI=7
+HOMEPAGE=http://www.openzwave.net/
+INHERIT=git-r3
+IUSE=-examples -htmldoc
+LICENSE=GPL-3 Apache-2.0
+PROPERTIES=live
+SLOT=0
+_eclasses_=git-r3	875eb471682d3e1f18da124be97dcc81
+_md5_=74ecf257c3e86ed61dfcf7c97ae51552

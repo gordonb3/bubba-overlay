@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install prepare
+DEPEND=htmldoc? ( app-doc/doxygen media-gfx/graphviz )
+DESCRIPTION=Free software library that interfaces with selected Z-Wave PC controllers
+EAPI=7
+HOMEPAGE=http://www.openzwave.net/
+IUSE=-examples -htmldoc
+KEYWORDS=~amd64 ~arm ~arm64 ~ppc ~x86
+LICENSE=GPL-3 Apache-2.0
+RESTRICT=mirror
+SLOT=0
+SRC_URI=http://old.openzwave.com/downloads/openzwave-1.6.1044.tar.gz
+_md5_=6c04b314c5111a80f1081fbd39ca341d

@@ -1,0 +1,13 @@
+DEFINED_PHASES=install postinst
+DEPEND=|| ( virtual/httpd-cgi virtual/httpd-fastcgi )
+DESCRIPTION=A browser-based multilingual IMAP client with an application-like user interface
+EAPI=7
+HOMEPAGE=https://roundcube.net
+IUSE=enigma ldap managesieve -mysql -postgres +sqlite ssl spell
+KEYWORDS=amd64 arm ppc ppc64 ~sparc x86
+LICENSE=GPL-3 BSD PHP-2.02 PHP-3 MIT public-domain
+RDEPEND=|| ( virtual/httpd-cgi virtual/httpd-fastcgi ) >=dev-lang/php-8.0.0[filter,gd,iconv,ldap?,pdo,postgres?,session,sockets,sqlite?,ssl?,unicode,xml] virtual/httpd-php enigma? ( >=dev-php/PEAR-Crypt_GPG-1.6.0 app-crypt/gnupg ) mysql? ( || ( dev-lang/php[mysql] dev-lang/php[mysqli] ) ) spell? ( dev-lang/php[curl,spell] )
+REQUIRED_USE=|| ( mysql postgres sqlite )
+SLOT=0
+SRC_URI=https://github.com//roundcube//roundcubemail/releases/download/1.6.7//roundcubemail-1.6.7-complete.tar.gz
+_md5_=dc1b17cce8769af12f084cd7f963894d

@@ -1,0 +1,15 @@
+BDEPEND=app-arch/unzip dev-lang/nasm virtual/pkgconfig
+DEFINED_PHASES=install postinst prepare pretend
+DEPEND=acct-user/lyrion acct-group/lyrion >=dev-lang/perl-5.38.2-r3[perl_features_ithreads] dev-perl/Audio-Scan dev-perl/Class-XSAccessor dev-perl/DBD-SQLite dev-perl/Digest-SHA1 dev-perl/EV dev-perl/Encode-Detect dev-perl/HTML-Parser dev-perl/IO-AIO dev-perl/IO-Interface dev-perl/Image-Scale[gif,jpeg,png] dev-perl/JSON-XS dev-perl/Linux-Inotify2 dev-perl/MP3-Cut-Gapless dev-perl/Sub-Name dev-perl/Template-Toolkit[gd] dev-perl/XML-Parser dev-perl/YAML-LibYAML freetype? ( dev-perl/Font-FreeType ) l10n_he? ( dev-perl/Locale-Hebrew ) dev-perl/Carp-Assert
+DESCRIPTION=Lyrion Music Server (streaming audio server)
+EAPI=8
+HOMEPAGE=https://lyrion.org/
+INHERIT=systemd
+IUSE=systemd mp3 alac wavpack flac ogg aac mac freetype l10n_he perl_features_ithreads
+LICENSE=GPL-3
+RDEPEND=acct-user/lyrion acct-group/lyrion >=dev-lang/perl-5.38.2-r3[perl_features_ithreads] dev-perl/Audio-Scan dev-perl/Class-XSAccessor dev-perl/DBD-SQLite dev-perl/Digest-SHA1 dev-perl/EV dev-perl/Encode-Detect dev-perl/HTML-Parser dev-perl/IO-AIO dev-perl/IO-Interface dev-perl/Image-Scale[gif,jpeg,png] dev-perl/JSON-XS dev-perl/Linux-Inotify2 dev-perl/MP3-Cut-Gapless dev-perl/Sub-Name dev-perl/Template-Toolkit[gd] dev-perl/XML-Parser dev-perl/YAML-LibYAML freetype? ( dev-perl/Font-FreeType ) l10n_he? ( dev-perl/Locale-Hebrew ) dev-perl/Carp-Assert virtual/logger mp3? ( media-sound/lame ) wavpack? ( media-sound/wavpack ) flac? ( media-libs/flac media-sound/sox[flac] ) ogg? ( media-sound/sox[ogg] ) aac? ( media-libs/slim-faad ) alac? ( media-libs/slim-faad ) mac? ( media-sound/mac )
+RESTRICT=mirror
+SLOT=0
+SRC_URI=http://downloads.lms-community.org/LyrionMusicServer_v9.0.1/lyrionmusicserver-9.0.1-noCPAN.tgz
+_eclasses_=multilib	b2a329026f2e404e9e371097dda47f96	systemd	54bd206bb5c4efac6ae28b6b006713b0	toolchain-funcs	6afdb6107430c1832ca7e16aacbf8fa1
+_md5_=dc83df08f61318eca529c6bb8067de94

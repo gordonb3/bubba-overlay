@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install prepare
+DEPEND=!dev-perl/libbubba-info-perl !dev-php/libbubba-info-php !dev-python/python-bubba-info perl? ( dev-lang/perl:= ) php? ( dev-lang/php:= )
+DESCRIPTION=Bubba platform information library
+EAPI=8
+HOMEPAGE=http://www.excito.com/
+IUSE=apache2 +php +perl
+KEYWORDS=~arm ~ppc
+LICENSE=GPL-3
+RDEPEND=!dev-perl/libbubba-info-perl !dev-php/libbubba-info-php !dev-python/python-bubba-info perl? ( dev-lang/perl:= ) php? ( dev-lang/php:= )
+RESTRICT=mirror
+SLOT=0
+SRC_URI=https://github.com/gordonb3/bubba-info/archive/1.4-r2.tar.gz -> bubba-info-1.4-r2.tar.gz
+_md5_=85870347e006edd08607448921e0ad6c

@@ -1,0 +1,10 @@
+DEFINED_PHASES=install
+DESCRIPTION=CodeIgniter PHP framework for full-featured web applications
+EAPI=8
+KEYWORDS=~arm ~ppc
+LICENSE=MIT
+RDEPEND=>=dev-lang/php-5.6
+RESTRICT=mirror
+SLOT=0/3
+SRC_URI=https://github.com/bcit-ci/CodeIgniter/archive/3.1.13.tar.gz -> codeigniter-bin-3.1.13.tar.gz
+_md5_=869c032014aafaa12bdc0066a6cac35b
