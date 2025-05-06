@@ -45,7 +45,6 @@ RDEPEND="net-misc/curl
 	 telldus? ( app-misc/telldus-core )
 	 python? ( dev-lang/python )
 	 dev-libs/openssl
-	 dev-libs/cereal
 	 dev-libs/jsoncpp
 	 dev-libs/libfmt
 	 dev-cpp/jwt-cpp[picojson]
