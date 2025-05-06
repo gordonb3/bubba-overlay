@@ -46,7 +46,6 @@ RDEPEND="net-misc/curl
 	 python? ( dev-lang/python )
 	 dev-libs/openssl
 	 dev-libs/jsoncpp
-	 dev-libs/libfmt
 	 dev-cpp/jwt-cpp[picojson]
 "
 
