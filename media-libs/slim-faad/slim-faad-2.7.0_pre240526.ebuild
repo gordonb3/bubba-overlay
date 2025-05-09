@@ -58,7 +58,7 @@ src_configure() {
 }
 
 src_install() {
-	exeinto /opt/logitechmediaserver/Bin/
+	exeinto /opt/lyrionmusicserver/Bin/
 	doexe frontend/faad
 	einstalldocs
 }
