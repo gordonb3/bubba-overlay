@@ -193,7 +193,7 @@ pkg_postinst() {
 	echo ""
 
 	# Preferences.
-	if [ ! -f "${EROOT}{$SVRPREFS}" ]; then
+	if [ ! -f "${EROOT}${SVRPREFS}" ]; then
 		if [ -f "${EROOT}${SBS_SVRPREFS}" ]; then
 			einfo "Migrating previous Logitech Media Server configuration:"
 			cp -r "${EROOT}${SBS_SVRPREFS}" "${EROOT}${PREFSDIR}"
