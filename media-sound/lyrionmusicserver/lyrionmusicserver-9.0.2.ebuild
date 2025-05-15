@@ -193,16 +193,16 @@ pkg_postinst() {
 	echo ""
 
 	# Preferences.
-	if [ ! -f "{$SVRPREFS}" ]; then
-		if [ -f "${SBS_SVRPREFS}" ]; then
+	if [ ! -f "${EROOT}{$SVRPREFS}" ]; then
+		if [ -f "${EROOT}${SBS_SVRPREFS}" ]; then
 			einfo "Migrating previous Logitech Media Server configuration:"
 			cp -r "${EROOT}${SBS_SVRPREFS}" "${EROOT}${PREFSDIR}"
 			cp -r "${EROOT}${SBS_PREFSDIR}/favorites.opml" "${EROOT}${PREFSDIR}"
 			cp -r "${EROOT}${SBS_PREFSDIR}/log.conf" "${EROOT}${PREFSDIR}"
 			cp -r "${EROOT}${SBS_SVRPLUGINSDIR}" "${EROOT}${SVRPLUGINSDIR}" 2>/dev/null
 			cp -r "${EROOT}${SBS_USRPLUGINSDIR}" "${EROOT}${USRPLUGINSDIR}" 2>/dev/null
-			mkdir -p "${EROOT}${SBS_SVRPREFS}/plugin"
-			sed -e "s/logitechmediaserver/lyrionmusicserver/" -i "${EROOT}${SBS_SVRPREFS}"
+			mkdir -p "${EROOT}${PREFSDIR}/plugin"
+			sed -e "s/logitechmediaserver/lyrionmusicserver/" -i "${EROOT}${SVRPREFS}"
 			chown -R ${RUN_UID}:${RUN_GID} "${EROOT}${DATADIR}"
 			chmod -R u+w,g+w "${EROOT}${DATADIR}"
 			chmod -R o-rwx "${EROOT}${DATADIR}"
