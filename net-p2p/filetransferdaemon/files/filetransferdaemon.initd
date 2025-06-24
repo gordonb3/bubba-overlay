@@ -3,10 +3,15 @@
 DESC="File Transfer Daemon"
 NAME=ftd
 DAEMON=/opt/bubba/sbin/$NAME
-PIDFILE=/var/run/$NAME.pid
+PIDFILE=/run/$NAME.pid
+STATEDIR=/run/$NAME
 
 depend() {
         need net
+}
+
+start_pre() {
+	checkpath -q -d -o ${apache}:${apache} -m 0770 "${STATEDIR}"
 }
 
 start() {

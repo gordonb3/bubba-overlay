@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
 inherit systemd gnome2 flag-o-matic cmake toolchain-funcs
 
@@ -61,8 +61,9 @@ src_prepare() {
 		fi
 		sed -e "s/ \$\(UPLOAD_CGI\)//" -e "/www-data/d" -i bubba-ftd/Makefile
 	else
-		sed -e "s/\-\-owner=www-data//" -i bubba-ftd/Makefile
+		sed -e "s/\-\-owner=www-data/apache/" -i bubba-ftd/Makefile
 	fi
+	sed -e "s/\-\-owner=www-data/apache/" -i bubba-ftd/filetransferdaemon.cpp
 
 	cmake_src_prepare
 }
