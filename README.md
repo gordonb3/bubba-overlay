@@ -10,6 +10,9 @@ Unlike the original interface you may select what you want or don't want on the 
 
 Note: on Bubba|2 you should run `emerge @bubba2`. This set excludes forked-daapd which appears to be impossible to build on ppc.
 
+#### 
+
+
 #### Prerequisits for running the Bubba web admin
 An Excito B2 or B3 running Gentoo of course!
 
@@ -28,8 +31,8 @@ The original portage ebuild for this app uses an install scheme that appears to 
 #### File Transfer Daemon
 This package adds download and upload capabilities to the bubba web admin. Uploading files requires the use of apache web server running the web admin. The original additional feature to download torrents was removed in March 2020 as conflicts with supporting libraries could no longer be resolved.
 
-#### Logitech Media Server
-Although being meant a binary distribution, they stopped shipping the platform dependent libraries for ARMv5 and PowerPC a long time ago. This is a source build and it's perl dependencies may pull in up to ~100 additional packages and will take quite some time to complete.
+#### Lyrion Music Server
+Formerly known as Logitech Media Server this used to be a binary distribution, however they stopped shipping the platform dependent libraries for ARMv5 and PowerPC a long time ago. This is a source build and it's perl dependencies may pull in up to ~100 additional packages and will take quite some time to complete.
 
 <p><br>Optional packages included in the overlay are:</p>
 

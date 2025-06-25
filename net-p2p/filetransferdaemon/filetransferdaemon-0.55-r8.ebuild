@@ -61,9 +61,9 @@ src_prepare() {
 		fi
 		sed -e "s/ \$\(UPLOAD_CGI\)//" -e "/www-data/d" -i bubba-ftd/Makefile
 	else
-		sed -e "s/\-\-owner=www-data/apache/" -i bubba-ftd/Makefile
+		sed -e "s/www-data/apache/" -i bubba-ftd/Makefile
 	fi
-	sed -e "s/\-\-owner=www-data/apache/" -i bubba-ftd/filetransferdaemon.cpp
+	sed -e "s/www-data/apache/" -i bubba-ftd/filetransferdaemon.cpp
 
 	cmake_src_prepare
 }
