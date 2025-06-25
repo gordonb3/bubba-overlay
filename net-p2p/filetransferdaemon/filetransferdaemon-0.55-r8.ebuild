@@ -63,7 +63,7 @@ src_prepare() {
 	else
 		sed -e "s/www-data/apache/" -i bubba-ftd/Makefile
 	fi
-	sed -e "s/www-data/apache/" -i bubba-ftd/filetransferdaemon.cpp
+	sed -e "s/www-data/apache/" -i bubba-ftd/src/filetransferdaemon.cpp
 
 	cmake_src_prepare
 }
