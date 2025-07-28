@@ -10,5 +10,5 @@ LICENSE=GPL-2+
 RESTRICT=mirror
 SLOT=0
 SRC_URI=https://github.com/ralph-irving/faad2/archive/7c9b005.tar.gz -> slim-faad-2.7.0_pre240526.tar.gz
-_eclasses_=autotools	955b29ccd82c1df4755e5f37748d2fa6	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	c81bd096be5f4c82f4e8f156ef112402	toolchain-funcs	f9d71a6efe9d083aec750dd13968e169
+_eclasses_=autotools	955b29ccd82c1df4755e5f37748d2fa6	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	c81bd096be5f4c82f4e8f156ef112402	toolchain-funcs	a0b29008c671a362b505f96fa80ce9c0
 _md5_=30cff10f0a6e355b601ef5b4ed1c342d

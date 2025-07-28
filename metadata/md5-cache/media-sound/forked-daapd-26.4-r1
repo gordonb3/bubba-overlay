@@ -11,5 +11,5 @@ LICENSE=GPL-2
 RDEPEND=acct-user/daapd acct-group/daapd dev-db/sqlite:3 dev-libs/antlr-c:0 dev-libs/confuse dev-libs/libevent dev-libs/libgcrypt:0 dev-libs/libunistring <dev-libs/mxml-4.0[threads] dev-libs/json-c media-libs/alsa-lib net-dns/avahi[dbus] media-video/ffmpeg itunes? ( app-pda/libplist ) lastfm? ( net-misc/curl ) webinterface? ( net-libs/libwebsockets )
 SLOT=0
 SRC_URI=https://github.com/ejurgensen/forked-daapd/archive/26.4.tar.gz -> forked-daapd-26.4.tar.gz
-_eclasses_=autotools	955b29ccd82c1df4755e5f37748d2fa6	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	c81bd096be5f4c82f4e8f156ef112402	toolchain-funcs	f9d71a6efe9d083aec750dd13968e169
+_eclasses_=autotools	955b29ccd82c1df4755e5f37748d2fa6	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	c81bd096be5f4c82f4e8f156ef112402	toolchain-funcs	a0b29008c671a362b505f96fa80ce9c0
 _md5_=419323c897b18814d96c709796d99851
