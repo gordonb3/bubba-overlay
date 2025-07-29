@@ -1,0 +1,17 @@
+BDEPEND=app-alternatives/ninja >=dev-build/cmake-3.20.5 virtual/pkgconfig
+DEFINED_PHASES=compile configure install postinst prepare test
+DEPEND=dev-lang/perl:= dev-libs/glib dev-libs/libnl dev-libs/popt dev-tcltk/expect sys-block/parted sys-fs/lvm2 iptables? ( net-firewall/iptables ) nftables? ( net-firewall/nftables ) systemd? ( sys-apps/systemd net-misc/networkmanager ) !systemd? ( net-misc/dhcpcd ) dev-util/cppunit dev-build/libtool sys-devel/m4 dev-perl/Locale-PO dev-perl/Getopt-Long-Descriptive
+DESCRIPTION=Excito B3 administration tools and GUI
+EAPI=8
+HOMEPAGE=http://www.excito.com/
+INHERIT=cmake systemd tmpfiles
+IUSE=+apache2 nginx systemd +iptables nftables +wifi debug
+KEYWORDS=~arm ~ppc
+LICENSE=GPL-3
+RDEPEND=dev-lang/perl:= dev-libs/glib dev-libs/libnl dev-libs/popt dev-tcltk/expect sys-block/parted sys-fs/lvm2 iptables? ( net-firewall/iptables ) nftables? ( net-firewall/nftables ) systemd? ( sys-apps/systemd net-misc/networkmanager ) !systemd? ( net-misc/dhcpcd ) sys-fs/mdadm wifi? ( net-misc/bridge-utils net-wireless/hostapd net-wireless/iw net-wireless/wireless-tools ) app-arch/zip dev-perl/Config-Simple dev-perl/Config-Tiny dev-perl/Crypt-PasswdMD5 dev-perl/Crypt-SSLeay dev-perl/Expect dev-perl/File-Slurp dev-perl/IPC-Run dev-perl/IPC-Run3 >=dev-perl/JSON-2.900.0 >=dev-perl/JSON-XS-3.10.0 dev-perl/List-MoreUtils dev-perl/Try-Tiny dev-perl/XML-Parser dev-perl/XML-Simple dev-python/pycups dev-python/pyyaml >=sys-apps/bubba-info-1.4[php,perl] >=sys-libs/timezone-data-2015e app-admin/hddtemp >=dev-lang/php-8.0.0[fpm,sockets,xml,gd,pdo,imap] sys-apps/bubba-info[php] www-apps/codeigniter-bin:0/3 apache2? ( dev-lang/php[apache2] sys-apps/bubba-info[apache2] >=www-servers/apache-2.4.9[apache2_modules_proxy,apache2_modules_proxy_fcgi,apache2_modules_proxy_http,apache2_modules_rewrite] ) nginx? ( www-servers/nginx[nginx_modules_http_proxy,nginx_modules_http_rewrite,nginx_modules_http_fastcgi,nginx_modules_http_access,nginx_modules_http_auth_basic,nginx_modules_http_referer] ) virtual/tmpfiles
+REQUIRED_USE=^^ ( apache2 nginx ) ?? ( iptables nftables )
+RESTRICT=mirror
+SLOT=0
+SRC_URI=https://github.com/gordonb3/bubba-admin/archive/2.6.3-r3.tar.gz -> bubba-admin-2.6.3-r3.tar.gz
+_eclasses_=cmake	460729dc36f68cf03b044bc1d367e34a	flag-o-matic	a7afe42e95fb46ce9691605acfb24672	multiprocessing	1e32df7deee68372153dca65f4a7c21f	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	systemd	a964c0cbe818b5729da1dbfcee5be861	tmpfiles	9a9814db5a3fbd4f1e921c05297e7735	toolchain-funcs	a0b29008c671a362b505f96fa80ce9c0	xdg-utils	42869b3c8d86a70ef3cf75165a395e09
+_md5_=558c3cef20869efc8c7d140856e9af51

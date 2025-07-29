@@ -1,0 +1,24 @@
+Title: forked-daapd is now owntone
+Author: gordonb3 <gordon@bosvangennip.nl>
+Content-Type: text/plain
+Posted: 2025-07-28
+Revision: 1
+News-Item-Format: 2.0
+Display-If-Keyword: arm
+Display-If-Installed: media-sound/forked-daapd
+
+Introduction
+------------
+
+Starting with version 28.0 forked-daapd was rebranded to OwnTone. Bubbagen was held back on version
+26.4 for compatibility reasons, but now it is time to move forward. OwnTone is provided by the main
+Gentoo repository, however it is only made available for the amd64 architecture so there are some
+prerequisites for allowing it to be installed on the B3.
+
+Action Required
+---------------
+
+If you do not use genup for your world updates you need to update app-admin/bubbagen first before
+proceeding.
+
+If you do use genup for world updates, then no further action is required.
