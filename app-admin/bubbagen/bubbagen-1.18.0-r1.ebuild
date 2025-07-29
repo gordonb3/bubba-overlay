@@ -218,9 +218,8 @@ pkg_postinst() {
 	fi
 
 	# 22-08-16 upgrade remaining packages from sakaki repositories to EAPI 8
-	if (grep -q "EAPI=\"*5" ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild ); then
+	if (grep -q "EAPI=\"*5" ${LOCALPORTAGE}/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild ); then
 		sed -e "s/^EAPI=.*$/EAPI=\"8\"/" \
-		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/genup/genup-1.0.28.ebuild \
 		    -i ${LOCALPORTAGE}/sakaki-tools/app-portage/showem/showem-1.0.3.ebuild
 		grep -m1 "EAPI=\"*5" ${LOCALPORTAGE}/*/*/*/*.ebuild | while read match; do
 		    rm ${match%:*}

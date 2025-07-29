@@ -9,5 +9,5 @@ LICENSE=GPL-3+
 RDEPEND=!sys-apps/b3-init-scripts >=virtual/udev-215 >=sys-apps/ethtool-3.12.1 app-admin/bubba-admin app-admin/bubba-manual arm? ( sys-power/bubba-buttond )
 RESTRICT=mirror
 SLOT=0/1.18
-SRC_URI=https://github.com/gordonb3/bubbagen/archive/v1.18.tar.gz -> bubbagen-1.18.0-r1.tgz
-_md5_=c8ffde4544a0d7dfde13c50da26e1518
+SRC_URI=https://github.com/gordonb3/bubbagen/archive/v1.18.tar.gz -> bubbagen-1.18.0-r2.tgz
+_md5_=0e24fe7c4518ad633e01ccfb0e60339b

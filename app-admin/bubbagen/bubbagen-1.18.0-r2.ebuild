@@ -1,19 +1,20 @@
-# Copyright 2015-2022 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2021 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
 EAPI="8"
 
-inherit git-r3
-
-EGIT_REPO_URI="https://github.com/gordonb3/${PN}.git"
-
 DESCRIPTION="The Bubba main package"
 HOMEPAGE="https://github.com/gordonb3/bubbagen"
-KEYWORDS=""
+KEYWORDS="~arm ~ppc"
 LICENSE="GPL-3+"
-#SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${PV}.tar.gz -> ${PF}.tgz"
 VMAJOR=${PV:0:4}
+REVISION=${PV:5}
+VRELEASE=${VMAJOR}
+if [ ${REVISION} -gt 0 ]; then
+  VRELEASE=${VMAJOR}.${REVISION}
+fi
+SRC_URI="https://github.com/gordonb3/bubbagen/archive/v${VRELEASE}.tar.gz -> ${PF}.tgz"
 SLOT="0/${VMAJOR}"
 RESTRICT="mirror"
 IUSE="bindist systemd"
@@ -31,11 +32,17 @@ RDEPEND="${DEPEND}
 	arm? ( sys-power/bubba-buttond )
 "
 
+PATCHES=(
+	"${FILESDIR}/v1.18.0-r2.patch"
+)
+
+
 REMOVELIST=""
 IS_BINDIST=""
 KERNEL_MAJOR=""
 KERNEL_MINOR=""
 PROFILE=0
+
 
 pkg_setup() {
 	[[ -e ${ROOT}/var/lib/bubba/bubba-default-config.tgz ]] || return
@@ -63,6 +70,12 @@ pkg_setup() {
 	PROFILE=$(readlink /etc/portage/make.profile | sed -e "s/[^0-9]//g" -e "s/^\(..\).*/\1/")
 }
 
+src_unpack() {
+	default
+
+	mv ${WORKDIR}/${PN}* ${S}
+}
+
 src_prepare() {
 	eapply_user
 
@@ -80,7 +93,7 @@ src_prepare() {
 	fi
 
 	# if enabled, include config files required to prevent bindist conflicts
-	use bindist && [[ -d ${S}/bindist ]] && cp -a ${S}/bindist/* ${S}/
+	use bindist && [[ -d ${S}/bindist ]] && cp -al ${S}/bindist/* ${S}/
 
 	# correct for different settings between B2 and B3
 	use ppc && rm etc/portage/package.use/sysvinit
@@ -111,11 +124,8 @@ src_compile() {
 }
 
 src_install() {
-	# construct version from git info
-	LAST_TAG=$(git describe --abbrev=0 --tags)
-	LAST_COMMIT=$(date -d @$(git show -s --format=%ct) +"%y%m%d")
         dodir /etc/bubba
-	echo "${LAST_TAG:0:5}.$((${PV:5}+4))_pre${LAST_COMMIT}" > ${ED}/etc/bubba/bubba.version
+	echo ${PV} > ${ED}/etc/bubba/bubba.version
 
 	insinto /var/lib/bubba
 	doins bubba-default-config.tgz
@@ -142,36 +152,36 @@ src_install() {
 }
 
 pkg_postinst() {
-	if [[ ! -z "${REMOVELIST}" ]]; then
+	if [[ -n "${REMOVELIST}" ]]; then
 		elog "Removed obsolete portage config files from previous version"
 		rm -f ${REMOVELIST}
 	fi
 
 	if use bindist; then
-		CONF_BINDIST=$(grep "^USE=" /etc/portage/make.conf | cut -d# -f1 | grep bindist)
+		CONF_BINDIST=$(grep "^USE=" ${ROOT}/etc/portage/make.conf | cut -d# -f1 | grep bindist)
 		if [[ -z "${CONF_BINDIST}" ]]; then
-			EMPTYUSELINE=$(grep -m1 -n "^USE=\"\"" /etc/portage/make.conf | cut -d: -f1)
+			EMPTYUSELINE=$(grep -m1 -n "^USE=\"\"" ${ROOT}/etc/portage/make.conf | cut -d: -f1)
 			if [[ -z "${EMPTYUSELINE}" ]]; then
-				sed -e "${EMPTYUSELINE} s/^USE=\"\"/USE=\"bindist\"/" -i /etc/portage/make.conf
+				sed -e "${EMPTYUSELINE} s/^USE=\"\"/USE=\"bindist\"/" -i ${ROOT}/etc/portage/make.conf
 			else
-				LINENUMBER=$(grep -m1 -n "^USE=\"" /etc/portage/make.conf | cut -d: -f1)
-				sed -e "${LINENUMBER} s/^USE=\"/USE=\"bindist\"\nUSE=\"\${USE} /" -i /etc/portage/make.conf
+				LINENUMBER=$(grep -m1 -n "^USE=\"" ${ROOT}/etc/portage/make.conf | cut -d: -f1)
+				sed -e "${LINENUMBER} s/^USE=\"/USE=\"bindist\"\nUSE=\"\${USE} /" -i ${ROOT}/etc/portage/make.conf
 			fi
 			elog "Added bindist USE flag to your global make.conf"
 		fi
 
 		# enforce overwrite of bindist conf files
-		find /etc/portage/ -name ._cfg*bindist* | while read FILE; do
+		find ${ROOT}/etc/portage/ -name ._cfg*bindist* | while read FILE; do
 			CONFFILE=$(echo ${FILE} | sed "s/\._cfg[0-9]*_//")
 			rm -f ${CONFFILE}
 			mv ${FILE} ${CONFFILE}
 		done
 	else
-		grep -q "^USE=\"[^#]*bindist" /etc/portage/make.conf && elog "Removed bindist USE flag from your global make.conf"
-		sed -e "s/^\(USE=\"[^#]*\)bindist\(.*\)$/\1\2/" -e "s/ *\" */\"/g" -e "s/   */ /g" -i /etc/portage/make.conf
+		grep -q "^USE=\"[^#]*bindist" ${ROOT}/etc/portage/make.conf && elog "Removed bindist USE flag from your global make.conf"
+		sed -e "s/^\(USE=\"[^#]*\)bindist\(.*\)$/\1\2/" -e "s/ *\" */\"/g" -e "s/   */ /g" -i ${ROOT}/etc/portage/make.conf
 
-		BINDIST_CONFS=$(find /etc/portage -name *bindist*)
-		[[ ! -z "${BINDIST_CONFS}" ]] && elog "Removed package specific restrictions only required for bindist"
+		BINDIST_CONFS=$(find ${ROOT}/etc/portage -name *bindist*)
+		[[ -n "${BINDIST_CONFS}" ]] && elog "Removed package specific restrictions only required for bindist"
 		rm -f ${BINDIST_CONFS}
 	fi
 
