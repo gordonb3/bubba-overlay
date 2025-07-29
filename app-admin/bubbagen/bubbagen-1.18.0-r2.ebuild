@@ -32,11 +32,6 @@ RDEPEND="${DEPEND}
 	arm? ( sys-power/bubba-buttond )
 "
 
-PATCHES=(
-	"${FILESDIR}/v1.18.0-r2.patch"
-)
-
-
 REMOVELIST=""
 IS_BINDIST=""
 KERNEL_MAJOR=""
@@ -77,6 +72,7 @@ src_unpack() {
 }
 
 src_prepare() {
+	eapply "${FILESDIR}/v1.18.0-r2.patch"
 	eapply_user
 
 	# Git does not support empty folders
