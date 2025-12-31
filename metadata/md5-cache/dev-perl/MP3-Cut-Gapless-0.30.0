@@ -11,5 +11,5 @@ RDEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,p
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/A/AG/AGRUNDMA/MP3-Cut-Gapless-0.03.tar.gz
-_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	41920449ca174fe9b9b303dfcbdb37a3	toolchain-funcs	a0b29008c671a362b505f96fa80ce9c0
+_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	41920449ca174fe9b9b303dfcbdb37a3	toolchain-funcs	30214924c0c3b92ec7dbf24fc70d60d3
 _md5_=ad2a704db083b2d0e5371d6397abb4ae
