@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="7"
+EAPI="8"
 
 DESCRIPTION="Anti-Spam SMTP Proxy written in Perl"
 HOMEPAGE="http://assp.sourceforge.net/"

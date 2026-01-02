@@ -1,7 +1,7 @@
 DEFINED_PHASES=install postinst prepare
 DEPEND=app-arch/unzip
 DESCRIPTION=Anti-Spam SMTP Proxy written in Perl
-EAPI=7
+EAPI=8
 HOMEPAGE=http://assp.sourceforge.net/
 IUSE=ipv6 ldap sasl spf srs ssl syslog
 KEYWORDS=~arm
@@ -10,4 +10,4 @@ RDEPEND=acct-user/assp acct-group/assp dev-lang/perl dev-perl/Net-DNS dev-perl/F
 RESTRICT=mirror
 SLOT=0
 SRC_URI=https://iweb.dl.sourceforge.net/project/assp/ASSP%20Installation/ASSP%201.10.X/ASSP_1.10.1_16065_install.zip
-_md5_=f7caafc1834aa16eed6bf696214a8913
+_md5_=5feacb47c87c3b2cd23f7a9d05dd2f40

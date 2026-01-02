@@ -1,15 +1,15 @@
-BDEPEND=dev-perl/Devel-CheckLib dev-perl/File-Which virtual/perl-ExtUtils-MakeMaker test? ( dev-perl/Test-Warn ) >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
+BDEPEND=dev-perl/Devel-CheckLib dev-perl/File-Which virtual/perl-ExtUtils-MakeMaker test? ( dev-perl/Test-Warn ) >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] test? ( >=virtual/perl-Test-Simple-1 )
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DESCRIPTION=read font files and render glyphs from Perl using FreeType2
-EAPI=7
+EAPI=8
 HOMEPAGE=https://metacpan.org/release/Font-FreeType
 INHERIT=perl-module
-IUSE=test perl_features_debug perl_features_ithreads perl_features_quadmath
+IUSE=test perl_features_debug perl_features_ithreads perl_features_quadmath test
 KEYWORDS=~amd64 ~x86 ~arm ~ppc
 RDEPEND=media-libs/freetype >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] dev-lang/perl:=
-RESTRICT=!test? ( test )
+RESTRICT=!test? ( test ) !test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/D/DM/DMOL/Font-FreeType-0.16.tar.gz
-_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	41920449ca174fe9b9b303dfcbdb37a3	toolchain-funcs	30214924c0c3b92ec7dbf24fc70d60d3
-_md5_=02fb2524da03b81817bfacbb6aa473c7
+_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	41920449ca174fe9b9b303dfcbdb37a3	readme.gentoo-r1	b045f3acf546393ab6b3170781875358	toolchain-funcs	30214924c0c3b92ec7dbf24fc70d60d3
+_md5_=de085772c20f22718c8cbd51fec9d8ad

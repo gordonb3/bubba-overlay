@@ -1,15 +1,15 @@
-BDEPEND=virtual/perl-ExtUtils-MakeMaker dev-perl/Module-Install test? ( dev-perl/Test-Warn ) >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
+BDEPEND=virtual/perl-ExtUtils-MakeMaker dev-perl/Module-Install test? ( dev-perl/Test-Warn ) >=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] test? ( >=virtual/perl-Test-Simple-1 )
 DEFINED_PHASES=compile configure install prepare test
 DEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=]
 DESCRIPTION=Port of pcutmp3 to Perl with improvements
-EAPI=7
+EAPI=8
 HOMEPAGE=https://metacpan.org/release/MP3-Cut-Gapless
 INHERIT=perl-module
-IUSE=test perl_features_debug perl_features_ithreads perl_features_quadmath
+IUSE=test perl_features_debug perl_features_ithreads perl_features_quadmath test
 KEYWORDS=~amd64 ~x86 ~arm ~ppc
 RDEPEND=>=dev-lang/perl-5.38.2-r3[perl_features_debug=,perl_features_ithreads=,perl_features_quadmath=] dev-lang/perl:=
-RESTRICT=!test? ( test )
+RESTRICT=!test? ( test ) !test? ( test )
 SLOT=0
 SRC_URI=mirror://cpan/authors/id/A/AG/AGRUNDMA/MP3-Cut-Gapless-0.03.tar.gz
-_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	41920449ca174fe9b9b303dfcbdb37a3	toolchain-funcs	30214924c0c3b92ec7dbf24fc70d60d3
-_md5_=ad2a704db083b2d0e5371d6397abb4ae
+_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	perl-functions	1863acf0982afafc67797e3ce7275b4c	perl-module	41920449ca174fe9b9b303dfcbdb37a3	readme.gentoo-r1	b045f3acf546393ab6b3170781875358	toolchain-funcs	30214924c0c3b92ec7dbf24fc70d60d3
+_md5_=c789a4b28266368e034ae913def959b0

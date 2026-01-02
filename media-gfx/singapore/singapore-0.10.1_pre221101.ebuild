@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-EAPI="7"
+EAPI="8"
 
 # Although this is a git source, the project appears to be static, 
 # so there's no sense in rechecking the source with every reinstall.

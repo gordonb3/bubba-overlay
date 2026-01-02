@@ -3,7 +3,7 @@
 #
 # $Id$
 
-EAPI="7"
+EAPI="8"
 
 DESCRIPTION="Virtual for Java Development Kit (JDK)"
 SLOT="1.8"

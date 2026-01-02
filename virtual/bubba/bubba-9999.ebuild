@@ -2,7 +2,7 @@
 #
 # $Id$
 
-EAPI="7"
+EAPI="8"
 
 DESCRIPTION="Virtual for Bubba Version"
 SLOT="0/${PV}"

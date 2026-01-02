@@ -1,7 +1,7 @@
 DEFINED_PHASES=-
 DESCRIPTION=Virtual for Bubba Version
-EAPI=7
+EAPI=8
 IUSE=systemd
 RDEPEND=app-admin/bubbagen:0/9999
 SLOT=0/9999
-_md5_=c17d60ada4ce07595e67a8ddd509b867
+_md5_=8136e1cf05a41f886b37aae4675056fd
