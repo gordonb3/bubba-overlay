@@ -4,7 +4,7 @@
 EAPI=8
 
 DIST_AUTHOR=AGRUNDMA
-# Note: 1.08 is an unofficial release by the Logitech Media Server community, so we are grabbing 1.01 and patch it to reach 1.08
+# Note: 1.11 is an unofficial release by the Logitech Media Server community, so we are grabbing 1.01 and patch it to reach 1.11
 DIST_VERSION=1.01
 inherit perl-module
 
@@ -37,6 +37,7 @@ PATCHES=( "${FILESDIR}/1.01_gentoo_fix_compiler_warnings.patch"
 	  "${FILESDIR}/1.08_improve_mp4_tiny_atom_handling.patch"
 	  "${FILESDIR}/1.09_support_larger_cover_art_embedded_in_ape_track.patch"
 	  "${FILESDIR}/1.10_add_support_for_ogf_file_format.patch"
+	  "${FILESDIR}/1.11_add_id3_v2.4_grouping_frame_support.patch"
 )
 
 
