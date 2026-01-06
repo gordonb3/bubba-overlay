@@ -1,21 +1,11 @@
-app-text/ghostscript-gpl
 dev-embedded/u-boot-tools
-dev-lang/perl
-dev-lang/php
-net-dns/avahi
-net-dns/dnsmasq
-net-firewall/nftables
-net-fs/davfs2
-net-fs/netatalk
 net-fs/samba
-net-ftp/proftpd
 net-mail/fetchmail
 net-mail/dovecot
 net-misc/ntp
 net-misc/wsdd
-net-print/cups-pdf
 sys-kernel/bubba-b3-kernel-bin
 sys-power/bubba-buttond
 virtual/bubba
-www-servers/apache
+virtual/bubba-dns
 

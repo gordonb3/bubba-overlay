@@ -1,8 +1,13 @@
 @bubba
-mail-client/bubba-roundcube
+mail-client/roundcube
 media-gfx/singapore
 media-sound/lyrionmusicserver
+net-dns/avahi
+net-fs/davfs2
+net-fs/netatalk
+net-ftp/proftpd
 net-misc/minidlna
 net-p2p/filetransferdaemon
+net-print/cups-pdf
 net-vpn/tor
 
