@@ -1,0 +1,7 @@
+DEFINED_PHASES=-
+DESCRIPTION=Virtual for Bubba DNS and DHCP services
+EAPI=8
+KEYWORDS=~arm ~ppc
+RDEPEND=|| ( net-dns/dnsmasq net-dns/pi-hole )
+SLOT=0/0
+_md5_=f9fa2af3b7552b01b195051cc21d7a8e
