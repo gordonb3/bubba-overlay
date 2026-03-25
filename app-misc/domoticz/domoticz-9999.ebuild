@@ -1,4 +1,4 @@
-# Copyright 2015-2020 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2026 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -65,9 +65,9 @@ src_unpack() {
 src_prepare() {
 	eapply_user
 
-	# reset all static and runtime folder dynamic linking to off
+	# reset all static linking and optional inclusions to off
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/CMakeLists.txt
-	sed -e "s/option\(.*\)ON)/option\1NO)/" -i ${S}/CMakeLists.txt
+	sed -e "s/option\(.*\)ON)/option\1OFF)/" -i ${S}/CMakeLists.txt
 
 	# disable automatic scanning for Telldus
 	use telldus || {
@@ -113,6 +113,19 @@ src_prepare() {
 	grep -r -m1 "using namespace std::placeholders" | cut -d: -f1 | while read FILE; do
 		grep -q -m1 "BOOST_BIND_NO_PLACEHOLDERS" "${FILE}" || sed -e "1s/^/#define BOOST_BIND_NO_PLACEHOLDERS\n/" -i "${FILE}"
 	done
+
+	# keep the included header only jwt-cpp
+	# the version provided by the gentoo repository does not contain the header file that domoticz wants
+	sed -e "s/JWT-CPP\" NO)/JWT-CPP\" YES)/" -i ${S}/CMakeLists.txt
+
+	# webem: cmake find_package does not work with jsoncpp and minizip
+	sed \
+	  -e "s/find_package(jsoncpp QUIET)/find_package(PkgConfig)\n pkg_check_modules(jsoncpp REQUIRED jsoncpp)/" \
+	  -e "s/jsoncpp_FOUND)/jsoncpp_FOUND)\n target_include_directories(webem PRIVATE \${jsoncpp_INCLUDE_DIRS})\n target_link_libraries(webem PRIVATE \${JSONCPP_LIBRARIES})/" \
+	  -e "/jsoncpp_lib/d" \
+	  -e "s/find_package(minizip QUIET)/find_package(PkgConfig)\n pkg_check_modules(minizip REQUIRED minizip)/" \
+	  -e "s/minizip::minizip/minizip/" \
+	  -i ${S}/extern/libwebem/CMakeLists.txt
 
 	cmake_src_prepare
 
