@@ -1,4 +1,4 @@
-# Copyright 2026 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2022 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -6,24 +6,27 @@ EAPI="8"
 
 LUA_VR="5.3.6"
 
+inherit cmake systemd
 
-inherit cmake git-r3 systemd
-
-EGIT_REPO_URI="https://github.com/domoticz/domoticz.git"
-EGIT_BRANCH="development"
+#EGIT_REPO_URI="git://github.com/domoticz/domoticz.git"
+CTIME="2026-03-25 07:16:42 +0100"
+COMMIT="35bdab36e"
+REVCOUNT="17513"
 
 LUA_V="${LUA_VR:0:3}"
 PKG_LUA="lua-${LUA_VR}.tar.gz"
-SRC_URI="internal-lua? ( http://www.lua.org/ftp/${PKG_LUA} )"
 
+SRC_URI="https://github.com/domoticz/domoticz/archive/refs/tags/${PV}.tar.gz -> ${PN}-${PV}.tar.gz
+	 internal-lua? ( http://www.lua.org/ftp/${PKG_LUA} )
+"
 
+RESTRICT="mirror"
 DESCRIPTION="Home automation system"
 HOMEPAGE="http://domoticz.com/"
-
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS=""
-IUSE="systemd telldus openzwave python i2c +spi +internal-lua examples"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
+IUSE="systemd telldus python i2c +spi +internal-lua examples"
 
 RDEPEND="net-misc/curl
 	 dev-libs/libusb
@@ -33,13 +36,12 @@ RDEPEND="net-misc/curl
 	 dev-libs/boost
 	 sys-libs/zlib[minizip]
 	 !internal-lua? ( dev-lang/lua:5.2 )
-	 app-misc/mosquitto
+	 app-misc/mosquitto[srv]
+	 net-dns/c-ares
 	 dev-db/sqlite
 	 telldus? ( app-misc/telldus-core )
-	 openzwave? ( dev-libs/openzwave )
 	 python? ( dev-lang/python )
 	 dev-libs/openssl
-	 dev-libs/cereal
 	 dev-libs/jsoncpp
 	 >=dev-cpp/jwt-cpp-0.7.1[picojson]
 	 =dev-libs/libwebem-${PV}
@@ -58,16 +60,31 @@ make_lua() {
 }
 
 src_unpack() {
-	git-r3_src_unpack
-	use internal-lua && unpack ${PKG_LUA}
+	unpack ${A}
+	mv ${WORKDIR}/${PN}-* ${S}
 }
 
 src_prepare() {
 	eapply_user
 
-	# reset all static linking and optional inclusions to off
+	ProjectHash="${COMMIT}"
+	ProjectRevision="${REVCOUNT}"
+	ProjectDate=$(date -d "${CTIME}" +"%s")
+	
+	# the project cmake file takes the application version from the Git project revision
+	# we can't use that here because the snapshot does not contain the Git header files
+	elog "building ${PN} version ${ProjectRevision}, using Git commit \"${ProjectHash}\" from ${CTIME}"
+	echo -e "#define APPVERSION ${ProjectRevision}\n#define APPHASH \"${ProjectHash}\"\n#define APPDATE ${ProjectDate}\n" > appversion.h
+	echo 'execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different appversion.h appversion.h.txt)' > getgit.cmake
+	sed \
+	  -e "/^Gitversion_GET_REVISION/cset(ProjectRevision ${ProjectRevision})" \
+	  -e "/^MATH(EXPR ProjectRevision/d" \
+	  -e "s/+2107/+0/" \
+	  -i ${S}/CMakeLists.txt
+
+	# reset all static and runtime folder dynamic linking to off
 	sed -e "s/option\(.*\)YES)/option\1NO)/" -i ${S}/CMakeLists.txt
-	sed -e "s/option\(.*\)ON)/option\1OFF)/" -i ${S}/CMakeLists.txt
+	sed -e "s/option\(.*\)ON)/option\1NO)/" -i ${S}/CMakeLists.txt
 
 	# disable automatic scanning for Telldus
 	use telldus || {
@@ -75,15 +92,7 @@ src_prepare() {
 		  -e "s/libtelldus-core.so/libtelldus-core.so.invalid/" \
 		  -e "/Found telldus/d" \
 		  -e "/find_path(TELLDUSCORE_INCLUDE/c  set(TELLDUSCORE_INCLUDE NO)" \
-		  -e "/Not found telldus-core/c  message(STATUS \"tellstick support disabled\")" \
-		  -i ${S}/CMakeLists.txt
-	}
-
-	# disable automatic scanning for OpenZWave
-	use openzwave || {
-		sed \
-		  -e "/pkg_check_modules(OPENZWAVE/cset(OPENZWAVE_FOUND NO)" \
-		  -e "s/==== OpenZWave.*!/OpenZWave support disabled/" \
+		  -e "/Not found telldus-core/c  message(STATUS \"tellstick support disbled\")" \
 		  -i ${S}/CMakeLists.txt
 	}
 
@@ -108,11 +117,13 @@ src_prepare() {
 		eapply ${FILESDIR}/Do_not_use_the_long_long_integer_type_with_LUA_prior_to_5.3.patch
 	fi
 
-	# fix placeholder ambiguation in beta code
-	sed -e "s/c++11/c++14/" -i ${S}/CMakeLists.txt
-	grep -r -m1 "using namespace std::placeholders" | cut -d: -f1 | while read FILE; do
-		grep -q -m1 "BOOST_BIND_NO_PLACEHOLDERS" "${FILE}" || sed -e "1s/^/#define BOOST_BIND_NO_PLACEHOLDERS\n/" -i "${FILE}"
-	done
+	# plugin code in this version unconditionally links Python which causes an error if USE python is disabled
+	use python || {
+		sed \
+		-e "/#include \"PythonObjects.h\"/d" \
+		-e "/PyObject/d" \
+		-i ${S}/hardware/plugins/Plugins.h
+	}
 
 	# do not include build of libwebem
 	sed -e "/add_subdirectory(extern\/libwebem)/d" -i ${S}/CMakeLists.txt
@@ -124,11 +135,11 @@ src_prepare() {
 		# explitely link to atomic
 		sed -e "s/ pthread/ pthread atomic/" -i ${S}/CMakeLists.txt
 	fi
+
 	cmake_src_prepare
 }
 
 src_configure() {
-
 	# If we are integrating Lua in our build we need to compile the library before
 	# attempting to configure Domoticz
 	use internal-lua && make_lua
@@ -137,7 +148,7 @@ src_configure() {
 	local mycmakeargs=(
 		-DCMAKE_BUILD_TYPE="Release"
 		-DCMAKE_CXX_FLAGS_GENTOO="-O3 -DNDEBUG"
-		-DCMAKE_INSTALL_PREFIX="/opt/domoticz"
+		-DCMAKE_INSTALL_PREFIX="/opt/${PN}"
 		-DUSE_PRECOMPILED_HEADER="YES"
 		-DUSE_PYTHON=$(usex python)
 		-DINCLUDE_LINUX_I2C=$(usex i2c)
@@ -200,3 +211,4 @@ pkg_postinst() {
 pkg_prerm() {
 	find /opt/${PN} -type l -exec rm {} \;
 }
+
