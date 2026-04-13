@@ -1,4 +1,4 @@
-BDEPEND=sys-devel/gnuconfig >=app-portage/elt-patches-20250306 || ( >=dev-build/automake-1.18:1.18 >=dev-build/automake-1.17-r1:1.17 ) || ( >=dev-build/autoconf-2.72-r1:2.72 ) >=dev-build/libtool-2.4.7-r3
+BDEPEND=sys-devel/gnuconfig >=app-portage/elt-patches-20250306 || ( >=dev-build/automake-1.18.1:1.18 ) || ( >=dev-build/autoconf-2.73:2.73 >=dev-build/autoconf-2.72-r1:2.72 ) >=dev-build/libtool-2.4.7-r3
 DEFINED_PHASES=configure install prepare
 DEPEND=dev-java/antlr:3.5 acct-user/daapd acct-group/daapd dev-db/sqlite:3 dev-libs/antlr-c:0 dev-libs/confuse dev-libs/libevent dev-libs/libgcrypt:0 dev-libs/libunistring <dev-libs/mxml-4.0[threads] dev-libs/json-c media-libs/alsa-lib net-dns/avahi[dbus] media-video/ffmpeg itunes? ( app-pda/libplist ) lastfm? ( net-misc/curl ) webinterface? ( net-libs/libwebsockets )
 DESCRIPTION=A DAAP (iTunes) media server
@@ -11,5 +11,5 @@ LICENSE=GPL-2
 RDEPEND=acct-user/daapd acct-group/daapd dev-db/sqlite:3 dev-libs/antlr-c:0 dev-libs/confuse dev-libs/libevent dev-libs/libgcrypt:0 dev-libs/libunistring <dev-libs/mxml-4.0[threads] dev-libs/json-c media-libs/alsa-lib net-dns/avahi[dbus] media-video/ffmpeg itunes? ( app-pda/libplist ) lastfm? ( net-misc/curl ) webinterface? ( net-libs/libwebsockets )
 SLOT=0
 SRC_URI=https://github.com/ejurgensen/forked-daapd/archive/26.4.tar.gz -> forked-daapd-26.4.tar.gz
-_eclasses_=autotools	3a740b2e55e60a60e8c0c411f3996dfa	gnuconfig	b4fa4889c6f586d6b069215a86dd9e53	libtool	6a96cd90e5da8c7c615015479f46f1a4	toolchain-funcs	8a2c298bde71ecf3f452dd9e67c94369
+_eclasses_=autotools	0698802996fcfe9a604eac3c1f6e7112	gnuconfig	b4fa4889c6f586d6b069215a86dd9e53	libtool	6a96cd90e5da8c7c615015479f46f1a4	toolchain-funcs	5195689ff6a73b0e789acfa09d4fbcb9
 _md5_=419323c897b18814d96c709796d99851
