@@ -68,7 +68,7 @@ src_configure() {
 src_install() {
 	cmake_src_install
 
-	insinto /usr/include/${PN}/src
+	insinto /usr/include/${PN}
 	doins ${S}/src/sha1.h
 
 	insinto /var/lib/${PN}

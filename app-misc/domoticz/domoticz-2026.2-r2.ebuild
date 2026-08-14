@@ -44,7 +44,7 @@ RDEPEND="net-misc/curl
 	 dev-libs/openssl
 	 dev-libs/jsoncpp
 	 >=dev-cpp/jwt-cpp-0.7.1[picojson]
-	 =dev-libs/libwebem-${PV}*
+	 =dev-libs/libwebem-${PVR}
 "
 
 DEPEND="${RDEPEND}"
@@ -127,9 +127,9 @@ src_prepare() {
 
 	# do not include build of libwebem
 	sed -e "/add_subdirectory(extern\/libwebem)/d" -i ${S}/CMakeLists.txt
-	
+
 	# check for source files that include libwebem header files directly in the extern folder
-	grep -r "#include \"../extern/libwebem" | cut -d: -f1 | uniq | while read file; do sed -e "s/#include \".*\/extern\/libwebem\/include\/\([^\"]*\)\"/#include <\\1>/" -i $file; sed -e "s/#include \".*\/extern\/libwebem\/src\/\([^\"]*\)\"/#include <libwebem\/src\/\\1>/" -i $file; done
+	grep -r "#include \"../extern/libwebem" | cut -d: -f1 | uniq | while read file; do sed -e "s/#include \".*\/extern\/libwebem\/include\/\([^\"]*\)\"/#include <\\1>/" -i $file; sed -e "s/#include \".*\/extern\/libwebem\/src\/\([^\"]*\)\"/#include <libwebem\/\\1>/" -i $file; done
 
 	if use arm; then
 		# explitely link to atomic
