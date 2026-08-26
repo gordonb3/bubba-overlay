@@ -4,17 +4,21 @@
 
 EAPI="8"
 
-inherit cmake git-r3
+inherit cmake
 
-EGIT_REPO_URI="https://github.com/domoticz/libwebem.git"
-EGIT_BRANCH="master"
+#EGIT_REPO_URI="https://github.com/domoticz/libwebem.git"
+#EGIT_BRANCH="master"
+COMMIT="9126af0"
+CTIME="2026-08-02 10:25:20 +0200"
 
+SRC_URI="https://github.com/domoticz/${PN}/archive/${COMMIT}.tar.gz -> ${PN}-${PV}.tar.gz"
+RESTRICT="mirror"
 DESCRIPTION="Webserver library for Domoticz Home automation system"
 HOMEPAGE="http://domoticz.com/"
 
 LICENSE="GPL-3"
 SLOT="0/${PV}"
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~x86"
 IUSE=""
 
 RDEPEND="
@@ -27,12 +31,13 @@ RDEPEND="
 
 DEPEND="${RDEPEND}"
 
-
 CMAKE_IN_SOURCE_BUILD=yes
 
 src_unpack() {
-	git-r3_src_unpack
+	unpack ${A}
+	mv ${WORKDIR}/${PN}-* ${S}
 }
+
 
 src_prepare() {
 	eapply_user
