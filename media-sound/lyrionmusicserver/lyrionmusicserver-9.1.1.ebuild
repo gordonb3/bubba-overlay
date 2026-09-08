@@ -1,4 +1,4 @@
-# Copyright 2024 gordonb3 <gordon@bosvangennip.nl>
+# Copyright 2026 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
 #
 # $Header$
@@ -8,11 +8,10 @@ EAPI="8"
 inherit systemd
 
 
-MY_PV="${PV/_*}"
+MY_PV="${PV/[_-]*}"
 MY_PF="${PN}-${MY_PV}"
-S="${WORKDIR}/${MY_PF}-noCPAN"
 
-SRC_URI="http://downloads.lms-community.org/LyrionMusicServer_v${MY_PV}/${MY_PF}-noCPAN.tgz"
+SRC_URI="https://github.com/LMS-Community/slimserver/archive/refs/tags/${MY_PV}.tar.gz  -> ${PN}-${MY_PV}.tar.gz"
 HOMEPAGE="https://lyrion.org/"
 
 KEYWORDS="~amd64 ~x86 ~arm ~ppc"
@@ -107,23 +106,30 @@ pkg_pretend() {
 	fi
 }
 
+
+src_unpack() {
+	# Do not unpack the binary files in CPAN/arch. We are using the ones from the Gentoo repository instead.
+	tar -xf "${DISTDIR}/${PN}-${MY_PV}.tar.gz" --exclude="CPAN/arch" || die "Tar extraction failed"
+	mv slimserver-${MY_PV} ${S}
+}
+
 src_prepare() {
 	default	
 
-	# fix default user name to run as
+	# Fix default user name to run as
 	sed -e "s/nobody/${RUN_UID}/" -i slimserver.pl
 
-	# merge the secondary lib folder into CPAN, keeping track of the various locations
+	# Merge the secondary lib folder into CPAN, keeping track of the various locations
 	# for CPAN modules possibly duplicated in system is hard enough already without it.
 	elog "Merging lib and CPAN folders"
 	cp -aR lib/* CPAN/
 	rm -rf lib
 	sed -e "/catdir(\$libPath,'lib'),/d" -i Slim/bootstrap.pm
 
-	# Locale::Hebrew is provided by dev-perl/Locale-Hebrew
+	# Locale::Hebrew is conditionally provided by dev-perl/Locale-Hebrew
 	rm CPAN/Locale/Hebrew.pm
 
-	# upstream should really upgrade their version
+	# Upstream should really upgrade their version
 	rm CPAN/Carp/Assert.pm
 }
 
@@ -153,7 +159,7 @@ src_install() {
 	fi
 	newconfd "${FILESDIR}/${PN}.conf" "${PN}"
 
-	# prepare data and log file locations
+	# Prepare data and log file locations
 	elog "Set up log and data file locations"
 	for TARGETDIR in ${LOGDIR} ${DATADIR} ${PREFSDIR} ${CACHEDIR} ${USRPLUGINSDIR} ${CLIENTPLAYLISTSDIR}; do
 		keepdir ${TARGETDIR}
@@ -173,16 +179,16 @@ src_install() {
 pkg_postinst() {
 	# Use of DynaLoader causes version conflicts because it prefers the system perl folders over the local CPAN folder.
 	elog "Recursively wiping modules already present in system vendorarch path to prevent version conflicts."
-	MY_PERL_VENDOR_ARCHPATH=$(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep vendorarch | sed -e "s/^.*vendorarch=//" -e "s/ .*$//g")
-	cd ${MY_PERL_VENDOR_ARCHPATH}
-	find -type f | sed "s/^\.\///" | grep -v "/DBIx/" | while read file; do 
+	eval $(LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8" perl -V | grep -o "vendorarch=[^ ]* ")
+	cd ${vendorarch}
+	find -type f | grep -v "/DBIx/" | sed "s/^\.\///" | while read file; do 
 		if [ -f "${EROOT}${BINDIR}/CPAN/${file}" ]; then
 			rm ${EROOT}${BINDIR}/CPAN/${file}
 		fi
 	done
 	cd - &>/dev/null
 
-	# remove empty directories in LMS path.
+	# Remove empty directories in LMS path.
 	cd ${EROOT}${BINDIR}
 	MY_SEARCHDEPTH=5
 	while [ ${MY_SEARCHDEPTH} -gt 0 ]; do

@@ -1,5 +1,5 @@
 BDEPEND=app-arch/unzip dev-lang/nasm virtual/pkgconfig
-DEFINED_PHASES=install postinst prepare pretend
+DEFINED_PHASES=install postinst prepare pretend unpack
 DEPEND=acct-user/lyrion acct-group/lyrion >=dev-lang/perl-5.38.2-r3[perl_features_ithreads] dev-perl/Audio-Scan dev-perl/Class-XSAccessor dev-perl/DBD-SQLite dev-perl/Digest-SHA1 dev-perl/EV dev-perl/Encode-Detect dev-perl/HTML-Parser dev-perl/IO-AIO dev-perl/IO-Interface dev-perl/Image-Scale[gif,jpeg,png] dev-perl/JSON-XS dev-perl/Linux-Inotify2 dev-perl/MP3-Cut-Gapless dev-perl/Sub-Name dev-perl/Template-Toolkit[gd] dev-perl/XML-Parser dev-perl/YAML-LibYAML freetype? ( dev-perl/Font-FreeType ) l10n_he? ( dev-perl/Locale-Hebrew ) dev-perl/Carp-Assert
 DESCRIPTION=Lyrion Music Server (streaming audio server)
 EAPI=8
@@ -11,6 +11,6 @@ LICENSE=GPL-3
 RDEPEND=acct-user/lyrion acct-group/lyrion >=dev-lang/perl-5.38.2-r3[perl_features_ithreads] dev-perl/Audio-Scan dev-perl/Class-XSAccessor dev-perl/DBD-SQLite dev-perl/Digest-SHA1 dev-perl/EV dev-perl/Encode-Detect dev-perl/HTML-Parser dev-perl/IO-AIO dev-perl/IO-Interface dev-perl/Image-Scale[gif,jpeg,png] dev-perl/JSON-XS dev-perl/Linux-Inotify2 dev-perl/MP3-Cut-Gapless dev-perl/Sub-Name dev-perl/Template-Toolkit[gd] dev-perl/XML-Parser dev-perl/YAML-LibYAML freetype? ( dev-perl/Font-FreeType ) l10n_he? ( dev-perl/Locale-Hebrew ) dev-perl/Carp-Assert virtual/logger mp3? ( media-sound/lame ) wavpack? ( media-sound/wavpack ) flac? ( media-libs/flac media-sound/sox[flac] ) ogg? ( media-sound/sox[ogg] ) aac? ( media-libs/slim-faad ) alac? ( media-libs/slim-faad ) mac? ( media-sound/mac )
 RESTRICT=mirror
 SLOT=0
-SRC_URI=http://downloads.lms-community.org/LyrionMusicServer_v9.1.1/lyrionmusicserver-9.1.1-noCPAN.tgz
+SRC_URI=https://github.com/LMS-Community/slimserver/archive/refs/tags/9.1.1.tar.gz -> lyrionmusicserver-9.1.1.tar.gz
 _eclasses_=systemd	a964c0cbe818b5729da1dbfcee5be861	toolchain-funcs	58a918e3a42d0156f010dcfd43725be5
-_md5_=f55c16370d0df30f503c72f87cd5ad2d
+_md5_=dd8b6d767ac07ac81e093acc5808d4c8
