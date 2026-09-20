@@ -9,5 +9,5 @@ IUSE=-examples -htmldoc
 LICENSE=GPL-3 Apache-2.0
 PROPERTIES=live
 SLOT=0
-_eclasses_=git-r3	2f8cdb10b033f92c3136aa6488a31c98
+_eclasses_=git-r3	e6c2f983e006e805160436c75a0c1562
 _md5_=6922d212fc037921b7fed69f6d4b26c7

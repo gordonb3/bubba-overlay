@@ -36,6 +36,7 @@ RDEPEND="net-misc/curl
 	openzwave? ( dev-libs/openzwave )
 	python? ( >=dev-lang/python-3.4 )
 	dev-libs/openssl
+	dev-libs/jsoncpp
 "
 
 DEPEND="${RDEPEND}"
