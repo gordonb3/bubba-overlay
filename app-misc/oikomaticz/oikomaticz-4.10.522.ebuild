@@ -7,8 +7,8 @@ EAPI="8"
 inherit cmake systemd
 
 #EGIT_REPO_URI="git://github.com/gordonb3/${PN}.git"
-COMMIT="4054ef71d"
-CTIME="2026-09-20 21:16:45 +0200"
+COMMIT="904f9238c"
+CTIME="2026-09-21 08:14:08 +0200"
 
 SRC_URI="https://github.com/gordonb3/${PN}/archive/${COMMIT}.tar.gz -> ${PN}-${PV}.tar.gz"
 RESTRICT="mirror"
