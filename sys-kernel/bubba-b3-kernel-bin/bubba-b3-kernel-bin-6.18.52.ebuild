@@ -1,6 +1,5 @@
-# Copyright (c) 2020 gordonb3 <gordon@bosvangennip.nl>
+# Copyright (c) 2026 gordonb3 <gordon@bosvangennip.nl>
 # Distributed under the terms of the GNU General Public License v2
-
 
 EAPI="8"
 
