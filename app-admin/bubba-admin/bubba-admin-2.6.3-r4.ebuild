@@ -78,7 +78,7 @@ NETWORKMANAGER_DEPEND="
 
 GUI_DEPEND="
 	app-admin/hddtemp
-	>=dev-lang/php-8.0.0[fpm,sockets,xml,gd,pdo,imap]
+	>=dev-lang/php-8.0.0[fpm,sockets,xml,gd,pdo]
 	sys-apps/bubba-info[php]
 	www-apps/codeigniter-bin:0/3
 	apache2? (
