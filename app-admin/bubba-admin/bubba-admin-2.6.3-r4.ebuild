@@ -194,7 +194,7 @@ bubba_admin_install_netfilter_support() {
 
 bubba_admin_install_GUI() {
 	SYSTEM_TIMEZONE=$(cat /etc/timezone)
-	PHP_CLI_INI_PATH=$(php -n --ini | grep -v "(none)" | awk '{print $NF}')
+	PHP_CLI_INI_PATH=$(php -n --ini | grep -v "(none)" | awk '{print $NF}' | sed -e "s/\"//g")
 	PHP_APACHE_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/apache2/")
 	PHP_FPM_INI_PATH=$(echo ${PHP_CLI_INI_PATH} | sed "s/cli/fpm/")
 
